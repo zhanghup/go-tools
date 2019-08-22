@@ -55,19 +55,19 @@ type ptr struct{}
 func Ptr() ptr {
 	return ptr{}
 }
-func (ptr) PtrOfInt(i int) *int {
+func (ptr) Int(i int) *int {
 	return &i
 }
 
-func (ptr) PtrOfString(i string) *string {
+func (ptr) String(i string) *string {
 	return &i
 }
 
-func (ptr) PtrOfInt64(i int64) *int64 {
+func (ptr) Int64(i int64) *int64 {
 	return &i
 }
 
-func (ptr) PtrOfFloat64(i float64) *float64 {
+func (ptr) Float64(i float64) *float64 {
 	return &i
 }
 
