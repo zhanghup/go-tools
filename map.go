@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type Map interface {
+type imap interface {
 	Len() int
 	Contain(k string) bool
 	Get(k string) interface{}
@@ -47,7 +47,6 @@ func (d *safeMap) Len() int {
 	defer d.RUnlock()
 	return len(d.Data)
 }
-
 func (d *safeMap) Contain(k string) bool {
 	d.RLock()
 	defer d.RUnlock()
@@ -59,7 +58,6 @@ func (d *safeMap) Contain(k string) bool {
 
 	return ok
 }
-
 func (d *safeMap) Get(k string) interface{} {
 	if d.Contain(k) {
 		d.RLock()
@@ -68,26 +66,23 @@ func (d *safeMap) Get(k string) interface{} {
 	}
 	return nil
 }
-
 func (d *safeMap) Set(k string, v interface{}) {
 	d.Lock()
 	defer d.Unlock()
 	d.Data[k] = safeobj{-1, v}
 }
-
 func (d *safeMap) Set2(k string, v interface{}, timeout int64) {
 	d.Lock()
 	defer d.Unlock()
 	d.Data[k] = safeobj{timeout, v}
 }
-
 func (d *safeMap) Remove(k string) {
 	d.Lock()
 	defer d.Unlock()
 	delete(d.Data, k)
 }
 
-func NewMap() Map {
+func NewCache() imap {
 	sfm := new(safeMap)
 	sfm.Data = map[string]safeobj{}
 	sfm.RWMutex = &sync.RWMutex{}

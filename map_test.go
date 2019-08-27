@@ -12,7 +12,7 @@ func randomString() string {
 }
 
 func TestMap(t *testing.T) {
-	mp := NewMap()
+	mp := NewCache()
 	for i := 0; i < 10; i++ {
 		go func() {
 			for {
