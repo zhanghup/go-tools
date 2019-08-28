@@ -8,22 +8,21 @@ import (
 )
 
 func randomString() string {
-	return fmt.Sprintf("%v", rand.Intn(100000000))
+	return fmt.Sprintf("%v", rand.Intn(1000))
 }
 
-func TestMap(t *testing.T) {
+// 并发性能测试
+func BenchmarkMapBatch(b *testing.B) {
+	// 测试一个对象或者函数在多线程的场景下面是否安全
 	mp := NewCache()
-	for i := 0; i < 10; i++ {
-		go func() {
-			for {
-				if rand.Int()%2 == 0 {
-					mp.Set2(fmt.Sprintf("%v", randomString()), rand.Int(), time.Now().Unix()+1)
-				} else {
-					mp.Get(fmt.Sprintf("%v", randomString()))
-				}
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			if rand.Int()%2 == 0 {
+				mp.Set2(fmt.Sprintf("%v", randomString()), rand.Int(), time.Now().Unix()+1)
+			} else {
+				mp.Get(fmt.Sprintf("%v", randomString()))
 			}
-		}()
-	}
-
-	time.Sleep(time.Minute * 2)
+		}
+	})
 }
+
