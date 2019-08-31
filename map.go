@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type imap interface {
+type IMap interface {
 	Len() int
 	Contain(k string) bool
 	Get(k string) interface{}
@@ -82,7 +82,7 @@ func (d *safeMap) Remove(k string) {
 	delete(d.Data, k)
 }
 
-func NewCache() imap {
+func NewCache() IMap {
 	sfm := new(safeMap)
 	sfm.Data = map[string]safeobj{}
 	sfm.RWMutex = &sync.RWMutex{}
