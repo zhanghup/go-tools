@@ -1,12 +1,15 @@
 package tools
 
 import (
+	"bytes"
 	"crypto/md5"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
+	"strings"
+	"text/template"
 	"time"
 )
 
@@ -71,8 +74,33 @@ func (ptr) Float64(i float64) *float64 {
 	return &i
 }
 
+type str struct{}
+
+func Str() str {
+	return str{}
+}
+func (str) Template(str string, format map[string]interface{}, funcMap template.FuncMap) (string, error) {
+	tt := template.New(bson.NewObjectId().Hex())
+	fmap := template.FuncMap{
+		"title": strings.Title,
+	}
+	if funcMap != nil {
+		for k, v := range funcMap {
+			fmap[k] = v
+		}
+	}
+	tt, err := tt.Parse(str)
+	if err != nil {
+		return "", err
+	}
+
+	buf := bytes.NewBuffer([]byte{})
+	err = tt.Execute(buf, format)
+	return buf.String(), err
+}
+
 // 以json格式输出struct对象
-func JSONString(obj interface{}) string {
+func (str) JSONString(obj interface{}) string {
 	o, err := json.Marshal(obj)
 	if err != nil {
 		return ""
@@ -80,7 +108,7 @@ func JSONString(obj interface{}) string {
 	return string(o)
 }
 
-func JSONStringPrintln(obj interface{}) string {
+func (str) JSONStringPrintln(obj interface{}) string {
 
 	r, err := json.Marshal(obj)
 	if err != nil {
@@ -92,7 +120,7 @@ func JSONStringPrintln(obj interface{}) string {
 
 }
 
-func StrContains(src []string, tag string) bool {
+func (str) StrContains(src []string, tag string) bool {
 	for _, s := range src {
 		if s == tag {
 			return true
