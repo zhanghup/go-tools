@@ -89,7 +89,7 @@ func (str) Template(str string, format map[string]interface{}, funcMap template.
 			fmap[k] = v
 		}
 	}
-	tt, err := tt.Parse(str)
+	tt, err := tt.Funcs(fmap).Parse(str)
 	if err != nil {
 		return "", err
 	}

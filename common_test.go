@@ -7,7 +7,7 @@ import (
 
 func TestTemplate(t *testing.T) {
 	str, err := Str().Template(`
-		mutation {{.User}}Create($input:New{{.User}}!){
+		mutation {{title .user}}Create($input:New{{title .user}}!){
 			{{.user}}_create(input:$input){
 				id
 				type
@@ -26,8 +26,7 @@ func TestTemplate(t *testing.T) {
 			}
 		}
 	`, map[string]interface{}{
-		"User":"User",
 		"user":"user",
-	})
+	},nil)
 	fmt.Println(str, err)
 }
