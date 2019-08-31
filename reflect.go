@@ -35,7 +35,7 @@ func rftSelfDeep(ty reflect.Type, vl reflect.Value, tg reflect.StructTag, fieldN
 			return
 		}
 
-		if !fn(ty, vl, tg, "") {
+		if !fn(ty, vl, tg, fieldName) {
 			return
 		}
 		for i := 0; i < ty.NumField(); i++ {
