@@ -74,6 +74,10 @@ func (ptr) Float64(i float64) *float64 {
 	return &i
 }
 
+func (ptr) Interface(i interface{}) *interface{} {
+	return &i
+}
+
 type str struct{}
 
 func Str() str {

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 	"testing"
 	"text/template"
 )
@@ -30,32 +29,28 @@ func TestTemplate(t *testing.T) {
 			}
 		}
 	`, map[string]interface{}{
-		"user":"user",
-	},nil)
+		"user": "user",
+	}, nil)
 	fmt.Println(str, err)
 }
 
 func TestBolck(t *testing.T) {
 	const (
-		master  = `Names:{{block "list" .}}{{"\n"}}{{range .}}{{println "-" .}}{{end}}{{end}}`
-		overlay = `{{define "list"}} {{join . ", "}}{{end}} `
+		master = `{{ table "user" }}`
 	)
 	var (
-		funcs     = template.FuncMap{"join": strings.Join}
-		guardians = []string{"Gamora", "Groot", "Nebula", "Rocket", "Star-Lord"}
+		funcs = template.FuncMap{"table": func(str string) string{
+			fmt.Println(str)
+			return "ddddddddddddddd"
+		}}
+		guardians = "xxqq_user"
 	)
 	masterTmpl, err := template.New("master").Funcs(funcs).Parse(master)
 	if err != nil {
 		log.Fatal(err)
 	}
-	overlayTmpl, err := template.Must(masterTmpl.Clone()).Parse(overlay)
-	if err != nil {
-		log.Fatal(err)
-	}
+
 	if err := masterTmpl.Execute(os.Stdout, guardians); err != nil {
-		log.Fatal(err)
-	}
-	if err := overlayTmpl.Execute(os.Stdout, guardians); err != nil {
 		log.Fatal(err)
 	}
 }
