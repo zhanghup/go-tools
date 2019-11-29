@@ -1,4 +1,4 @@
-package tools
+﻿package tools
 
 import (
 	"bytes"
@@ -52,7 +52,7 @@ func (this htp) Get(url string) (*http.Response, error) {
 	return this.Request(http.MethodGet, url, nil)
 }
 
-func (this htp) PostI(url string,param map[string]interface{},result interface{}) error{
+func (this htp) PostI(url string,param interface{},result interface{}) error{
 	ty := reflect.TypeOf(result)
 	if ty.Kind() != reflect.Ptr {
 		return errors.New("传入的result参数必须未指针值")
@@ -69,7 +69,7 @@ func (this htp) PostI(url string,param map[string]interface{},result interface{}
 	return json.Unmarshal(data, result)
 }
 
-func (this htp) Post(url string, param map[string]interface{}) (*http.Response, error) {
+func (this htp) Post(url string, param interface{}) (*http.Response, error) {
 	data, err := json.Marshal(param)
 	if err != nil {
 		return nil, err
