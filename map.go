@@ -12,6 +12,7 @@ type IMap interface {
 	Get(k string) interface{}
 	Set(k string, v interface{})
 	Set2(k string, v interface{}, timeout int64)
+	Datas() map[string]interface{}
 	Remove(k string)
 }
 
@@ -80,6 +81,18 @@ func (d *safeMap) Remove(k string) {
 	d.Lock()
 	defer d.Unlock()
 	delete(d.Data, k)
+}
+func (d *safeMap) Datas() map[string]interface{} {
+	result := map[string]interface{}{}
+	d.RLock()
+	defer d.RUnlock()
+	for k, obj := range d.Data {
+		if obj.timeout != -1 && time.Now().Unix() > obj.timeout {
+			continue
+		}
+		result[k] = obj.obj
+	}
+	return result
 }
 
 func NewCache() IMap {
