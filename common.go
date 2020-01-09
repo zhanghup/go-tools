@@ -5,7 +5,6 @@ import (
 	"crypto/md5"
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"os"
@@ -18,73 +17,73 @@ func ObjectString() *string {
 	str := bson.NewObjectId().Hex()
 	return &str
 }
-func Password(password, slat string) string {
+
+// 以json格式输出struct对象
+func JSONString(obj interface{}) string {
+	o, err := json.Marshal(obj)
+	if err != nil {
+		return ""
+	}
+	return string(o)
+}
+
+func Println(obj interface{}) {
+
+	r, err := json.Marshal(obj)
+	if err != nil {
+		panic(err)
+
+	}
+	fmt.Println(string(r))
+	os.Stdout.Write(r)
+}
+
+func EncryptPassword(password, slat string) string {
 	sh := sha256.New()
 	sh.Write([]byte(password))
 	bts := sh.Sum([]byte(slat))
 	return fmt.Sprintf("%x", bts)
 }
-func MD5(data []byte) string {
+func EncryptMD5(data []byte) string {
 	h := md5.New()
 	h.Write(data)
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-type date struct {
-	time time.Time
+func TimeToHMS() string {
+	return time.Now().Format("15:04:05")
+}
+func TimeToYMD() string {
+	return time.Now().Format("2006-01-02")
+}
+func TimeToYM() string {
+	return time.Now().Format("2006-01")
+}
+func TimeToYear() string {
+	return time.Now().Format("2006")
 }
 
-func Date() date {
-	return date{time: time.Now()}
-}
-func Date2(t time.Time) date {
-	return date{time: t}
-}
-
-func (this date) HMS() string {
-	return this.time.Format("15:04:05")
-}
-func (this date) YMD() string {
-	return this.time.Format("2006-01-02")
-}
-func (this date) YM() string {
-	return this.time.Format("2006-01")
-}
-func (this date) Y() string {
-	return this.time.Format("2006")
-}
-
-type ptr struct{}
-
-func Ptr() ptr {
-	return ptr{}
-}
-func (ptr) Int(i int) *int {
+func PtrInt(i int) *int {
 	return &i
 }
 
-func (ptr) String(i string) *string {
+func PtrString(i string) *string {
 	return &i
 }
 
-func (ptr) Int64(i int64) *int64 {
+func PtrInt64(i int64) *int64 {
 	return &i
 }
 
-func (ptr) Float64(i float64) *float64 {
+func PtrFloat64(i float64) *float64 {
 	return &i
 }
 
-func (ptr) Interface(i interface{}) *interface{} {
+func PtrInterface(i interface{}) *interface{} {
 	return &i
 }
 
-type str struct{}
-
-func Str() str {
-	return str{}
-}
-func (str) Template(str string, format map[string]interface{}, funcMap template.FuncMap) (string, error) {
+func StrTemplate(str string, format map[string]interface{}, funcMap template.FuncMap) (string, error) {
 	tt := template.New(bson.NewObjectId().Hex())
 	fmap := template.FuncMap{
 		"title": strings.Title,
@@ -104,27 +103,7 @@ func (str) Template(str string, format map[string]interface{}, funcMap template.
 	return buf.String(), err
 }
 
-// 以json格式输出struct对象
-func (str) JSONString(obj interface{}) string {
-	o, err := json.Marshal(obj)
-	if err != nil {
-		return ""
-	}
-	return string(o)
-}
-
-func (str) Println(obj interface{}) {
-
-	r, err := json.Marshal(obj)
-	if err != nil {
-		panic(err)
-
-	}
-	fmt.Println(string(r))
-	os.Stdout.Write(r)
-}
-
-func (str) StrContains(src []string, tag string) bool {
+func StrContains(src []string, tag string) bool {
 	for _, s := range src {
 		if s == tag {
 			return true

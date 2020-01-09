@@ -9,7 +9,7 @@ import (
 )
 
 func TestTemplate(t *testing.T) {
-	str, err := Str().Template(`
+	str, err := StrTemplate(`
 		mutation {{title .user}}Create($input:New{{title .user}}!){
 			{{.user}}_create(input:$input){
 				id

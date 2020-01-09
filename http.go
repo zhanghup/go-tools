@@ -24,7 +24,7 @@ func (this htp) Header(header map[string]string) htp {
 
 // 支持 text/template 字符串格式化
 func (this htp) GetF(url string, param map[string]interface{}) (*http.Response, error) {
-	str, err := Str().Template(url, param, nil)
+	str, err := StrTemplate(url, param, nil)
 	if err != nil {
 		return nil, err
 	}
