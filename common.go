@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
+	"os"
 	"strings"
 	"text/template"
 	"time"
@@ -112,7 +113,7 @@ func (str) JSONString(obj interface{}) string {
 	return string(o)
 }
 
-func (str) JSONStringPrintln(obj interface{}) string {
+func (str) Println(obj interface{}) {
 
 	r, err := json.Marshal(obj)
 	if err != nil {
@@ -120,8 +121,7 @@ func (str) JSONStringPrintln(obj interface{}) string {
 
 	}
 	fmt.Println(string(r))
-	return string(r)
-
+	os.Stdout.Write(r)
 }
 
 func (str) StrContains(src []string, tag string) bool {
