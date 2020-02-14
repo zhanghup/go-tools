@@ -1,14 +1,14 @@
-package tools
+package pinyin
 
 import (
-	"github.com/zhanghup/go-tools/pinyin"
+	"github.com/zhanghup/go-tools/pinyin/lib"
 	"strings"
 )
 
 func Pinyin(str string) string {
-	args := pinyin.NewArgs()
+	args := lib.NewArgs()
 	args.Separator = ""
-	s := pinyin.Pinyin(str, args)
+	s := lib.Pinyin(str, args)
 	result := ""
 	for _, o := range s {
 		for _, oo := range o {
@@ -23,9 +23,9 @@ func PINYIN(str string) string {
 }
 
 func Py(str string) string {
-	args := pinyin.NewArgs()
+	args := lib.NewArgs()
 	args.Separator = ""
-	s := pinyin.Pinyin(str, args)
+	s := lib.Pinyin(str, args)
 	result := ""
 	for _, o := range s {
 		for _, oo := range o {

@@ -1,4 +1,4 @@
-package pinyin
+package lib
 
 // PinyinDict is data map
 // Warning: Auto-generated file, don't edit.
