@@ -10,7 +10,7 @@ import (
 
 func S(format string, args ...interface{}) string {
 	params := make([]interface{}, 0)
-	for p := range args {
+	for _,p := range args {
 		params = append(params, rft.RealValue(p))
 	}
 	return fmt.Sprintf(format, params...)
