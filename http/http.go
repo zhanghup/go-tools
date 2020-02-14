@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/zhanghup/go-tools/str"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -24,11 +25,11 @@ func (this htp) Header(header map[string]string) htp {
 
 // 支持 text/template 字符串格式化
 func (this htp) GetF(url string, param map[string]interface{}) (*http.Response, error) {
-	str, err := StrTemplate(url, param, nil)
+	s, err := str.Template(url, param, nil)
 	if err != nil {
 		return nil, err
 	}
-	return this.Get(str)
+	return this.Get(s)
 }
 
 func (this htp) GetI(url string, param map[string]interface{}, result interface{}) error {
@@ -52,7 +53,7 @@ func (this htp) Get(url string) (*http.Response, error) {
 	return this.Request(http.MethodGet, url, nil)
 }
 
-func (this htp) PostI(url string,param interface{},result interface{}) error{
+func (this htp) PostI(url string, param interface{}, result interface{}) error {
 	ty := reflect.TypeOf(result)
 	if ty.Kind() != reflect.Ptr {
 		return errors.New("传入的result参数必须未指针值")
