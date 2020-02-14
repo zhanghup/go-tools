@@ -1,0 +1,6 @@
+mysql:
+  host: 192.168.1.300
+redis:
+  database: 10
+mongo:
+  host: 192.168.1.300
