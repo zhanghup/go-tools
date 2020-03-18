@@ -1,9 +1,9 @@
-package config_test
+package test_config
 
 import (
+	"fmt"
 	rice "github.com/giter/go.rice"
-	"github.com/zhanghup/go-tools/config"
-	"github.com/zhanghup/go-tools/str"
+	"github.com/zhanghup/go-tools"
 	"testing"
 )
 
@@ -29,6 +29,9 @@ func TestConfig(t *testing.T) {
 		panic(err)
 	}
 	cfg := conf{}
-	config.Init(box).Unmarshal(&cfg)
-	str.Println(cfg,true)
+	err = tools.Conf(box, &cfg)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(tools.S.JSONString(cfg, true))
 }

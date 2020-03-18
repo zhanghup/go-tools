@@ -1,17 +1,35 @@
-package str
+package tools
 
 import (
 	"crypto/md5"
 	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
+	"github.com/zhanghup/go-tools/rft"
 	"math/rand"
 	"os"
 	"sync/atomic"
 	"time"
 )
 
-func Uid() string {
+/*
+	快速操作字符串
+*/
+type myString struct{}
+
+var S = myString{}
+
+func (this myString) Str(format string, args ...interface{}) string {
+	params := make([]interface{}, 0)
+	for _, p := range args {
+		params = append(params, rft.RealValue(p))
+	}
+	return fmt.Sprintf(format, params...)
+}
+
+// bson 的 UUID
+func (this myString) Uid() string {
 	machineId := func() []byte {
 		var sum [3]byte
 		id := sum[:]
@@ -50,11 +68,11 @@ func Uid() string {
 }
 
 // 以json格式输出struct对象
-func JSONString(obj interface{}, format ...bool) string {
+func (this myString) JSONString(obj interface{}, format ...bool) string {
 	var datas []byte
 	if len(format) > 0 && format[0] {
 
-		r, err := json.MarshalIndent(obj, "\t", "\t")
+		r, err := json.MarshalIndent(obj, "", "\t")
 		if err != nil {
 			datas = []byte("数据格式化异常")
 		} else {
@@ -71,12 +89,8 @@ func JSONString(obj interface{}, format ...bool) string {
 	return string(datas)
 }
 
-func Println(obj interface{}, format ...bool) {
-
-	_, _ = os.Stdout.Write([]byte(JSONString(obj, format...)))
-}
-
-func Contains(src []string, tag string) bool {
+// 判断字符串是否包含在数组中
+func (this myString) Contains(src []string, tag string) bool {
 	for _, s := range src {
 		if s == tag {
 			return true
@@ -85,11 +99,25 @@ func Contains(src []string, tag string) bool {
 	return false
 }
 
-func Rand(l int) string {
+// 取固定长度的随机字符串
+// flag 自否可包含特殊字符
+func (this myString) RandString(l int,flag ... bool) string {
 	r := rand.New(rand.NewSource(time.Now().Unix()))
 	res := make([]byte, l)
 	for i := 0; i < l; i++ {
-		b := r.Intn(26) + 65
+		b := 0
+		if len(flag) == 0 || !flag[0]{
+			switch r.Int() % 3 {
+			case 0:
+				b = r.Intn(10) + 48
+			case 1:
+				b = r.Intn(26) + 65
+			case 2:
+				b = r.Intn(26) + 97
+			}
+		}else{
+			b = r.Intn(90) + 33
+		}
 		res[i] = byte(b)
 	}
 	return string(res)

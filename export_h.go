@@ -1,38 +1,37 @@
-﻿package htp
+package tools
+
+/*
+	http快速请求帮助方法
+*/
 
 import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/zhanghup/go-tools/str"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"reflect"
 )
 
-type htp struct {
+type myhttp struct {
 	header map[string]string
 }
 
-func Http() htp {
-	return htp{}
+func H() myhttp {
+	return myhttp{}
 }
-func (this htp) Header(header map[string]string) htp {
+func (this myhttp) Header(header map[string]string) myhttp {
 	this.header = header
 	return this
 }
 
 // 支持 text/template 字符串格式化
-func (this htp) GetF(url string, param map[string]interface{}) (*http.Response, error) {
-	s, err := str.Template(url, param, nil)
-	if err != nil {
-		return nil, err
-	}
-	return this.Get(s)
+func (this myhttp) GetF(url string, param map[string]interface{}) (*http.Response, error) {
+	return this.Get(S.T(url, param).String())
 }
 
-func (this htp) GetI(url string, param map[string]interface{}, result interface{}) error {
+func (this myhttp) GetI(url string, param map[string]interface{}, result interface{}) error {
 	ty := reflect.TypeOf(result)
 	if ty.Kind() != reflect.Ptr {
 		return errors.New("传入的result参数必须未指针值")
@@ -49,11 +48,11 @@ func (this htp) GetI(url string, param map[string]interface{}, result interface{
 	return json.Unmarshal(data, result)
 }
 
-func (this htp) Get(url string) (*http.Response, error) {
+func (this myhttp) Get(url string) (*http.Response, error) {
 	return this.Request(http.MethodGet, url, nil)
 }
 
-func (this htp) PostI(url string, param interface{}, result interface{}) error {
+func (this myhttp) PostI(url string, param interface{}, result interface{}) error {
 	ty := reflect.TypeOf(result)
 	if ty.Kind() != reflect.Ptr {
 		return errors.New("传入的result参数必须未指针值")
@@ -70,7 +69,7 @@ func (this htp) PostI(url string, param interface{}, result interface{}) error {
 	return json.Unmarshal(data, result)
 }
 
-func (this htp) Post(url string, param interface{}) (*http.Response, error) {
+func (this myhttp) Post(url string, param interface{}) (*http.Response, error) {
 	data, err := json.Marshal(param)
 	if err != nil {
 		return nil, err
@@ -78,7 +77,7 @@ func (this htp) Post(url string, param interface{}) (*http.Response, error) {
 	return this.Request(http.MethodPost, url, bytes.NewBuffer(data))
 }
 
-func (this htp) Request(method, url string, body io.Reader) (*http.Response, error) {
+func (this myhttp) Request(method, url string, body io.Reader) (*http.Response, error) {
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil, nil
