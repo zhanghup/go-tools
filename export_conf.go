@@ -13,7 +13,7 @@ import (
 )
 
 func Conf(box *rice.Box, data interface{}) error {
-	err := PtrCheck(data)
+	err := Ptr.Check(data)
 	if err != nil {
 		return err
 	}

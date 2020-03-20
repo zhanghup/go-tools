@@ -28,7 +28,7 @@ func (this myhttp) Header(header map[string]string) myhttp {
 
 // 支持 text/template 字符串格式化
 func (this myhttp) GetF(url string, param map[string]interface{}) (*http.Response, error) {
-	return this.Get(S.T(url, param).String())
+	return this.Get(S.Tmp(url, param).String())
 }
 
 func (this myhttp) GetI(url string, param map[string]interface{}, result interface{}) error {

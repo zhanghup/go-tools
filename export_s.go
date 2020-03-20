@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/zhanghup/go-tools/rft"
 	"math/rand"
 	"os"
 	"sync/atomic"
@@ -23,7 +22,7 @@ var S = myString{}
 func (this myString) Str(format string, args ...interface{}) string {
 	params := make([]interface{}, 0)
 	for _, p := range args {
-		params = append(params, rft.RealValue(p))
+		params = append(params, Rft.RealValue(p))
 	}
 	return fmt.Sprintf(format, params...)
 }
@@ -101,12 +100,12 @@ func (this myString) Contains(src []string, tag string) bool {
 
 // 取固定长度的随机字符串
 // flag 自否可包含特殊字符
-func (this myString) RandString(l int,flag ... bool) string {
+func (this myString) RandString(l int, flag ...bool) string {
 	r := rand.New(rand.NewSource(time.Now().Unix()))
 	res := make([]byte, l)
 	for i := 0; i < l; i++ {
 		b := 0
-		if len(flag) == 0 || !flag[0]{
+		if len(flag) == 0 || !flag[0] {
 			switch r.Int() % 3 {
 			case 0:
 				b = r.Intn(10) + 48
@@ -115,7 +114,7 @@ func (this myString) RandString(l int,flag ... bool) string {
 			case 2:
 				b = r.Intn(26) + 97
 			}
-		}else{
+		} else {
 			b = r.Intn(90) + 33
 		}
 		res[i] = byte(b)

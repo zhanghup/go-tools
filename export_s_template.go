@@ -14,7 +14,7 @@ type myStringTemplate struct {
 	param interface{}
 }
 
-func (this myString) T(str string, param ...interface{}) myStringTemplate {
+func (this myString) Tmp(str string, param ...interface{}) myStringTemplate {
 	tt := template.New(this.Uid())
 	fmap := template.FuncMap{
 		"title": strings.Title,
