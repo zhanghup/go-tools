@@ -28,109 +28,94 @@ func (mycrypto) MD5(data []byte) string {
 }
 
 type mydes struct {
-	data      []byte
-	key       []byte
-	block     cipher.Block
-	padding   []byte
-	unpadding []byte
+	src     []byte
+	key     []byte
+	block   cipher.Block
+	padding []byte
 }
-//CBC加密
-func EncryptDES_CBC(src, key string) string {
+
+func (mycrypto) DES(src, key string) *mydes {
 	data := []byte(src)
 	keyByte := []byte(key)
 	block, err := des.NewCipher(keyByte)
 	if err != nil {
 		panic(err)
 	}
-	data = PKCS5Padding(data, block.BlockSize())
+	dd := &mydes{
+		block: block,
+		src:   data,
+		key:   keyByte,
+	}
+	return dd.pKCS5Padding()
+}
+
+func (this *mydes) CBCEncrypt() string {
 	//获取CBC加密模式
-	iv := keyByte //用密钥作为向量(不建议这样使用)
-	mode := cipher.NewCBCEncrypter(block, iv)
-	out := make([]byte, len(data))
-	mode.CryptBlocks(out, data)
+	iv := this.key //用密钥作为向量(不建议这样使用)
+	mode := cipher.NewCBCEncrypter(this.block, iv)
+	out := make([]byte, len(this.padding))
+	mode.CryptBlocks(out, this.padding)
 	return fmt.Sprintf("%X", out)
 }
 
-//CBC解密
-func DecryptDES_CBC(src, key string) string {
-	keyByte := []byte(key)
-	data, err := hex.DecodeString(src)
+func (this *mydes) CBCDecrypt() string {
+	dist, err := hex.DecodeString(string(this.src))
 	if err != nil {
 		panic(err)
 	}
-	block, err := des.NewCipher(keyByte)
-	if err != nil {
-		panic(err)
-	}
-	iv := keyByte //用密钥作为向量(不建议这样使用)
-	mode := cipher.NewCBCDecrypter(block, iv)
-	plaintext := make([]byte, len(data))
-	mode.CryptBlocks(plaintext, data)
-	plaintext = PKCS5UnPadding(plaintext)
+
+	mode := cipher.NewCBCDecrypter(this.block, this.key)
+	plaintext := make([]byte, len(dist))
+	mode.CryptBlocks(plaintext, dist)
+	plaintext = this.pKCS5UnPadding(plaintext)
 	return string(plaintext)
 }
 
-//ECB加密
-func EncryptDES_ECB(src, key string) string {
-	data := []byte(src)
-	keyByte := []byte(key)
-	block, err := des.NewCipher(keyByte)
-	if err != nil {
-		panic(err)
-	}
-	bs := block.BlockSize()
-	//对明文数据进行补码
-	data = PKCS5Padding(data, bs)
-	if len(data)%bs != 0 {
-		panic("Need a multiple of the blocksize")
-	}
-	out := make([]byte, len(data))
+func (this *mydes) ECBEncrypt() string {
+	out := make([]byte, len(this.padding))
 	dst := out
-	for len(data) > 0 {
+	bs := this.block.BlockSize()
+	for len(this.padding) > 0 {
 		//对明文按照blocksize进行分块加密
 		//必要时可以使用go关键字进行并行加密
-		block.Encrypt(dst, data[:bs])
-		data = data[bs:]
+		this.block.Encrypt(dst, this.padding[:bs])
+		this.padding = this.padding[bs:]
 		dst = dst[bs:]
 	}
 	return fmt.Sprintf("%X", out)
 }
 
-//ECB解密
-func DecryptDES_ECB(src, key string) string {
-	data, err := hex.DecodeString(src)
+func (this *mydes) ECBDecrypt() string {
+	data, err := hex.DecodeString(string(this.src))
 	if err != nil {
 		panic(err)
 	}
-	keyByte := []byte(key)
-	block, err := des.NewCipher(keyByte)
-	if err != nil {
-		panic(err)
-	}
-	bs := block.BlockSize()
+
+	bs := this.block.BlockSize()
 	if len(data)%bs != 0 {
 		panic("crypto/cipher: input not full blocks")
 	}
 	out := make([]byte, len(data))
 	dst := out
 	for len(data) > 0 {
-		block.Decrypt(dst, data[:bs])
+		this.block.Decrypt(dst, data[:bs])
 		data = data[bs:]
 		dst = dst[bs:]
 	}
-	out = PKCS5UnPadding(out)
+	out = this.pKCS5UnPadding(out)
 	return string(out)
 }
 
 //明文补码算法
-func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
-	padding := blockSize - len(ciphertext)%blockSize
+func (this *mydes) pKCS5Padding() *mydes {
+	padding := this.block.BlockSize() - len(this.src)%this.block.BlockSize()
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(ciphertext, padtext...)
+	this.padding = append(this.src, padtext...)
+	return this
 }
 
 //明文减码算法
-func PKCS5UnPadding(origData []byte) []byte {
+func (this *mydes) pKCS5UnPadding(origData []byte) []byte {
 	length := len(origData)
 	unpadding := int(origData[length-1])
 	return origData[:(length - unpadding)]
