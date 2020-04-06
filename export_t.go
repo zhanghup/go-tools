@@ -4,7 +4,7 @@ import "time"
 
 type mytime struct{}
 
-var T = mytime{}
+var Ti = mytime{}
 
 func (this mytime) format(t []time.Time, fmt string) string {
 	var tt time.Time
