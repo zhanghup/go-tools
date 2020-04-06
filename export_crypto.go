@@ -61,7 +61,7 @@ func (this *mydes) CBCEncrypt() string {
 func (this *mydes) CBCDecrypt() string {
 	dist, err := hex.DecodeString(string(this.src))
 	if err != nil {
-		panic(err)
+		return ""
 	}
 
 	mode := cipher.NewCBCDecrypter(this.block, this.key)
@@ -88,12 +88,12 @@ func (this *mydes) ECBEncrypt() string {
 func (this *mydes) ECBDecrypt() string {
 	data, err := hex.DecodeString(string(this.src))
 	if err != nil {
-		panic(err)
+		return ""
 	}
 
 	bs := this.block.BlockSize()
 	if len(data)%bs != 0 {
-		panic("crypto/cipher: input not full blocks")
+		return ""
 	}
 	out := make([]byte, len(data))
 	dst := out
