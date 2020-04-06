@@ -17,9 +17,9 @@ import (
 */
 type myString struct{}
 
-var S = myString{}
+var Str = myString{}
 
-func (this myString) Str(format string, args ...interface{}) string {
+func (this myString) Fmt(format string, args ...interface{}) string {
 	params := make([]interface{}, 0)
 	for _, p := range args {
 		params = append(params, Rft.RealValue(p))

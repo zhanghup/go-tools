@@ -19,7 +19,7 @@ func Conf(box *rice.Box, data interface{}) error {
 	}
 
 	exception := func(s string, err error) error {
-		return errors.New(S.Str(`config.yml - %s - err: %s`, s, err.Error()))
+		return errors.New(Str.Fmt(`config.yml - %s - err: %s`, s, err.Error()))
 	}
 
 	f, err := box.Open("config.yml")

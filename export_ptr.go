@@ -21,7 +21,7 @@ func (myptr) Check(i interface{}) error {
 }
 
 func (this myptr) Uid() *string {
-	return this.String(S.Uid())
+	return this.String(Str.Uid())
 }
 func (myptr) String(i string) *string {
 	return &i

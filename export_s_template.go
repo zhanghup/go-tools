@@ -45,7 +45,7 @@ func (this myStringTemplate) String() string {
 	data := bytes.NewBuffer(nil)
 	err := this.tpl.Execute(data, this.param)
 	if err != nil {
-		return S.Str("模板格式化异常,error:%s", err.Error())
+		return Str.Fmt("模板格式化异常,error:%s", err.Error())
 	}
 	return data.String()
 
