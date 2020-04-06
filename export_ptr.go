@@ -19,6 +19,10 @@ func (myptr) Check(i interface{}) error {
 	}
 	return errors.New("数据类型异常，必须为指针类型")
 }
+
+func (this myptr) Uid() *string {
+	return this.String(S.Uid())
+}
 func (myptr) String(i string) *string {
 	return &i
 }
