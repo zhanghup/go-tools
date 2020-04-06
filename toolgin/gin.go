@@ -6,8 +6,17 @@ type Config struct {
 	Port string `yarn:"port"`
 }
 
-func NewGin(cfg Config) *gin.Engine {
-	return gin.Default()
+func NewGin(cfg Config, fn func(g *gin.Engine) error) error {
+	e := gin.Default()
+	err := fn(e)
+	if err != nil {
+		return err
+	}
+	err = e.Run(":" + cfg.Port)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func Do(c *gin.Context, fn func(c *gin.Context) (interface{}, string)) {
