@@ -10,12 +10,15 @@ type Config struct {
 	Uri    string `yaml:"uri"`
 }
 
-func NewEngine(cfg Config) (*Engine, error) {
+func NewXorm(cfg Config) (*xorm.Engine, error) {
 	engine, err := xorm.NewEngine(cfg.Driver, cfg.Uri)
 	if err != nil {
 		return nil, err
 	}
 
-	e := &Engine{DB: engine}
-	return e, err
+	return engine, err
+}
+
+func NewEngine(db *xorm.Engine) *Engine {
+	return &Engine{DB: db}
 }
