@@ -8,12 +8,16 @@ import (
 type Config struct {
 	Driver string `yaml:"driver"`
 	Uri    string `yaml:"uri"`
+	Debug  bool   `yaml:"debug"`
 }
 
 func NewXorm(cfg Config) (*xorm.Engine, error) {
 	engine, err := xorm.NewEngine(cfg.Driver, cfg.Uri)
 	if err != nil {
 		return nil, err
+	}
+	if cfg.Debug {
+		engine.ShowSQL(true)
 	}
 
 	return engine, err

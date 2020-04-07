@@ -1,6 +1,6 @@
 package toolxorm
 
-func (this *Session) TS(fn func(sess *Session) error) {
+func (this *Session) TS(fn func(sess *Session) error) error {
 	err := this.Sess.Begin()
 	if err != nil {
 		panic(err)
@@ -11,12 +11,28 @@ func (this *Session) TS(fn func(sess *Session) error) {
 		if err2 != nil {
 			panic(err2)
 		}
+		return err
 	}
-	err2 := this.Sess.Commit()
-	if err2 != nil {
-		panic(err2)
+
+	if this.context == nil {
+		err2 := this.Sess.Commit()
+		if err2 != nil {
+			panic(err2)
+		}
+		if this.autoClose {
+			this.Sess.Close()
+		}
+	} else {
+		go func() {
+			<-this.context.Done()
+			err2 := this.Sess.Commit()
+			if err2 != nil {
+				panic(err2)
+			}
+			this.Sess.Close()
+		}()
 	}
-	if this.autoClose {
-		this.Sess.Close()
-	}
+
+	return nil
+
 }
