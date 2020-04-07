@@ -13,14 +13,25 @@ type Engine struct {
 	DB *xorm.Engine
 }
 type Session struct {
-	DB    *xorm.Engine
-	sql   string
-	query map[string]interface{}
-	args  []interface{}
+	sess      *xorm.Session
+	sql       string
+	query     map[string]interface{}
+	args      []interface{}
+	autoClose bool
+}
+
+func (this *Engine) NewSession() *Session {
+	return &Session{sess: this.DB.NewSession(), autoClose: false}
+}
+
+func (this *Engine) TS(fn func(sess *Session) error) {
+	sess := &Session{sess: this.DB.NewSession(), autoClose: true}
+	sess.TS(fn)
 }
 
 func (this *Engine) SF(sql string, querys ...map[string]interface{}) *Session {
-	return (&Session{DB: this.DB}).SF(sql, querys...)
+	sess := this.DB.NewSession()
+	return (&Session{sess: sess, autoClose: true}).SF(sql, querys...)
 }
 
 func (this *Session) SF(sql string, querys ...map[string]interface{}) *Session {
@@ -68,5 +79,33 @@ func (this *Session) sf_args_item(key string, value reflect.Value) *Session {
 }
 
 func (this *Session) Find(bean interface{}) error {
-	return this.DB.SQL(this.sql, this.args...).Find(bean)
+	err := this.sess.SQL(this.sql, this.args...).Find(bean)
+	if this.autoClose {
+		this.sess.Close()
+	}
+	return err
+}
+func (this *Session) Exec() error {
+	_, err := this.sess.SQL(this.sql, this.args...).Exec()
+	if this.autoClose {
+		this.sess.Close()
+	}
+	return err
+}
+
+func (this *Session) TS(fn func(sess *Session) error) {
+	err := fn(this)
+	if err != nil {
+		err2 := this.sess.Rollback()
+		if err2 != nil {
+			panic(err2)
+		}
+	}
+	err2 := this.sess.Commit()
+	if err2 != nil {
+		panic(err2)
+	}
+	if this.autoClose {
+		this.sess.Close()
+	}
 }
