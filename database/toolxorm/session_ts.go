@@ -1,8 +1,11 @@
 package toolxorm
 
-
 func (this *Session) TS(fn func(sess *Session) error) {
-	err := fn(this)
+	err := this.Sess.Begin()
+	if err != nil {
+		panic(err)
+	}
+	err = fn(this)
 	if err != nil {
 		err2 := this.Sess.Rollback()
 		if err2 != nil {
@@ -17,4 +20,3 @@ func (this *Session) TS(fn func(sess *Session) error) {
 		this.Sess.Close()
 	}
 }
-
