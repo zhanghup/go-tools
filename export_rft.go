@@ -52,7 +52,6 @@ func (this myrft) deepSet(ty reflect.Type, vl reflect.Value, tf reflect.StructFi
 			tf := ty.Field(i)
 			v := vl.Field(i)
 			t := tf.Type
-			fmt.Println(v.CanSet())
 			this.deepSet(t, v, tf, fn)
 		}
 	default:
