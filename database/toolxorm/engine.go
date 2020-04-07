@@ -14,7 +14,7 @@ func (this *Engine) NewSession() *Session {
 }
 
 func (this *Engine) TS(fn func(sess *Session) error) {
-	sess := &Session{Sess: this.DB.NewSession(), autoClose: true}
+	sess := &Session{Sess: this.DB.NewSession(), autoClose: false}
 	sess.TS(fn)
 }
 
