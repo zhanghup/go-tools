@@ -10,7 +10,7 @@ import (
 
 func (this *Session) SF(sql string, querys ...map[string]interface{}) *Session {
 	query := map[string]interface{}{}
-	if len(querys) > 0 {
+	if len(querys) > 0 && querys[0] != nil {
 		query = querys[0]
 	}
 	this.query = query
@@ -60,7 +60,9 @@ func (this *Session) Find(bean interface{}) error {
 	return err
 }
 func (this *Session) Exec() error {
-	_, err := this.Sess.SQL(this.sql, this.args...).Exec()
+	sqls := []interface{}{this.sql}
+
+	_, err := this.Sess.Exec(append(sqls, this.args...)...)
 	if this.autoClose {
 		this.Sess.Close()
 	}

@@ -32,3 +32,20 @@ func TestSF(t *testing.T) {
 	}
 	fmt.Println(tools.Str.JSONString(datas, true))
 }
+
+func TestSession_Exec(t *testing.T) {
+	e, err := NewXorm(Config{
+		Driver: "mysql",
+		Uri:    "root:123@/test?charset=utf8",
+	})
+	if err != nil {
+		panic(err)
+	}
+	e.ShowSQL(true)
+	db := NewEngine(e)
+
+	err = db.SF("update user_token set status = 0 ").Exec()
+	if err != nil {
+		panic(err)
+	}
+}
