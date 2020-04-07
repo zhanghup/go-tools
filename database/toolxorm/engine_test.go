@@ -11,6 +11,23 @@ import (
 
 var db *toolxorm.Engine
 
+type Bean struct {
+	Id      *string `json:"id" xorm:"Varchar(32) pk"`
+	Created *int64  `json:"created" xorm:"created Int(14)"`
+	Updated *int64  `json:"updated" xorm:"updated  Int(14)"`
+	Weight  *int    `json:"weight" xorm:"weight  Int(9)"`
+	Status  *int    `json:"status" xorm:"status  Int(1)"`
+}
+
+// 数据字典
+type Dict struct {
+	Bean `xorm:"extends"`
+
+	Code   *string `json:"code" xorm:"unique"`
+	Name   *string `json:"name"`
+	Remark *string `json:"remark"`
+}
+
 func TestSF(t *testing.T) {
 
 	datas := make([]struct {
@@ -75,6 +92,16 @@ func TestSession_TS(t *testing.T) {
 	fn()
 
 	time.Sleep(time.Second)
+}
+
+func TestPage(t *testing.T) {
+	dict := make([]Dict, 0)
+	n, err := db.SF("select * from dict").Page1(2, 2, true, &dict)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(n)
+	fmt.Println(tools.Str.JSONString(dict, true))
 }
 
 func init() {

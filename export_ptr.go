@@ -50,3 +50,7 @@ func (myptr) Float64(i float64) *float64 {
 func (myptr) Interface(i interface{}) *interface{} {
 	return &i
 }
+func (myptr) Bool(i bool) *bool {
+	return &i
+}
+

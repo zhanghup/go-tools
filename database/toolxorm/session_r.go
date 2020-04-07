@@ -59,6 +59,34 @@ func (this *Session) Find(bean interface{}) error {
 	}
 	return err
 }
+
+func (this *Session) Page(index, size int, count bool, bean interface{}) (int, error) {
+	err := this.Sess.SQL(fmt.Sprintf("%s limit ?,?", this.sql), append(this.args, (index-1)*size, size)...).Find(bean)
+	if err != nil {
+		return 0, err
+	}
+
+	if count {
+		total := 0
+		_, err := this.Sess.SQL(fmt.Sprintf("select count(1) from (%s) _", this.sql), this.args...).Get(&total)
+		return total, err
+	}
+	return 0, nil
+}
+
+func (this *Session) Page2(index, size *int, count *bool, bean interface{}) (int, error) {
+	if index == nil {
+		index = tools.Ptr.Int(1)
+	}
+	if size == nil {
+		size = tools.Ptr.Int(1)
+	}
+	if count == nil {
+		count = tools.Ptr.Bool(false)
+	}
+	return this.Page(*index, *size, *count, bean)
+}
+
 func (this *Session) Exec() error {
 	sqls := []interface{}{this.sql}
 
