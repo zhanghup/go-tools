@@ -25,6 +25,9 @@ func (this *Session) sf_args() *Session {
 	for _, s := range ss {
 		key := s[1:]
 		value := this.query[key]
+		if value == nil {
+			continue
+		}
 		this.sf_args_item(s, reflect.ValueOf(value))
 	}
 	return this
