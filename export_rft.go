@@ -32,32 +32,35 @@ func (this myrft) DeepSet(o interface{}, fn func(t reflect.Type, v reflect.Value
 	this.deepSet(ty, vl, reflect.StructField{}, fn)
 }
 
-func (this myrft) deepSet(ty reflect.Type, vl reflect.Value, tf reflect.StructField, fn func(t reflect.Type, v reflect.Value, tf reflect.StructField) bool) {
+func (this myrft) deepSet(ty reflect.Type, vl reflect.Value, tf reflect.StructField, fn func(t reflect.Type, v reflect.Value, tf reflect.StructField) bool) bool {
 	switch ty.Kind() {
 	case reflect.Ptr:
 		if !vl.CanSet() {
-			return
+			return false
 		}
 		if vl.Pointer() == 0 {
 			if !fn(ty, vl, tf) {
-				return
+				return false
 			}
 		}
 		ty = ty.Elem()
 		vl = vl.Elem()
-		this.deepSet(ty, vl, tf, fn)
+		return this.deepSet(ty, vl, tf, fn)
 	case reflect.Struct:
 		for i := 0; i < vl.NumField(); i++ {
 			tf := ty.Field(i)
 			v := vl.Field(i)
 			t := tf.Type
-			this.deepSet(t, v, tf, fn)
+			if !this.deepSet(t, v, tf, fn) {
+				return false
+			}
 		}
 	default:
 		if !vl.CanSet() {
-			return
+			return false
 		}
-		fn(ty, vl, tf)
+		return fn(ty, vl, tf)
 	}
+	return false
 
 }
