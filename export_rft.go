@@ -90,13 +90,13 @@ func (this myrft) deepGet(ty reflect.Type, vl reflect.Value, tf reflect.StructFi
 		}
 		ty = ty.Elem()
 		vl = vl.Elem()
-		return this.deepSet(ty, vl, tf, fn)
+		return this.deepGet(ty, vl, tf, fn)
 	case reflect.Struct:
 		for i := 0; i < vl.NumField(); i++ {
 			tf := ty.Field(i)
 			v := vl.Field(i)
 			t := tf.Type
-			if !this.deepSet(t, v, tf, fn) {
+			if !this.deepGet(t, v, tf, fn) {
 				return false
 			}
 		}
