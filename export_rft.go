@@ -86,11 +86,7 @@ func (this myrft) deepGet(ty reflect.Type, vl reflect.Value, tf reflect.StructFi
 	switch ty.Kind() {
 	case reflect.Ptr:
 		if vl.Pointer() == 0 {
-			if !fn(ty, vl, tf) {
-				return false
-			} else {
-				return true
-			}
+			return true
 		}
 		ty = ty.Elem()
 		vl = vl.Elem()
@@ -108,5 +104,4 @@ func (this myrft) deepGet(ty reflect.Type, vl reflect.Value, tf reflect.StructFi
 	default:
 		return fn(ty, vl, tf)
 	}
-	return false
 }
