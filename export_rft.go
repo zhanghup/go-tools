@@ -49,6 +49,9 @@ func (this myrft) deepSet(ty reflect.Type, vl reflect.Value, tf reflect.StructFi
 		vl = vl.Elem()
 		return this.deepSet(ty, vl, tf, fn)
 	case reflect.Struct:
+		if !vl.CanSet() {
+			return false
+		}
 		for i := 0; i < vl.NumField(); i++ {
 			tf := ty.Field(i)
 			v := vl.Field(i)
@@ -57,6 +60,7 @@ func (this myrft) deepSet(ty reflect.Type, vl reflect.Value, tf reflect.StructFi
 				return false
 			}
 		}
+		return true
 	default:
 		if !vl.CanSet() {
 			return false
@@ -100,6 +104,7 @@ func (this myrft) deepGet(ty reflect.Type, vl reflect.Value, tf reflect.StructFi
 				return false
 			}
 		}
+		return true
 	default:
 		return fn(ty, vl, tf)
 	}
