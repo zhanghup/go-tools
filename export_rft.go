@@ -74,7 +74,7 @@ func (this myrft) deepSet(ty reflect.Type, vl reflect.Value, tf reflect.StructFi
 func (this myrft) DeepGet(o interface{}, fn func(t reflect.Type, v reflect.Value, tf reflect.StructField) bool) {
 	ty := reflect.TypeOf(o)
 	vl := reflect.ValueOf(o)
-	if ty.Kind() != reflect.Ptr {
+	if ty.Kind() == reflect.Ptr {
 		ty = ty.Elem()
 		vl = vl.Elem()
 	}
