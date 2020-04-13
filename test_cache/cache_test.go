@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/zhanghup/go-tools"
 	"math/rand"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -38,4 +39,15 @@ func BenchmarkMapBatch(b *testing.B) {
 			}
 		}
 	})
+}
+
+func TestPointer(t *testing.T) {
+	catch := tools.CacheCreate()
+	aa := new(int)
+	fmt.Println(reflect.ValueOf(aa).Pointer())
+	catch.Set("a", aa)
+	bb := new(int)
+	fmt.Println(reflect.ValueOf(bb).Pointer())
+	catch.Get("a", bb)
+	fmt.Println(reflect.ValueOf(bb).Pointer())
 }

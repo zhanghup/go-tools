@@ -41,11 +41,12 @@ func (this *cache) Get(key string, result interface{}) bool {
 	}
 	if dat2.timeout == 0 || dat2.timeout > time.Now().Unix() {
 		v1 := reflect.ValueOf(dat2.data)
-		v2 := reflect.ValueOf(result).Elem()
+		v2 := reflect.ValueOf(result)
 		if v1.Kind() == reflect.Ptr {
-			v1 = v1.Elem()
+			v2.Elem().Set(v1.Elem())
+		} else {
+			v2.Elem().Set(v1)
 		}
-		v2.Set(v1)
 		return true
 	} else {
 		this.data.Delete(key)
