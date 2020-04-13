@@ -56,6 +56,9 @@ func (this myrft) deepSet(ty reflect.Type, vl reflect.Value, tf reflect.StructFi
 			tf := ty.Field(i)
 			v := vl.Field(i)
 			t := tf.Type
+			if !fn(t, v, tf) {
+				return false
+			}
 			if !this.deepSet(t, v, tf, fn) {
 				return false
 			}
@@ -96,6 +99,9 @@ func (this myrft) deepGet(ty reflect.Type, vl reflect.Value, tf reflect.StructFi
 			tf := ty.Field(i)
 			v := vl.Field(i)
 			t := tf.Type
+			if !fn(t, v, tf) {
+				return false
+			}
 			if !this.deepGet(t, v, tf, fn) {
 				return false
 			}
