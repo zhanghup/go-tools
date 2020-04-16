@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	"strconv"
 	"sync/atomic"
 	"time"
 )
@@ -123,12 +122,4 @@ func (this myString) RandString(l int, flag ...bool) string {
 	return string(res)
 }
 
-func (this myString) MustInt64(s string) int64 {
-	n, _ := strconv.ParseInt(s, 10, 64)
-	return n
-}
 
-func (this myString) MustFloat64(s string) float64 {
-	n, _ := strconv.ParseFloat(s, 64)
-	return n
-}
