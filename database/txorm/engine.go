@@ -1,4 +1,4 @@
-package toolxorm
+package txorm
 
 import (
 	"context"

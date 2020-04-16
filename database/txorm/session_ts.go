@@ -1,4 +1,4 @@
-package toolxorm
+package txorm
 
 func (this *Session) TS(fn func(sess *Session) error) error {
 	err := this.Sess.Begin()

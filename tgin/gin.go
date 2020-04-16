@@ -1,4 +1,4 @@
-package toolgin
+package tgin
 
 import "github.com/gin-gonic/gin"
 

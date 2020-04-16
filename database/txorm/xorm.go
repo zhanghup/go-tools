@@ -1,4 +1,4 @@
-package toolxorm
+package txorm
 
 import (
 	_ "github.com/go-sql-driver/mysql"

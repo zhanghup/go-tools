@@ -1,15 +1,15 @@
-package toolxorm_test
+package txorm_test
 
 import (
 	"context"
 	"fmt"
 	"github.com/zhanghup/go-tools"
-	"github.com/zhanghup/go-tools/database/toolxorm"
+	"github.com/zhanghup/go-tools/database/txorm"
 	"testing"
 	"time"
 )
 
-var db *toolxorm.Engine
+var db *txorm.Engine
 
 type Bean struct {
 	Id      *string `json:"id" xorm:"Varchar(32) pk"`
@@ -60,7 +60,7 @@ func TestSession_TS(t *testing.T) {
 
 	sess := db.NewSession(ctx)
 	ctx = sess.Context()
-	err := sess.TS(func(sess *toolxorm.Session) error {
+	err := sess.TS(func(sess *txorm.Session) error {
 		_, err := sess.Sess.Table("user").Insert(map[string]interface{}{
 			"id":     tools.Str.Uid(),
 			"status": 1,
@@ -75,7 +75,7 @@ func TestSession_TS(t *testing.T) {
 	}
 
 	sess = db.NewSession(ctx)
-	err = sess.TS(func(sess *toolxorm.Session) error {
+	err = sess.TS(func(sess *txorm.Session) error {
 		_, err := sess.Sess.Table("user").Insert(map[string]interface{}{
 			"id":     tools.Str.Uid(),
 			"status": 1,
@@ -96,7 +96,7 @@ func TestSession_TS(t *testing.T) {
 
 func TestPage(t *testing.T) {
 	dict := make([]Dict, 0)
-	n, err := db.SF("select * from dict").Page1(2, 2, true, &dict)
+	n, err := db.SF("select * from dict").Page(2, 2, true, &dict)
 	if err != nil {
 		panic(err)
 	}
@@ -105,7 +105,7 @@ func TestPage(t *testing.T) {
 }
 
 func init() {
-	e, err := toolxorm.NewXorm(toolxorm.Config{
+	e, err := txorm.NewXorm(txorm.Config{
 		Driver: "mysql",
 		Uri:    "root:123@/test?charset=utf8",
 	})
@@ -113,5 +113,5 @@ func init() {
 		panic(err)
 	}
 	e.ShowSQL(true)
-	db = toolxorm.NewEngine(e)
+	db = txorm.NewEngine(e)
 }
