@@ -34,6 +34,7 @@ func Do(c *gin.Context, fn func(c *gin.Context) (interface{}, string)) {
 			"response": o,
 		})
 	}
+	c.Abort()
 }
 
 func DoCustom(c *gin.Context, fn func(c *gin.Context) (interface{}, string)) {
@@ -44,5 +45,6 @@ func DoCustom(c *gin.Context, fn func(c *gin.Context) (interface{}, string)) {
 			"msg":      err,
 			"response": o,
 		})
+		c.Abort()
 	}
 }
