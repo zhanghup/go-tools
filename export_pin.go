@@ -4,7 +4,7 @@ import "github.com/zhanghup/go-tools/pinyin"
 
 type mypy struct{}
 
-var Py = mypy{}
+var Pin = mypy{}
 
 func (mypy) Py(str string) string {
 	return pinyin.Py(str)
