@@ -3,6 +3,7 @@ module github.com/zhanghup/go-tools
 go 1.12
 
 require (
+	github.com/PuerkitoBio/goquery v1.5.1
 	github.com/daaku/go.zipexe v1.0.1 // indirect
 	github.com/gin-gonic/gin v1.6.2 // indirect
 	github.com/giter/go.rice v0.0.0-20171227004756-39a3aa768429

@@ -2,7 +2,7 @@ package test_html
 
 import (
 	"fmt"
-	"github.com/zhanghup/go-tools"
+	"github.com/zhanghup/go-tools/thtml"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -17,7 +17,16 @@ func TestWindow1521(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	tools.Html(data).DecodeHtml()
+	html, err := thtml.New(data)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(html.Charset())
+	err = html.DecodeHtml()
+	if err != nil{
+		panic(err)
+	}
+	fmt.Println(html.Title())
 }
 
 func TestGbk(t *testing.T) {
@@ -29,7 +38,14 @@ func TestGbk(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	h := tools.Html(data)
-	h.DecodeHtml()
-	fmt.Println(string(h.Title()))
+	html, err := thtml.New(data)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(html.Charset())
+	err = html.DecodeHtml()
+	if err != nil{
+		panic(err)
+	}
+	fmt.Println(html.Title())
 }
