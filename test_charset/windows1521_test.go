@@ -9,7 +9,7 @@ import (
 )
 
 func TestWindows1521Encoding(t *testing.T) {
-	f, err := os.Open("./index.html")
+	f, err := os.Open("./windows1521.html")
 	if err != nil {
 		panic(err)
 	}
