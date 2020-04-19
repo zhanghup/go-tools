@@ -1,6 +1,12 @@
 package tools
 
-import "golang.org/x/text/encoding/charmap"
+import (
+	"bytes"
+	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
+	"io/ioutil"
+)
 
 type myCharset struct{}
 
@@ -14,7 +20,7 @@ func (this myCharset) ISO8859_1Encode(data []byte) ([]byte, error) {
 	}
 	return out, nil
 }
-func (this myCharset) ISO8859_1decode(data []byte) ([]byte, error) {
+func (this myCharset) ISO8859_1Decode(data []byte) ([]byte, error) {
 	dec := charmap.ISO8859_1.NewDecoder()
 	out, err := dec.Bytes(data)
 	if err != nil {
@@ -31,11 +37,20 @@ func (this myCharset) Windows1251Encode(data []byte) ([]byte, error) {
 	}
 	return out, nil
 }
-func (this myCharset) Windows1251decode(data []byte) ([]byte, error) {
+func (this myCharset) Windows1251Decode(data []byte) ([]byte, error) {
 	dec := charmap.Windows1251.NewDecoder()
 	out, err := dec.Bytes(data)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
+}
+
+func (this myCharset) GBKEncode(data []byte) ([]byte, error) {
+	out, err := ioutil.ReadAll(transform.NewReader(bytes.NewReader([]byte(data)), simplifiedchinese.GBK.NewEncoder()))
+	return out, err
+}
+func (this myCharset) GBKDecode(data []byte) ([]byte, error) {
+	out, err := ioutil.ReadAll(transform.NewReader(bytes.NewReader([]byte(data)), simplifiedchinese.GBK.NewDecoder()))
+	return out, err
 }
