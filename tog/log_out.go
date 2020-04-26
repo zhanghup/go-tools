@@ -1,13 +1,9 @@
 package tog
 
-func Info() {
-	if infoLog == nil {
-		return
-	}
+func Info(fmt string, f ...Field) {
+	togger.Info(fmt, f...)
 }
 
-func Error() {
-	if errorLog == nil {
-		return
-	}
+func Error(fmt string, f ...Field) {
+	togger.Error(fmt, f...)
 }

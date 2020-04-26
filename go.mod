@@ -14,6 +14,7 @@ require (
 	github.com/vektah/gqlparser/v2 v2.0.1
 	go.uber.org/zap v1.15.0
 	golang.org/x/text v0.3.2
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/yaml.v2 v2.2.8
 	xorm.io/xorm v1.0.1
 )
