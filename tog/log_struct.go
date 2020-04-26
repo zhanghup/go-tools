@@ -1,12 +1,10 @@
 package tog
 
 import (
-	"fmt"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"os"
-	"runtime"
 	"strings"
 	"time"
 )
@@ -18,21 +16,26 @@ type Option struct {
 	MaxBackups int    `json:"maxbackups" yaml:"maxbackups"`
 	LocalTime  bool   `json:"localtime" yaml:"localtime"`
 	Compress   bool   `json:"compress" yaml:"compress"`
+	Type       string `json:"type" yaml:"type"` // json or console
 
 	EncodeCaller func(c zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) `json:"-" yaml:"-"`
 }
 
-type Logger struct {
+type mylogger struct {
 	option *Option
 	log    *zap.Logger
 }
 
-type Field struct {
+type field struct {
 	Name  string
 	Value interface{}
 }
 
-func (this *Logger) Info(fmt string, f ...Field) {
+func Field(name string, value interface{}) field {
+	return field{name, value}
+}
+
+func (this *mylogger) info(fmt string, f ...field) {
 	fs := make([]zap.Field, 0)
 	for _, o := range f {
 		fs = append(fs, zap.Any(o.Name, o.Value))
@@ -40,7 +43,7 @@ func (this *Logger) Info(fmt string, f ...Field) {
 	this.log.Info(fmt, fs...)
 }
 
-func (this *Logger) Error(fmt string, f ...Field) {
+func (this *mylogger) error(fmt string, f ...field) {
 	fs := make([]zap.Field, 0)
 	for _, o := range f {
 		fs = append(fs, zap.Any(o.Name, o.Value))
@@ -48,19 +51,22 @@ func (this *Logger) Error(fmt string, f ...Field) {
 	this.log.Error(fmt, fs...)
 }
 
-func (this *Logger) SetOption(option *Option) {
+func (this *mylogger) warn(fmt string, f ...field) {
+	fs := make([]zap.Field, 0)
+	for _, o := range f {
+		fs = append(fs, zap.Any(o.Name, o.Value))
+	}
+	this.log.Warn(fmt, fs...)
+}
+
+func (this *mylogger) setOption(option *Option) {
 	if option.EncodeCaller == nil {
 		option.EncodeCaller = func(c zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
-			strs := make([]string, 0)
-			for i := 6; i < 7; i++ {
-				_, str, l, ok := runtime.Caller(i)
-				if ok {
-					strs = append(strs, fmt.Sprintf("%s:%d", str, l))
-				} else {
-					break
-				}
+			ss := strings.Split(c.FullPath(), "/")
+			if len(ss) < 2 {
+				return
 			}
-			enc.AppendString(strings.Join(strs, ","))
+			enc.AppendString(strings.Join(ss[len(ss)-2:], "/"))
 		}
 	}
 
@@ -68,7 +74,7 @@ func (this *Logger) SetOption(option *Option) {
 	this.init()
 }
 
-func (this *Logger) init() {
+func (this *mylogger) init() {
 	hook := lumberjack.Logger{
 		Filename:   this.option.Filename,   // 日志文件路径
 		MaxSize:    this.option.MaxSize,    // 每个日志文件保存的最大尺寸 单位：M
@@ -92,8 +98,13 @@ func (this *Logger) init() {
 		EncodeName:     zapcore.FullNameEncoder,
 	}
 
+	encoder := zapcore.NewJSONEncoder(encoderConfig)
+	if this.option.Type == "console" {
+		encoder = zapcore.NewConsoleEncoder(encoderConfig)
+	}
+
 	core := zapcore.NewCore(
-		zapcore.NewJSONEncoder(encoderConfig),                                           // 编码器配置
+		encoder,                                                                         // 编码器配置
 		zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(&hook)), // 打印到控制台和文件
 		zap.NewAtomicLevelAt(zap.InfoLevel),                                             // 日志级别
 	)
@@ -110,15 +121,8 @@ func (this *Logger) init() {
 
 }
 
-var togger *Logger
-
-func init() {
-	togger = &Logger{}
-	togger.SetOption(&Option{
-		Filename:   "./logs/info.log",
-		MaxSize:    128,
-		MaxBackups: 30,
-		MaxAge:     7,
-		Compress:   true,
-	})
+func newLogger(opt *Option) *mylogger {
+	tog := &mylogger{}
+	tog.setOption(opt)
+	return tog
 }

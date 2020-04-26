@@ -1,12 +1,11 @@
-package tog
+package tog_test
 
 import (
+	"github.com/zhanghup/go-tools/tog"
 	"testing"
 )
 
 func TestMyLogger(t *testing.T) {
-	togger.Info("hello world")
-	togger.Error("hello world")
-
-	Info("ddddddddddddddddd dsjkdj")
+	tog.Info("ddddddddddddddddd dsjkdj")
+	tog.Error("ddddddddddddddddd dsjkdj")
 }
