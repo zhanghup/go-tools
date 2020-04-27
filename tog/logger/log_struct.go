@@ -1,4 +1,4 @@
-package tog
+package logger
 
 import (
 	"go.uber.org/zap"
@@ -10,56 +10,41 @@ import (
 )
 
 type Option struct {
-	Filename   string `json:"filename" yaml:"filename"`
-	MaxSize    int    `json:"maxsize" yaml:"maxsize"`
-	MaxAge     int    `json:"maxage" yaml:"maxage"`
-	MaxBackups int    `json:"maxbackups" yaml:"maxbackups"`
-	LocalTime  bool   `json:"localtime" yaml:"localtime"`
-	Compress   bool   `json:"compress" yaml:"compress"`
-	Type       string `json:"type" yaml:"type"` // json or console
+	Filename   string  `json:"filename" yaml:"filename"`
+	MaxSize    int     `json:"maxsize" yaml:"maxsize"`
+	MaxAge     int     `json:"maxage" yaml:"maxage"`
+	MaxBackups int     `json:"maxbackups" yaml:"maxbackups"`
+	LocalTime  bool    `json:"localtime" yaml:"localtime"`
+	Compress   bool    `json:"compress" yaml:"compress"`
+	Type       string  `json:"type" yaml:"type"` // json or console
+	Field      []Field `json:"field" yaml:"field"`
 
 	EncodeCaller func(c zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) `json:"-" yaml:"-"`
 }
 
-type mylogger struct {
+type Logger struct {
 	option *Option
 	log    *zap.Logger
 }
 
-type field struct {
+type Field struct {
 	Name  string
 	Value interface{}
 }
 
-func Field(name string, value interface{}) field {
-	return field{name, value}
+func (this *Logger) Info(message string, f ...Field) {
+	this.log.Info(message, getField(f...)...)
 }
 
-func (this *mylogger) info(fmt string, f ...field) {
-	fs := make([]zap.Field, 0)
-	for _, o := range f {
-		fs = append(fs, zap.Any(o.Name, o.Value))
-	}
-	this.log.Info(fmt, fs...)
+func (this *Logger) Error(message string, f ...Field) {
+	this.log.Error(message, getField(f...)...)
 }
 
-func (this *mylogger) error(fmt string, f ...field) {
-	fs := make([]zap.Field, 0)
-	for _, o := range f {
-		fs = append(fs, zap.Any(o.Name, o.Value))
-	}
-	this.log.Error(fmt, fs...)
+func (this *Logger) Warn(message string, f ...Field) {
+	this.log.Warn(message, getField(f...)...)
 }
 
-func (this *mylogger) warn(fmt string, f ...field) {
-	fs := make([]zap.Field, 0)
-	for _, o := range f {
-		fs = append(fs, zap.Any(o.Name, o.Value))
-	}
-	this.log.Warn(fmt, fs...)
-}
-
-func (this *mylogger) setOption(option *Option) {
+func (this *Logger) setOption(option *Option) {
 	if option.EncodeCaller == nil {
 		option.EncodeCaller = func(c zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
 			ss := strings.Split(c.FullPath(), "/")
@@ -74,7 +59,11 @@ func (this *mylogger) setOption(option *Option) {
 	this.init()
 }
 
-func (this *mylogger) init() {
+func (this *Logger) Fields(f ...Field) {
+	this.log = this.log.With(getField(f...)...)
+}
+
+func (this *Logger) init() {
 	hook := lumberjack.Logger{
 		Filename:   this.option.Filename,   // 日志文件路径
 		MaxSize:    this.option.MaxSize,    // 每个日志文件保存的最大尺寸 单位：M
@@ -114,15 +103,22 @@ func (this *mylogger) init() {
 		core,
 		zap.AddCaller(),
 		zap.Development(),
-		zap.Fields(
-			//zap.String("serviceName", "serviceName"),
-		),
+		zap.Fields(getField(this.option.Field...)...),
 	)
+	this.log.With()
 
 }
 
-func newLogger(opt *Option) *mylogger {
-	tog := &mylogger{}
+func getField(f ...Field) []zapcore.Field {
+	fs := make([]zap.Field, 0)
+	for _, o := range f {
+		fs = append(fs, zap.Any(o.Name, o.Value))
+	}
+	return fs
+}
+
+func NewLogger(opt *Option) ILogger {
+	tog := &Logger{}
 	tog.setOption(opt)
 	return tog
 }
