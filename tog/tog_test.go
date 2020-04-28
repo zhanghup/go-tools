@@ -10,9 +10,7 @@ func TestMyLogger(t *testing.T) {
 	tog.Error("ddddddddddddddddd dsjkdj")
 	tog.Warn("ddddddddddddddddd dsjkdj")
 
-	tog.WidthField(map[string]interface{}{"a": 1, "b": 2})
-	tog.Warn("ddddddddddddddddd dsjkdj")
+	tog.Warn("ddddddddddddddddd dsjkdj", map[string]interface{}{"a": 1, "b": 2})
 
-	tog.WidthField(map[string]interface{}{"c": 1, "d": 2})
-	tog.Error("ddddddddddddddddd dsjkdj")
+	tog.Error("ddddddddddddddddd dsjkdj", map[string]interface{}{"c": 1, "d": 2})
 }

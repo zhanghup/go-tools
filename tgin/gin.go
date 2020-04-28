@@ -1,6 +1,11 @@
 package tgin
 
-import "github.com/gin-gonic/gin"
+import (
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/zhanghup/go-tools/tog/logger"
+	"time"
+)
 
 type Config struct {
 	Port string `yarn:"port"`
@@ -8,6 +13,23 @@ type Config struct {
 
 func NewGin(cfg Config, fn func(g *gin.Engine) error) error {
 	e := gin.Default()
+	logopt := logger.OptionStdout()
+	gin.DefaultWriter = logger.NewLogger(logopt)
+
+	e.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
+		return fmt.Sprintf("%s - [%s] \"%s %s %s %d %s \"%s\" %s\"\n",
+			param.ClientIP,
+			param.TimeStamp.Format(time.RFC1123),
+			param.Method,
+			param.Path,
+			param.Request.Proto,
+			param.StatusCode,
+			param.Latency,
+			param.Request.UserAgent(),
+			param.ErrorMessage,
+		)
+	}))
+
 	err := fn(e)
 	if err != nil {
 		return err

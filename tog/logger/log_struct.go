@@ -44,6 +44,11 @@ func (this *Logger) Warn(message string, f ...Field) {
 	this.log.Warn(message, getField(f...)...)
 }
 
+func (this *Logger) Write(p []byte) (n int, err error) {
+	this.log.Info(string(p))
+	return len(p), nil
+}
+
 func (this *Logger) setOption(option *Option) {
 	if option.EncodeCaller == nil {
 		option.EncodeCaller = func(c zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
