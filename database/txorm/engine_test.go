@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/zhanghup/go-tools"
 	"github.com/zhanghup/go-tools/database/txorm"
+	"github.com/zhanghup/go-tools/tog"
 	"testing"
 	"time"
 )
@@ -29,7 +30,6 @@ type Dict struct {
 }
 
 func TestSF(t *testing.T) {
-
 	datas := make([]struct {
 		Id      string `xorm:"id" json:"id"`
 		Account string `json:"account"`
@@ -44,7 +44,7 @@ func TestSF(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(tools.Str.JSONString(datas, true))
+	tog.Info(tools.Str.JSONString(datas))
 }
 
 func TestSession_Exec(t *testing.T) {

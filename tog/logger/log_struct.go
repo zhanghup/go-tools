@@ -1,15 +1,20 @@
 package logger
 
 import (
+	"encoding/json"
+	"fmt"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"os"
-	"strings"
 	"time"
 )
 
 type Option struct {
+	ShowLine   bool    `json:"show_line" yaml:"show_line"`
+	LevelKey   string  `json:"level_key" yaml:"level_key"`
+	TimeKey    string  `json:"time_key" yaml:"time_key"`
+	LineEnding string  `json:"line_ending" yaml:"line_ending"`
 	Filename   string  `json:"filename" yaml:"filename"`
 	MaxSize    int     `json:"maxsize" yaml:"maxsize"`
 	MaxAge     int     `json:"maxage" yaml:"maxage"`
@@ -45,21 +50,20 @@ func (this *Logger) Warn(message string, f ...Field) {
 }
 
 func (this *Logger) Write(p []byte) (n int, err error) {
-	this.log.Info(string(p))
+	data := map[string]interface{}{}
+	err = json.Unmarshal(p, &data)
+	if err != nil {
+		this.log.Info(string(p))
+		return
+	}
+	msg, _ := data["msg"]
+	delete(data, "msg")
+
+	this.log.Info(fmt.Sprintf("%v", msg), getField(getFieldMap(data)...)...)
 	return len(p), nil
 }
 
 func (this *Logger) setOption(option *Option) {
-	if option.EncodeCaller == nil {
-		option.EncodeCaller = func(c zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
-			ss := strings.Split(c.FullPath(), "/")
-			if len(ss) < 2 {
-				return
-			}
-			enc.AppendString(strings.Join(ss[len(ss)-2:], "/"))
-		}
-	}
-
 	this.option = option
 	this.init()
 }
@@ -79,12 +83,12 @@ func (this *Logger) init() {
 
 	encoderConfig := zapcore.EncoderConfig{
 		MessageKey:     "msg",
-		LevelKey:       "level",
-		TimeKey:        "time",
+		LevelKey:       this.option.LevelKey,
+		TimeKey:        this.option.TimeKey,
 		NameKey:        "logger",
 		CallerKey:      "line",
 		StacktraceKey:  "stacktrace",
-		LineEnding:     zapcore.DefaultLineEnding,
+		LineEnding:     this.option.LineEnding,
 		EncodeLevel:    zapcore.CapitalLevelEncoder, // 大写编码器
 		EncodeTime:     func(t time.Time, enc zapcore.PrimitiveArrayEncoder) { enc.AppendString(t.Format("2006-01-02 15:04:05.000")) },
 		EncodeDuration: zapcore.SecondsDurationEncoder, // 一秒同步一次文件
@@ -103,12 +107,18 @@ func (this *Logger) init() {
 		zap.NewAtomicLevelAt(zap.InfoLevel),                                             // 日志级别
 	)
 
+	options := make([]zap.Option, 0)
+	if this.option.ShowLine {
+		options = append(options, zap.AddCaller())
+	}
+	if this.option.Field != nil && len(this.option.Field) > 0 {
+		options = append(options, zap.Fields(getField(this.option.Field...)...))
+	}
+
 	// 构造日志
 	this.log = zap.New(
 		core,
-		zap.AddCaller(),
-		zap.Development(),
-		zap.Fields(getField(this.option.Field...)...),
+		options...,
 	)
 	this.log.With()
 
@@ -120,6 +130,16 @@ func getField(f ...Field) []zapcore.Field {
 		fs = append(fs, zap.Any(o.Name, o.Value))
 	}
 	return fs
+}
+
+func getFieldMap(extra ...map[string]interface{}) []Field {
+	result := make([]Field, 0)
+	for _, o := range extra {
+		for k, v := range o {
+			result = append(result, Field{Name: k, Value: v})
+		}
+	}
+	return result
 }
 
 func NewLogger(opt *Option) ILogger {
