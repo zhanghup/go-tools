@@ -14,7 +14,6 @@ func TestStart(t *testing.T) {
 		g.GET("test/2222", func(c *gin.Context) {
 			c.String(200, "123")
 		})
-
 		return nil
 	})
 }

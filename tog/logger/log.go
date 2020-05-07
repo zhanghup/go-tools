@@ -1,9 +1,9 @@
 package logger
 
 type ILogger interface {
-	Info(message string, f ...Field)
-	Error(message string, f ...Field)
-	Warn(message string, f ...Field)
+	Info(fmt string, args ...interface{})
+	Error(fmt string, args ...interface{})
+	Warn(fmt string, args ...interface{})
 
 	Write(p []byte) (n int, err error)
 }

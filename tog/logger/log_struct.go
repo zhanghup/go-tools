@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"encoding/json"
 	"fmt"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -37,39 +36,33 @@ type Field struct {
 	Value interface{}
 }
 
-func (this *Logger) Info(message string, f ...Field) {
-	this.log.Info(message, getField(f...)...)
+func (this *Logger) fmt(f string, args ...interface{}) string {
+	if len(args) == 0 {
+		return f
+	}
+	return fmt.Sprintf(f, args...)
 }
 
-func (this *Logger) Error(message string, f ...Field) {
-	this.log.Error(message, getField(f...)...)
+func (this *Logger) Info(f string, args ...interface{}) {
+	this.log.Info(this.fmt(f, args...))
 }
 
-func (this *Logger) Warn(message string, f ...Field) {
-	this.log.Warn(message, getField(f...)...)
+func (this *Logger) Error(f string, args ...interface{}) {
+	this.log.Error(this.fmt(f, args...))
+}
+
+func (this *Logger) Warn(f string, args ...interface{}) {
+	this.log.Warn(this.fmt(f, args...))
 }
 
 func (this *Logger) Write(p []byte) (n int, err error) {
-	data := map[string]interface{}{}
-	err = json.Unmarshal(p, &data)
-	if err != nil {
-		this.log.Info(string(p))
-		return
-	}
-	msg, _ := data["msg"]
-	delete(data, "msg")
-
-	this.log.Info(fmt.Sprintf("%v", msg), getField(getFieldMap(data)...)...)
+	this.log.Info(string(p))
 	return len(p), nil
 }
 
 func (this *Logger) setOption(option *Option) {
 	this.option = option
 	this.init()
-}
-
-func (this *Logger) Fields(f ...Field) {
-	this.log = this.log.With(getField(f...)...)
 }
 
 func (this *Logger) init() {
@@ -111,9 +104,6 @@ func (this *Logger) init() {
 	if this.option.ShowLine {
 		options = append(options, zap.AddCaller())
 	}
-	if this.option.Field != nil && len(this.option.Field) > 0 {
-		options = append(options, zap.Fields(getField(this.option.Field...)...))
-	}
 
 	// 构造日志
 	this.log = zap.New(
@@ -122,24 +112,6 @@ func (this *Logger) init() {
 	)
 	this.log.With()
 
-}
-
-func getField(f ...Field) []zapcore.Field {
-	fs := make([]zap.Field, 0)
-	for _, o := range f {
-		fs = append(fs, zap.Any(o.Name, o.Value))
-	}
-	return fs
-}
-
-func getFieldMap(extra ...map[string]interface{}) []Field {
-	result := make([]Field, 0)
-	for _, o := range extra {
-		for k, v := range o {
-			result = append(result, Field{Name: k, Value: v})
-		}
-	}
-	return result
 }
 
 func NewLogger(opt *Option) ILogger {

@@ -44,6 +44,21 @@ func TestSF(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
+
+	datas = make([]struct {
+		Id      string `xorm:"id" json:"id"`
+		Account string `json:"account"`
+	}, 0)
+
+	err = db.SF(`
+		select * from user where account = :account
+	`, map[string]interface{}{
+		"account": "root",
+		"id":      []string{"root", "ss"},
+	}).Find(&datas)
+	if err != nil {
+		panic(err)
+	}
 	tog.Info(tools.Str.JSONString(datas))
 }
 

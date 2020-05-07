@@ -10,9 +10,9 @@ import (
 func OptionStdout() *Option {
 	return &Option{
 		Filename:   "./logs/stdout.log",
-		MaxSize:    128,
-		MaxBackups: 30,
-		MaxAge:     7,
+		MaxSize:    16,
+		MaxBackups: 500,
+		MaxAge:     60,
 		LevelKey:   "level",
 		TimeKey:    "time",
 		ShowLine:   true,
@@ -32,9 +32,9 @@ func OptionStdout() *Option {
 func OptionStderr() *Option {
 	return &Option{
 		Filename:   "./logs/stderr.log",
-		MaxSize:    128,
-		MaxBackups: 30,
-		MaxAge:     7,
+		MaxSize:    16,
+		MaxBackups: 500,
+		MaxAge:     60,
 		LevelKey:   "level",
 		TimeKey:    "time",
 		ShowLine:   true,

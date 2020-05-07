@@ -1,26 +1,37 @@
 package tog
 
-import "github.com/zhanghup/go-tools/tog/logger"
+import "github.com/zhanghup/go-tools"
 
-func Info(fmt string, extra ...map[string]interface{}) {
-	toginfo.Info(fmt, getField(extra...)...)
-}
-
-func Error(fmt string, extra ...map[string]interface{}) {
-	toginfo.Error(fmt, getField(extra...)...)
-	togerr.Error(fmt, getField(extra...)...)
-}
-
-func Warn(fmt string, extra ...map[string]interface{}) {
-	toginfo.Warn(fmt, getField(extra...)...)
-}
-
-func getField(extra ...map[string]interface{}) []logger.Field {
-	result := make([]logger.Field, 0)
-	for _, o := range extra {
-		for k, v := range o {
-			result = append(result, logger.Field{Name: k, Value: v})
-		}
+func jsonFormat(o interface{}, flag ...bool) string{
+	s := tools.Str.JSONString(o, flag...)
+	if len(flag) > 0 && flag[0]{
+		s = "\n" +s
 	}
-	return result
+	return s
+}
+
+func Info(fmt string, args ...interface{}) {
+	toginfo.Info(fmt, args...)
+}
+
+func InfoAsJson(o interface{}, flag ...bool) {
+	toginfo.Info(jsonFormat(o,flag...))
+}
+
+func Error(fmt string, args ...interface{}) {
+	toginfo.Error(fmt, args...)
+	togerr.Error(fmt, args...)
+}
+
+func ErrorAsJson(o interface{}, flag ...bool) {
+	toginfo.Error(jsonFormat(o,flag...))
+	togerr.Error(jsonFormat(o,flag...))
+}
+
+func Warn(fmt string, args ...interface{}) {
+	toginfo.Warn(fmt, args...)
+}
+
+func WarnAsJson(o interface{}, flag ...bool) {
+	toginfo.Warn(jsonFormat(o,flag...))
 }

@@ -37,3 +37,17 @@ database/txorm/engine_test.go:48	[{"id":"root","account":"root"}]
 	 [root] - 10.9952ms
 
 2020-04-30 17:21:47.902	INFO	txorm/engine_test.go:47	[{"id":"root","account":"root"}]
+[xorm] [info]  2020/05/07 13:11:22.910496 [SQL] 
+		select * from user where account = ?
+	 [root] - 14.9941ms
+
+2020-05-07 13:11:22.935	INFO	database/txorm/engine_test.go:47	[{"id":"root","account":"root"}]
+[xorm] [info]  2020/05/07 13:14:24.112104 [SQL] 
+		select * from user where account = ?
+	 [root] - 10.9936ms
+
+[xorm] [info]  2020/05/07 13:14:24.142085 [SQL] 
+		select * from user where account = ?
+	 [root] - 990.9µs
+
+2020-05-07 13:14:24.142	INFO	database/txorm/engine_test.go:62	[{"id":"root","account":"root"}]

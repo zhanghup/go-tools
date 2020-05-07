@@ -6,11 +6,16 @@ import (
 )
 
 func TestMyLogger(t *testing.T) {
-	tog.Info("ddddddddddddddddd dsjkdj")
-	tog.Error("ddddddddddddddddd dsjkdj")
-	tog.Warn("ddddddddddddddddd dsjkdj")
+	for i := 0; i < 10000;i++{
+		tog.Info("ddddddddddddddddd dsjkdj")
+		tog.Error("ddddddddddddddddd dsjkdj")
+		tog.Warn("ddddddddddddddddd dsjkdj")
 
-	tog.Warn("ddddddddddddddddd dsjkdj", map[string]interface{}{"a": 1, "b": 2})
+		tog.Warn("ddddddddddddddddd dsjkdj")
 
-	tog.Error("ddddddddddddddddd dsjkdj", map[string]interface{}{"c": 1, "d": 2})
+		tog.Error("ddddddddddddddddd dsjkdj")
+
+		tog.InfoAsJson(map[string]interface{}{"a":1,"b":2})
+		tog.InfoAsJson(map[string]interface{}{"a":1,"b":2},true)
+	}
 }

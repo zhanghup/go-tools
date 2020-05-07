@@ -18,7 +18,7 @@ func NewGin(cfg Config, fn func(g *gin.Engine) error) error {
 	logopt.ShowLine = false
 	logopt.LevelKey = ""
 	logopt.TimeKey = ""
-	logopt.LineEnding = ""
+	logopt.LineEnding = "\r"
 	gin.DefaultWriter = logger.NewLogger(logopt)
 
 	//e.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
