@@ -6,7 +6,7 @@ import (
 )
 
 func TestMyLogger(t *testing.T) {
-	for i := 0; i < 10000;i++{
+	for i := 0; i < 100;i++{
 		tog.Info("ddddddddddddddddd dsjkdj")
 		tog.Error("ddddddddddddddddd dsjkdj")
 		tog.Warn("ddddddddddddddddd dsjkdj")

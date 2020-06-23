@@ -22,7 +22,7 @@ type Mutation {
 
 type User @goModel(model:"github.com/zhanghup/go-tools/tgql/test.User"){
     id: String
-    "排序"
+    "排序[default:1,]"
     weight: Int
     "状态"
     status: Int

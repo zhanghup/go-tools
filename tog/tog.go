@@ -19,8 +19,8 @@ func init() {
 			_, str, l, ok := runtime.Caller(i)
 			if ok {
 				ss := strings.Split(str,"/")
-				if len(ss) > 3{
-					str = strings.Join(ss[len(ss) - 3:],"/")
+				if len(ss) > 1{
+					str = strings.Join(ss[len(ss) - 1:],"/")
 				}
 				strs = append(strs, fmt.Sprintf("%s:%d", str, l))
 			} else {
@@ -45,5 +45,4 @@ func init() {
 		enc.AppendString(strings.Join(strs, "") + "\n")
 	}
 	togerr = logger.NewLogger(err)
-
 }
