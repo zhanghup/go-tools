@@ -1,4 +1,4 @@
-package tgql
+package tgql_test
 
 import (
 	"github.com/zhanghup/go-tools/database/txorm"
