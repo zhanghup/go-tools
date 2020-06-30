@@ -10,6 +10,7 @@ require (
 	github.com/giter/go.rice v0.0.0-20171227004756-39a3aa768429
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
+	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/vektah/dataloaden v0.3.0 // indirect
 	github.com/vektah/gqlparser/v2 v2.0.1
 	go.uber.org/zap v1.15.0
