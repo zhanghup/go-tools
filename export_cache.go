@@ -17,8 +17,36 @@ type cache struct {
 	data sync.Map
 }
 
-func CacheCreate() ICache {
-	return &cache{data: sync.Map{}}
+// 是否自动清理内存中的过期数据
+func CacheCreate(flag ...bool) ICache {
+	c := &cache{data: sync.Map{}}
+
+	if len(flag) > 0 && flag[0] {
+		go func() {
+			t := time.NewTicker(time.Second * 10)
+			for {
+				select {
+				case <-t.C:
+					keys := make([]interface{}, 0)
+					c.data.Range(func(key, value interface{}) bool {
+						dat2, ok := value.(cacheItem)
+						if !ok {
+							return true
+						}
+						if dat2.timeout != 0 && dat2.timeout <= time.Now().Unix() {
+							keys = append(keys, key)
+						}
+						return true
+					})
+					for _, o := range keys {
+						c.data.Delete(o)
+					}
+				}
+			}
+		}()
+	}
+
+	return c
 }
 
 type cacheItem struct {
