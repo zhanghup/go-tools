@@ -15,6 +15,7 @@ func (this *Session) SF(sql string, querys ...map[string]interface{}) *Session {
 	}
 	this.query = query
 	this.sql = tools.Str.Tmp(sql, query).String()
+	this.args = make([]interface{}, 0)
 	this.sf_args()
 	return this
 }
