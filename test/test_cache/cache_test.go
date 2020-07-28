@@ -16,12 +16,10 @@ func randomString() string {
 func TestSetGet(t *testing.T) {
 	mp := tools.CacheCreate()
 	mp.Set("123", "123", time.Now().Unix()+2)
-	data := ""
-	mp.Get("123", &data)
+	data := mp.Get("123")
 	fmt.Println(data)
 	time.Sleep(time.Second * 3)
-	data2 := ""
-	mp.Get("123", &data2)
+	data2 := mp.Get("123")
 	fmt.Println(data2)
 }
 
@@ -34,8 +32,7 @@ func BenchmarkMapBatch(b *testing.B) {
 			if rand.Int()%2 == 0 {
 				mp.Set(fmt.Sprintf("%v", randomString()), rand.Int(), time.Now().Unix()+1)
 			} else {
-				i := 0
-				mp.Get(fmt.Sprintf("%v", randomString()), &i)
+				mp.Get(fmt.Sprintf("%v", randomString()))
 			}
 		}
 	})
@@ -46,8 +43,6 @@ func TestPointer(t *testing.T) {
 	aa := new(int)
 	fmt.Println(reflect.ValueOf(aa).Pointer())
 	catch.Set("a", aa)
-	bb := new(int)
-	fmt.Println(reflect.ValueOf(bb).Pointer())
-	catch.Get("a", bb)
+	bb := catch.Get("a")
 	fmt.Println(reflect.ValueOf(bb).Pointer())
 }
