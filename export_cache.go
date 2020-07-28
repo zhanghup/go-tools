@@ -1,14 +1,12 @@
 package tools
 
 import (
-	"errors"
-	"reflect"
 	"sync"
 	"time"
 )
 
 type ICache interface {
-	Get(key string, result interface{}) bool
+	Get(key string) interface{}
 	Set(key string, obj interface{}, timeout ...int64)
 	Delete(key string)
 }
@@ -54,11 +52,7 @@ type cacheItem struct {
 	data    interface{}
 }
 
-func (this *cache) Get(key string, result interface{}) bool {
-	err := Ptr.Check(result)
-	if err != nil {
-		panic(errors.New("tools cache.Get result类型异常，应该为指针类型"))
-	}
+func (this *cache) Get(key string) interface{} {
 	data, ok := this.data.Load(key)
 	if !ok {
 		return ok
@@ -68,17 +62,10 @@ func (this *cache) Get(key string, result interface{}) bool {
 		return ok
 	}
 	if dat2.timeout == 0 || dat2.timeout > time.Now().Unix() {
-		v1 := reflect.ValueOf(dat2.data)
-		v2 := reflect.ValueOf(result)
-		if v1.Kind() == reflect.Ptr {
-			v2.Elem().Set(v1.Elem())
-		} else {
-			v2.Elem().Set(v1)
-		}
-		return true
+		return dat2.data
 	} else {
 		this.data.Delete(key)
-		return false
+		return nil
 	}
 
 }
