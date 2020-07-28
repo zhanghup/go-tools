@@ -52,14 +52,31 @@ type cacheItem struct {
 	data    interface{}
 }
 
-func (this *cache) Get(key string) interface{} {
+func (this *cache) Exist(key string) bool {
 	data, ok := this.data.Load(key)
 	if !ok {
-		return ok
+		return false
 	}
 	dat2, ok := data.(cacheItem)
 	if !ok {
-		return ok
+		return false
+	}
+	if dat2.timeout == 0 || dat2.timeout > time.Now().Unix() {
+		return true
+	} else {
+		this.data.Delete(key)
+		return false
+	}
+}
+
+func (this *cache) Get(key string) interface{} {
+	data, ok := this.data.Load(key)
+	if !ok {
+		return nil
+	}
+	dat2, ok := data.(cacheItem)
+	if !ok {
+		return nil
 	}
 	if dat2.timeout == 0 || dat2.timeout > time.Now().Unix() {
 		return dat2.data
