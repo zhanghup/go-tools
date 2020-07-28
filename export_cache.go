@@ -9,6 +9,7 @@ type ICache interface {
 	Get(key string) interface{}
 	Set(key string, obj interface{}, timeout ...int64)
 	Delete(key string)
+	Exist(key string) bool
 }
 
 type cache struct {
