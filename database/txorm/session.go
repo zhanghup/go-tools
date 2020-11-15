@@ -20,3 +20,8 @@ func (this *Session) Context() context.Context {
 	}
 	return context.WithValue(this.context, CONTEXT_SESSION, this)
 }
+
+func (this *Session) Table(table interface{}) *Session {
+	this.Sess.Table(table)
+	return this
+}
