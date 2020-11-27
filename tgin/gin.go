@@ -1,8 +1,9 @@
 package tgin
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/zhanghup/go-tools/tog/logger"
+	"github.com/zhanghup/go-tools/tog"
 )
 
 type Config struct {
@@ -14,16 +15,11 @@ func NewGin(cfg Config, fn func(g *gin.Engine) error) error {
 	gin.SetMode(cfg.Mode)
 	e := gin.New()
 
-	logopt := logger.OptionStdout()
-	logopt.ShowLine = false
-	logopt.LevelKey = ""
-	logopt.TimeKey = ""
-	logopt.LineEnding = "\r"
-	gin.DefaultWriter = logger.NewLogger(logopt)
+	gin.DefaultWriter = tog.Toginfo
 
-	//e.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
-	//	return fmt.Sprintf(`{"msg":"[GIN]","client_ip":"%s","method": "%s","path":"%s","http_code": %d}`, param.ClientIP, param.Method, param.Path, param.StatusCode)
-	//}))
+	e.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
+		return fmt.Sprintf("[GIN]\t%s | %s\t |\t %d |\t \"%s\"",param.ClientIP,param.Method,param.StatusCode, param.Path)
+	}))
 
 	e.Use(gin.Recovery())
 

@@ -1,5 +1,4 @@
 .idea
 *.sum
 *.exe
-tog/logs
-tgin/logs
+logs

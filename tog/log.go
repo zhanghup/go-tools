@@ -1,4 +1,4 @@
-package logger
+package tog
 
 type ILogger interface {
 	Info(fmt string, args ...interface{})

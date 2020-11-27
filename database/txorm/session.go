@@ -18,5 +18,6 @@ func (this *Session) Context() context.Context {
 	if this.context == nil {
 		return context.Background()
 	}
+
 	return context.WithValue(this.context, CONTEXT_SESSION, this)
 }

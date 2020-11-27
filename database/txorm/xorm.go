@@ -2,7 +2,7 @@ package txorm
 
 import (
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/zhanghup/go-tools/tog/logger"
+	"github.com/zhanghup/go-tools/tog"
 	"xorm.io/xorm"
 	"xorm.io/xorm/log"
 )
@@ -19,14 +19,10 @@ func NewXorm(cfg Config) (*xorm.Engine, error) {
 		return nil, err
 	}
 	if cfg.Debug {
+		engine.Logger().SetLevel(log.LOG_INFO)
+		engine.SetLogger(log.NewSimpleLogger(tog.Toginfo))
 		engine.ShowSQL(true)
 	}
-
-	logopt := logger.OptionStdout()
-	logopt.ShowLine = false
-	logopt.TimeKey = ""
-	logopt.LevelKey = ""
-	engine.SetLogger(log.NewSimpleLogger(logger.NewLogger(logopt)))
 
 	return engine, err
 }

@@ -11,27 +11,27 @@ func jsonFormat(o interface{}, flag ...bool) string{
 }
 
 func Info(fmt string, args ...interface{}) {
-	toginfo.Info(fmt, args...)
+	Toginfo.Info(fmt, args...)
 }
 
 func InfoAsJson(o interface{}, flag ...bool) {
-	toginfo.Info(jsonFormat(o,flag...))
+	Toginfo.Info(jsonFormat(o,flag...))
 }
 
 func Error(fmt string, args ...interface{}) {
-	toginfo.Error(fmt, args...)
-	togerr.Error(fmt, args...)
+	Toginfo.Error(fmt, args...)
+	Togerr.Error(fmt, args...)
 }
 
 func ErrorAsJson(o interface{}, flag ...bool) {
-	toginfo.Error(jsonFormat(o,flag...))
-	togerr.Error(jsonFormat(o,flag...))
+	Toginfo.Error(jsonFormat(o,flag...))
+	Togerr.Error(jsonFormat(o,flag...))
 }
 
 func Warn(fmt string, args ...interface{}) {
-	toginfo.Warn(fmt, args...)
+	Toginfo.Warn(fmt, args...)
 }
 
 func WarnAsJson(o interface{}, flag ...bool) {
-	toginfo.Warn(jsonFormat(o,flag...))
+	Toginfo.Warn(jsonFormat(o,flag...))
 }
