@@ -13,7 +13,7 @@ var Togerr ILogger
 func init() {
 	Toginfo = NewLogger(&Option{
 		Filename:   "./logs/stdout.log",
-		MaxSize:    1,
+		MaxSize:    120,
 		MaxBackups: 500,
 		MaxAge:     60,
 		LevelKey:   "level",
@@ -42,7 +42,7 @@ func init() {
 
 	Togerr = NewLogger(&Option{
 		Filename:   "./logs/stderr.log",
-		MaxSize:    1,
+		MaxSize:    20,
 		MaxBackups: 500,
 		MaxAge:     60,
 		LevelKey:   "level",
