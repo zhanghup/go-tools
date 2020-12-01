@@ -43,7 +43,7 @@ func (this myStringTemplate) FuncMap(param map[string]interface{}) myStringTempl
 
 func (this myStringTemplate) String() string {
 	data := bytes.NewBuffer(nil)
-	tpl, err := this.tpl.Parse(this.str)
+	tpl, err := this.tpl.Funcs(this.fns).Parse(this.str)
 	if err != nil {
 		return Str.Fmt("[1] 模板格式化异常,error:%s", err.Error())
 	}

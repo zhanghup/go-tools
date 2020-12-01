@@ -12,6 +12,7 @@ type Session struct {
 	query     map[string]interface{}
 	args      []interface{}
 	autoClose bool
+	tmps      map[string]interface{}
 }
 
 func (this *Session) Context() context.Context {

@@ -14,7 +14,7 @@ func (this *Session) SF(sql string, querys ...map[string]interface{}) *Session {
 		query = querys[0]
 	}
 	this.query = query
-	this.sql = tools.Str.Tmp(sql, query).String()
+	this.sql = tools.Str.Tmp(sql, query).FuncMap(this.tmps).String()
 	this.args = make([]interface{}, 0)
 	this.sf_args()
 	return this
@@ -59,7 +59,7 @@ func (this *Session) sf_args_item(key string, value reflect.Value) *Session {
 func (this *Session) Find(bean interface{}) error {
 	err := this.Sess.SQL(this.sql, this.args...).Find(bean)
 	if this.autoClose {
-		this.Sess.Close()
+		defer this.Sess.Close()
 	}
 	return err
 }
@@ -74,6 +74,9 @@ func (this *Session) Page(index, size int, count bool, bean interface{}) (int, e
 		total := 0
 		_, err := this.Sess.SQL(fmt.Sprintf("select count(1) from (%s) _", this.sql), this.args...).Get(&total)
 		return total, err
+	}
+	if this.autoClose {
+		defer this.Sess.Close()
 	}
 	return 0, nil
 }
@@ -96,7 +99,7 @@ func (this *Session) Exec() error {
 
 	_, err := this.Sess.Exec(append(sqls, this.args...)...)
 	if this.autoClose {
-		this.Sess.Close()
+		defer this.Sess.Close()
 	}
 	return err
 }
