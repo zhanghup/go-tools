@@ -3,7 +3,7 @@ module github.com/zhanghup/go-tools
 go 1.12
 
 require (
-	github.com/360EntSecGroup-Skylar/excelize/v2 v2.3.1 // indirect
+	github.com/360EntSecGroup-Skylar/excelize/v2 v2.3.1
 	github.com/99designs/gqlgen v0.13.0
 	github.com/PuerkitoBio/goquery v1.5.1
 	github.com/daaku/go.zipexe v1.0.1 // indirect
