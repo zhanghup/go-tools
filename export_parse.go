@@ -12,6 +12,10 @@ func (this myParse) MustStrToInt(s string) int {
 	return int(this.MustStrToInt64(s))
 }
 
+func (this myParse) MustStrToInt8(s string) int8 {
+	return int8(this.MustStrToInt64(s))
+}
+
 func (this myParse) MustStrToInt16(s string) int16 {
 	return int16(this.MustStrToInt64(s))
 }
@@ -55,6 +59,10 @@ func (this myParse) Int32ToStr(i int32) string {
 }
 
 func (this myParse) Int16ToStr(i int16) string {
+	return strconv.FormatInt(int64(i), 10)
+}
+
+func (this myParse) Int8ToStr(i int8) string {
 	return strconv.FormatInt(int64(i), 10)
 }
 
