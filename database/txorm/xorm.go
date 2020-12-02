@@ -33,7 +33,7 @@ func NewEngine(db *xorm.Engine, flag ...bool) *Engine {
 	if newengine != nil && (len(flag) == 0 || !flag[0]) {
 		return newengine
 	}
-	return &Engine{DB: db}
+	return &Engine{DB: db, tmps: map[string]interface{}{}}
 }
 
 func (this *Engine) TemplateFuncAdd(name string, f interface{}) {
