@@ -1,6 +1,10 @@
 package test_xorm
 
-import "github.com/zhanghup/go-tools/database/txorm"
+import (
+	"context"
+	"github.com/zhanghup/go-tools"
+	"github.com/zhanghup/go-tools/database/txorm"
+)
 
 func NewEngine() *txorm.Engine {
 	e, err := txorm.NewXorm(txorm.Config{
@@ -11,5 +15,12 @@ func NewEngine() *txorm.Engine {
 		panic(err)
 	}
 	e.ShowSQL(true)
-	return txorm.NewEngine(e)
+	dbs := txorm.NewEngine(e)
+	dbs.TemplateFuncAdd("users", func(ctx context.Context) string {
+		return tools.Str.Tmp(`
+			users as (select id from user)
+		`, map[string]interface{}{}).String()
+	})
+
+	return dbs
 }

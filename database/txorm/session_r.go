@@ -15,6 +15,12 @@ func (this *Session) SF(sql string, querys ...map[string]interface{}) *Session {
 	}
 	this.query = query
 	this.sql = tools.Str.Tmp(sql, query).FuncMap(this.tmps).String()
+
+	if len(this.withs) > 0 {
+		this.sqlwith = strings.Join(append([]string{"\n with recursive _ as (select 1)"}, this.withs...), ",")
+		this.sqlwith = tools.Str.Tmp(this.sqlwith, query).FuncMap(this.tmps).String()
+	}
+
 	this.args = make([]interface{}, 0)
 	this.sf_args()
 	return this
@@ -57,7 +63,7 @@ func (this *Session) sf_args_item(key string, value reflect.Value) *Session {
 }
 
 func (this *Session) Find(bean interface{}) error {
-	err := this.Sess.SQL(this.sql, this.args...).Find(bean)
+	err := this.Sess.SQL(this.sqlwith+" "+this.sql, this.args...).Find(bean)
 	if this.autoClose {
 		defer this.Sess.Close()
 	}
@@ -72,7 +78,7 @@ func (this *Session) Page(index, size int, count bool, bean interface{}) (int, e
 
 	if count {
 		total := 0
-		_, err := this.Sess.SQL(fmt.Sprintf("select count(1) from (%s) _", this.sql), this.args...).Get(&total)
+		_, err := this.Sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this.sqlwith, this.sql), this.args...).Get(&total)
 		return total, err
 	}
 	if this.autoClose {

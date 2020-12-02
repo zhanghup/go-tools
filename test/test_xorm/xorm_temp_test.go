@@ -6,16 +6,14 @@ import (
 	"testing"
 )
 
-func TestEngineTemplate(t *testing.T) {
-	str := tools.Str.Tmp(`
-		{{ mwith 1}}
-			asdjfklasjfd
-		select * from user
-	`).FuncMap(map[string]interface{}{
-		"mwith": func(i int) string{
-			return "aaa"
-		},
-	}).String()
-
-	fmt.Println(str)
+func TestTemplate(t *testing.T) {
+	db := NewEngine()
+	s := make([]struct {
+		Id string `xorm:"id" json:"id"`
+	}, 0)
+	err := db.With("users").SF(`select u.* from user u join user uu on u.id = uu.id`).Find(&s)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Print(tools.Str.JSONString(s))
 }

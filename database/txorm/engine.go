@@ -7,8 +7,8 @@ import (
 )
 
 type Engine struct {
-	DB          *xorm.Engine
-	tmps        map[string]interface{}
+	DB      *xorm.Engine
+	tmps    map[string]interface{}
 	tmpsync sync.RWMutex
 }
 
@@ -40,11 +40,15 @@ func (this *Engine) session() *Session {
 }
 
 func (this *Engine) TS(fn func(sess *Session) error) error {
-	sess := &Session{Sess: this.DB.NewSession(), tmps: this.tmps, autoClose: false}
-	return sess.TS(fn)
+	return this.NewSession().TS(fn)
 }
 
 func (this *Engine) SF(sql string, querys ...map[string]interface{}) *Session {
-	sess := this.DB.NewSession()
-	return (&Session{Sess: sess, tmps: this.tmps, autoClose: true}).SF(sql, querys...)
+	sess := this.NewSession()
+	sess.autoClose = true
+	return sess.SF(sql, querys...)
+}
+
+func (this *Engine) With(name string) *Session {
+	return this.NewSession().With(name)
 }
