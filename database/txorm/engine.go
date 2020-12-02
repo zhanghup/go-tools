@@ -9,7 +9,7 @@ import (
 type Engine struct {
 	DB          *xorm.Engine
 	tmps        map[string]interface{}
-	tmpsync sync.RWMutex //
+	tmpsync sync.RWMutex
 }
 
 const CONTEXT_SESSION = "context-session"

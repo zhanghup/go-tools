@@ -27,7 +27,12 @@ func NewXorm(cfg Config) (*xorm.Engine, error) {
 	return engine, err
 }
 
-func NewEngine(db *xorm.Engine) *Engine {
+var newengine *Engine
+
+func NewEngine(db *xorm.Engine, flag ...bool) *Engine {
+	if newengine != nil && (len(flag) == 0 || !flag[0]) {
+		return newengine
+	}
 	return &Engine{DB: db}
 }
 
