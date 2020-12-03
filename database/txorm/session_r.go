@@ -88,11 +88,9 @@ func (this *Session) Page(index, size int, count bool, bean interface{}) (int, e
 		err := this.Sess.SQL(this.sql, this.args...).Find(bean)
 		return 0, err
 	} else if size == 0 {
-		if count {
-			total := 0
-			_, err := this.Sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this.sqlwith, this.sql), this.args...).Get(&total)
-			return total, err
-		}
+		total := 0
+		_, err := this.Sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this.sqlwith, this.sql), this.args...).Get(&total)
+		return total, err
 	} else {
 		err := this.Sess.SQL(fmt.Sprintf("%s limit ?,?", this.sql), append(this.args, (index-1)*size, size)...).Find(bean)
 		if err != nil {
