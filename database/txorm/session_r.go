@@ -17,7 +17,17 @@ func (this *Session) SF(sql string, querys ...map[string]interface{}) *Session {
 	this.sql = tools.Str.Tmp(sql, query).FuncMap(this.tmps).String()
 
 	if len(this.withs) > 0 {
-		this.sqlwith = strings.Join(append([]string{"\n with recursive _ as (select 1)"}, this.withs...), ",")
+		// 去重
+		withs := []string{"\n with recursive _ as (select 1)"}
+		wmap := map[string]bool{}
+		for _, w := range this.withs {
+			wmap[w] = true
+		}
+		for k := range wmap {
+			withs = append(withs, k)
+		}
+
+		this.sqlwith = strings.Join(withs, ",")
 		this.sqlwith = tools.Str.Tmp(this.sqlwith, query).FuncMap(this.tmps).String()
 	}
 

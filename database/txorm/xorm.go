@@ -3,6 +3,7 @@ package txorm
 import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/zhanghup/go-tools/tog"
+	"sync"
 	"xorm.io/xorm"
 	"xorm.io/xorm/log"
 )
@@ -11,6 +12,12 @@ type Config struct {
 	Driver string `yaml:"driver"`
 	Uri    string `yaml:"uri"`
 	Debug  bool   `yaml:"debug"`
+}
+
+type Engine struct {
+	DB      *xorm.Engine
+	tmps    map[string]interface{}
+	tmpsync sync.RWMutex
 }
 
 func NewXorm(cfg Config) (*xorm.Engine, error) {
@@ -27,6 +34,7 @@ func NewXorm(cfg Config) (*xorm.Engine, error) {
 	return engine, err
 }
 
+// 单例
 var newengine *Engine
 
 func NewEngine(db *xorm.Engine, flag ...bool) *Engine {
@@ -34,20 +42,4 @@ func NewEngine(db *xorm.Engine, flag ...bool) *Engine {
 		return newengine
 	}
 	return &Engine{DB: db, tmps: map[string]interface{}{}}
-}
-
-func (this *Engine) TemplateFuncAdd(name string, f interface{}) {
-	this.tmpsync.Lock()
-	this.tmps[name] = f
-	this.tmpsync.Unlock()
-}
-
-func (this *Engine) TemplateFuncKeys() []string {
-	this.tmpsync.RLock()
-	keys := make([]string, len(this.tmps))
-	for k := range this.tmps {
-		keys = append(keys, k)
-	}
-	this.tmpsync.RUnlock()
-	return keys
 }

@@ -1,6 +1,7 @@
 package texcel
 
 import (
+	"fmt"
 	"os"
 	"testing"
 )
@@ -14,8 +15,9 @@ func TestOpenExcel(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	err = e.ReadMapBySheetName(0, 0, 2)
+	res, err := e.ReadMapBySheetName(0, 0, 2)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println(res)
 }
