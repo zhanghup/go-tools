@@ -81,19 +81,30 @@ func (this *Session) Find(bean interface{}) error {
 }
 
 func (this *Session) Page(index, size int, count bool, bean interface{}) (int, error) {
-	err := this.Sess.SQL(fmt.Sprintf("%s limit ?,?", this.sql), append(this.args, (index-1)*size, size)...).Find(bean)
-	if err != nil {
-		return 0, err
-	}
-
-	if count {
-		total := 0
-		_, err := this.Sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this.sqlwith, this.sql), this.args...).Get(&total)
-		return total, err
-	}
 	if this.autoClose {
 		defer this.Sess.Close()
 	}
+	if size < 0 {
+		err := this.Sess.SQL(this.sql, this.args...).Find(bean)
+		return 0, err
+	} else if size == 0 {
+		if count {
+			total := 0
+			_, err := this.Sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this.sqlwith, this.sql), this.args...).Get(&total)
+			return total, err
+		}
+	} else {
+		err := this.Sess.SQL(fmt.Sprintf("%s limit ?,?", this.sql), append(this.args, (index-1)*size, size)...).Find(bean)
+		if err != nil {
+			return 0, err
+		}
+		if count {
+			total := 0
+			_, err := this.Sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this.sqlwith, this.sql), this.args...).Get(&total)
+			return total, err
+		}
+	}
+
 	return 0, nil
 }
 
