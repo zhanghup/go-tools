@@ -2,6 +2,7 @@ package test_xorm
 
 import (
 	"context"
+	"errors"
 	"github.com/zhanghup/go-tools"
 	"github.com/zhanghup/go-tools/database/txorm"
 	"testing"
@@ -43,7 +44,7 @@ func TestSession_TS(t *testing.T) {
 		if err != nil {
 			return err
 		}
-		return nil
+		return errors.New("123")
 	})
 	if err != nil {
 		panic(err)

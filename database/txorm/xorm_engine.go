@@ -4,13 +4,16 @@ import (
 	"context"
 )
 
-
-
 const CONTEXT_SESSION = "context-session"
 
 func (this *Engine) NewSession(ctx ...context.Context) *Session {
 
-	newSession := &Session{Sess: this.DB.NewSession(), tmps: this.tmps, autoClose: false}
+	newSession := &Session{
+		Sess:           this.DB.NewSession(),
+		tmps:           this.tmps,
+		autoClose:      false,
+		beginTranslate: false,
+	}
 
 	if len(ctx) > 0 && ctx[0] != nil {
 		c := ctx[0]
