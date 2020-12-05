@@ -2,7 +2,6 @@ package test_xorm
 
 import (
 	"context"
-	"errors"
 	"github.com/zhanghup/go-tools"
 	"github.com/zhanghup/go-tools/database/txorm"
 	"testing"
@@ -29,9 +28,11 @@ func TestSession_TS(t *testing.T) {
 		panic(err)
 	}
 
-	users := make([]struct{Id string `xorm:"id"`},0)
+	users := make([]struct {
+		Id string `xorm:"id"`
+	}, 0)
 	err = sess.SF("select * from user").Find(&users)
-	if err != nil{
+	if err != nil {
 		panic(err)
 	}
 
@@ -44,13 +45,12 @@ func TestSession_TS(t *testing.T) {
 		if err != nil {
 			return err
 		}
-		return errors.New("123")
+		return nil
 	})
 	if err != nil {
 		panic(err)
 	}
 
+	time.Sleep(time.Second * 10)
 	fn()
-
-	time.Sleep(time.Second)
 }

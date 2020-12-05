@@ -21,7 +21,7 @@ type Session struct {
 
 func (this *Session) Context() context.Context {
 	if this.context == nil {
-		return context.Background()
+		this.context = context.Background()
 	}
 
 	return context.WithValue(this.context, CONTEXT_SESSION, this)
@@ -80,8 +80,11 @@ func (this *Session) Commit() error {
 
 	if this.context != nil {
 		go func() {
-			<-this.context.Done()
-			_ = closeFn()
+			select {
+			case <-this.context.Done():
+				_ = closeFn()
+			}
+
 		}()
 	} else {
 		return closeFn()
