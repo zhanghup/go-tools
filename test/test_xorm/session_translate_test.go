@@ -9,13 +9,10 @@ import (
 )
 
 func TestSession_TS(t *testing.T) {
-	ctx := context.Background()
-	ctx, fn := context.WithCancel(ctx)
-
+	ctx,cancel := context.WithCancel(context.Background())
 	sess := NewEngine().NewSession(ctx)
-	ctx = sess.Context()
-	err := sess.TS(func(sess *txorm.Session) error {
-		_, err := sess.Sess.Table("user").Insert(map[string]interface{}{
+	err := sess.TS(func(sess txorm.ISession) error {
+		_, err := sess.Session().Table("user").Insert(map[string]interface{}{
 			"id":     tools.Str.Uid(),
 			"status": 1,
 		})
@@ -36,9 +33,9 @@ func TestSession_TS(t *testing.T) {
 		panic(err)
 	}
 
-	sess = NewEngine().NewSession(ctx)
-	err = sess.TS(func(sess *txorm.Session) error {
-		_, err := sess.Sess.Table("user").Insert(map[string]interface{}{
+	sess = NewEngine().NewSession(sess.Context())
+	err = sess.TS(func(sess txorm.ISession) error {
+		_, err := sess.Session().Table("user").Insert(map[string]interface{}{
 			"id":     tools.Str.Uid(),
 			"status": 1,
 		})
@@ -51,6 +48,7 @@ func TestSession_TS(t *testing.T) {
 		panic(err)
 	}
 
-	time.Sleep(time.Second * 10)
-	fn()
+	//sess.ContextClose()
+	cancel()
+	time.Sleep(time.Second * 1)
 }

@@ -2,16 +2,43 @@ package txorm
 
 import (
 	"context"
+	"xorm.io/xorm"
 )
 
 const CONTEXT_SESSION = "context-session"
 
-func (this *Engine) NewSession(ctx ...context.Context) *Session {
+func (this *Engine) newSession(autoClose bool, ctx ...context.Context) ISession {
+	return newSeesion(this.DB, autoClose, this.tmps, ctx...)
+}
 
+func (this *Engine) NewSession(ctx ...context.Context) ISession {
+	return newSeesion(this.DB, false, this.tmps, ctx...)
+}
+
+func (this *Engine) TS(fn func(sess ISession) error) error {
+	return this.newSession(true).TS(fn)
+}
+
+// Engine直接调用，自动结束session
+func (this *Engine) SF(sql string, querys ...map[string]interface{}) ISession {
+	sess := this.newSession(true)
+	return sess.SF(sql, querys...)
+}
+
+func (this *Engine) With(name string) ISession {
+	return this.newSession(true).With(name)
+}
+
+func (this *Engine) SessionContextClose(ctx context.Context) error {
+	return this.newSession(true, ctx).ContextClose()
+}
+
+func newSeesion(db *xorm.Engine, autoClose bool, tmps map[string]interface{}, ctx ...context.Context) ISession {
 	newSession := &Session{
-		Sess:           this.DB.NewSession(),
-		tmps:           this.tmps,
-		autoClose:      false,
+		_db:            db,
+		Sess:           db.NewSession(),
+		tmps:           tmps,
+		autoClose:      autoClose,
 		beginTranslate: false,
 	}
 
@@ -32,19 +59,4 @@ func (this *Engine) NewSession(ctx ...context.Context) *Session {
 	} else {
 		return newSession
 	}
-}
-
-func (this *Engine) TS(fn func(sess *Session) error) error {
-	return this.NewSession().TS(fn)
-}
-
-// Engine直接调用，自动结束session
-func (this *Engine) SF(sql string, querys ...map[string]interface{}) *Session {
-	sess := this.NewSession()
-	sess.autoClose = true
-	return sess.SF(sql, querys...)
-}
-
-func (this *Engine) With(name string) *Session {
-	return this.NewSession().With(name)
 }

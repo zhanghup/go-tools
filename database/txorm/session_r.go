@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func (this *Session) SF(sql string, querys ...map[string]interface{}) *Session {
+func (this *Session) SF(sql string, querys ...map[string]interface{}) ISession {
 	query := map[string]interface{}{}
 	if len(querys) > 0 && querys[0] != nil {
 		query = querys[0]
@@ -36,7 +36,7 @@ func (this *Session) SF(sql string, querys ...map[string]interface{}) *Session {
 	return this
 }
 
-func (this *Session) sf_args() *Session {
+func (this *Session) sf_args() ISession {
 	r := regexp.MustCompile(`:[0-1a-zA-Z]+`)
 	ss := r.FindAllString(this.sql, -1)
 	for _, s := range ss {
@@ -50,7 +50,7 @@ func (this *Session) sf_args() *Session {
 	return this
 }
 
-func (this *Session) sf_args_item(key string, value reflect.Value) *Session {
+func (this *Session) sf_args_item(key string, value reflect.Value) ISession {
 	ty := value.Type()
 	switch ty.Kind() {
 	case reflect.Ptr:
