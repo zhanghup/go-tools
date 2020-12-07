@@ -40,6 +40,7 @@ func newSeesion(db *xorm.Engine, autoClose bool, tmps map[string]interface{}, ct
 		tmps:           tmps,
 		autoClose:      autoClose,
 		beginTranslate: false,
+		mustCommit:     false,
 	}
 
 	if len(ctx) > 0 && ctx[0] != nil {

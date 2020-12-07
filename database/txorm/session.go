@@ -7,6 +7,7 @@ import (
 )
 
 type Session struct {
+	Id string
 	// 事务相关
 	context        context.Context
 	contextCancel  context.CancelFunc
@@ -15,13 +16,14 @@ type Session struct {
 	Sess *xorm.Session
 	_db  *xorm.Engine
 
-	sql       string
-	sqlwith   string
-	query     map[string]interface{}
-	args      []interface{}
-	autoClose bool
-	tmps      map[string]interface{}
-	withs     []string
+	mustCommit bool
+	sql        string
+	sqlwith    string
+	query      map[string]interface{}
+	args       []interface{}
+	autoClose  bool
+	tmps       map[string]interface{}
+	withs      []string
 }
 
 func (this *Session) Session() *xorm.Session {
@@ -85,17 +87,27 @@ func (this *Session) Commit() error {
 	}
 
 	if this.context != nil {
-		go func() {
-			select {
-			case <-this.context.Done():
-				_ = closeFn()
-			}
+		if this.mustCommit {
+			return closeFn()
+		} else {
+			go func() {
+				select {
+				case <-this.context.Done():
+					_ = closeFn()
+				}
 
-		}()
+			}()
+		}
+
 	} else {
 		return closeFn()
 	}
 	return nil
+}
+
+func (this *Session) SetMustCommit(flag bool) ISession{
+	this.mustCommit = flag
+	return this
 }
 
 func (this *Session) Close() error {

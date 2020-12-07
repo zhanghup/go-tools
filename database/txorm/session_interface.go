@@ -15,8 +15,9 @@ type ISession interface {
 	Commit() error
 	Close() error
 	ContextClose() error
-	Find(bean interface{}) error
+	SetMustCommit(flag bool) ISession
 
+	Find(bean interface{}) error
 	Insert(bean ...interface{}) error
 	Update(bean interface{}, condiBean ...interface{}) error
 	Delete(bean interface{}) error
