@@ -7,7 +7,7 @@ import (
 )
 
 type Session struct {
-	Id string
+	id string
 	// 事务相关
 	context        context.Context
 	contextCancel  context.CancelFunc
@@ -105,7 +105,7 @@ func (this *Session) Commit() error {
 	return nil
 }
 
-func (this *Session) SetMustCommit(flag bool) ISession{
+func (this *Session) SetMustCommit(flag bool) ISession {
 	this.mustCommit = flag
 	return this
 }
@@ -132,4 +132,8 @@ func (this *Session) ContextClose() error {
 		this.contextCancel()
 	}
 	return nil
+}
+
+func (this *Session) Id() string {
+	return this.id
 }

@@ -16,6 +16,7 @@ type ISession interface {
 	Close() error
 	ContextClose() error
 	SetMustCommit(flag bool) ISession
+	Id() string
 
 	Find(bean interface{}) error
 	Insert(bean ...interface{}) error

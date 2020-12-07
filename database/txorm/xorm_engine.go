@@ -2,6 +2,7 @@ package txorm
 
 import (
 	"context"
+	"github.com/zhanghup/go-tools"
 	"xorm.io/xorm"
 )
 
@@ -35,6 +36,7 @@ func (this *Engine) SessionContextClose(ctx context.Context) error {
 
 func newSeesion(db *xorm.Engine, autoClose bool, tmps map[string]interface{}, ctx ...context.Context) ISession {
 	newSession := &Session{
+		id:             tools.Str.Uid(),
 		_db:            db,
 		Sess:           db.NewSession(),
 		tmps:           tmps,
