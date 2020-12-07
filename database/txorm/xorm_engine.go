@@ -56,6 +56,7 @@ func newSeesion(db *xorm.Engine, autoClose bool, tmps map[string]interface{}, ct
 			if !ok {
 				return newSession
 			} else {
+				oldSession.context = c
 				return oldSession
 			}
 		}
