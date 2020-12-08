@@ -30,19 +30,15 @@ func (this *Engine) With(name string) ISession {
 	return this.newSession(true).With(name)
 }
 
-func (this *Engine) SessionContextClose(ctx context.Context) error {
-	return this.newSession(true, ctx).ContextClose()
-}
 
 func newSeesion(db *xorm.Engine, autoClose bool, tmps map[string]interface{}, ctx ...context.Context) ISession {
 	newSession := &Session{
 		id:             tools.Str.Uid(),
 		_db:            db,
-		Sess:           db.NewSession(),
+		sess:           db.NewSession(),
 		tmps:           tmps,
 		autoClose:      autoClose,
 		beginTranslate: false,
-		mustCommit:     false,
 	}
 
 	if len(ctx) > 0 && ctx[0] != nil {

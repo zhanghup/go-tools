@@ -73,32 +73,32 @@ func (this *Session) sf_args_item(key string, value reflect.Value) ISession {
 }
 
 func (this *Session) Find(bean interface{}) error {
-	err := this.Sess.SQL(this.sqlwith+" "+this.sql, this.args...).Find(bean)
 	if this.autoClose {
-		defer this.Sess.Close()
+		defer this.sess.Close()
 	}
+	err := this.sess.SQL(this.sqlwith+" "+this.sql, this.args...).Find(bean)
 	return err
 }
 
 func (this *Session) Page(index, size int, count bool, bean interface{}) (int, error) {
 	if this.autoClose {
-		defer this.Sess.Close()
+		defer this.sess.Close()
 	}
 	if size < 0 {
-		err := this.Sess.SQL(this.sql, this.args...).Find(bean)
+		err := this.sess.SQL(this.sql, this.args...).Find(bean)
 		return 0, err
 	} else if size == 0 {
 		total := 0
-		_, err := this.Sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this.sqlwith, this.sql), this.args...).Get(&total)
+		_, err := this.sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this.sqlwith, this.sql), this.args...).Get(&total)
 		return total, err
 	} else {
-		err := this.Sess.SQL(fmt.Sprintf("%s limit ?,?", this.sql), append(this.args, (index-1)*size, size)...).Find(bean)
+		err := this.sess.SQL(fmt.Sprintf("%s limit ?,?", this.sql), append(this.args, (index-1)*size, size)...).Find(bean)
 		if err != nil {
 			return 0, err
 		}
 		if count {
 			total := 0
-			_, err := this.Sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this.sqlwith, this.sql), this.args...).Get(&total)
+			_, err := this.sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this.sqlwith, this.sql), this.args...).Get(&total)
 			return total, err
 		}
 	}
@@ -120,11 +120,11 @@ func (this *Session) Page2(index, size *int, count *bool, bean interface{}) (int
 }
 
 func (this *Session) Exec() error {
-	sqls := []interface{}{this.sql}
-
-	_, err := this.Sess.Exec(append(sqls, this.args...)...)
 	if this.autoClose {
-		defer this.Sess.Close()
+		defer this.sess.Close()
 	}
+
+	sqls := []interface{}{this.sql}
+	_, err := this.sess.Exec(append(sqls, this.args...)...)
 	return err
 }

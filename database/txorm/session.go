@@ -7,42 +7,35 @@ import (
 )
 
 type Session struct {
-	id string
-	// 事务相关
+	id             string
 	context        context.Context
-	contextCancel  context.CancelFunc
 	beginTranslate bool
 	// xorm session
-	Sess *xorm.Session
+	sess *xorm.Session
 	_db  *xorm.Engine
 
-	mustCommit bool
-	sql        string
-	sqlwith    string
-	query      map[string]interface{}
-	args       []interface{}
-	autoClose  bool
-	tmps       map[string]interface{}
-	withs      []string
+	sql       string
+	sqlwith   string
+	query     map[string]interface{}
+	args      []interface{}
+	autoClose bool
+	tmps      map[string]interface{}
+	withs     []string
 }
 
 func (this *Session) Session() *xorm.Session {
-	return this.Sess
+	return this.sess
 }
 
 func (this *Session) Context() context.Context {
 	if this.context == nil {
 		this.context = context.Background()
 	}
-	ctx, cancel := context.WithCancel(this.context)
-	this.context = ctx
-	this.contextCancel = cancel
-
 	return context.WithValue(this.context, CONTEXT_SESSION, this)
 }
 
 func (this *Session) Table(table interface{}) ISession {
-	this.Sess.Table(table)
+	this.sess.Table(table)
 	return this
 }
 
@@ -55,7 +48,7 @@ func (this *Session) Begin() error {
 	if this.beginTranslate {
 		return nil
 	}
-	if err := this.Sess.Begin(); err != nil {
+	if err := this.sess.Begin(); err != nil {
 		return err
 	}
 	this.beginTranslate = true
@@ -66,7 +59,7 @@ func (this *Session) Rollback() error {
 	if !this.beginTranslate {
 		return nil
 	}
-	if err := this.Sess.Rollback(); err != nil {
+	if err := this.sess.Rollback(); err != nil {
 		return err
 	}
 	this.beginTranslate = false
@@ -78,60 +71,16 @@ func (this *Session) Commit() error {
 		return nil
 	}
 
-	closeFn := func() error {
-		if err := this.Sess.Commit(); err != nil {
-			return err
-		}
-		this.beginTranslate = false
-		return this.Close()
+	if err := this.sess.Commit(); err != nil {
+		return err
 	}
-
-	if this.context != nil {
-		if this.mustCommit {
-			return closeFn()
-		} else {
-			go func() {
-				select {
-				case <-this.context.Done():
-					_ = closeFn()
-				}
-
-			}()
-		}
-
-	} else {
-		return closeFn()
-	}
+	this.beginTranslate = false
 	return nil
-}
 
-func (this *Session) SetMustCommit(flag bool) ISession {
-	this.mustCommit = flag
-	return this
 }
 
 func (this *Session) Close() error {
-	if this.autoClose {
-		err := this.Sess.Close()
-		if err != nil {
-			return err
-		}
-	}
-	this.beginTranslate = false
-	err := this.ContextClose()
-	if err != nil {
-		return err
-	}
-	this.contextCancel = nil
-	this.context = nil
-	return nil
-}
-
-func (this *Session) ContextClose() error {
-	if this.context != nil && this.contextCancel != nil {
-		this.contextCancel()
-	}
-	return nil
+	return this.sess.Close()
 }
 
 func (this *Session) Id() string {

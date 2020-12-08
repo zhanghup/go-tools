@@ -14,8 +14,6 @@ type ISession interface {
 	Rollback() error
 	Commit() error
 	Close() error
-	ContextClose() error
-	SetMustCommit(flag bool) ISession
 	Id() string
 
 	Find(bean interface{}) error
@@ -25,6 +23,6 @@ type ISession interface {
 	SF(sql string, querys ...map[string]interface{}) ISession
 	Page(index, size int, count bool, bean interface{}) (int, error)
 	Page2(index, size *int, count *bool, bean interface{}) (int, error)
-	TS(fn func(sess ISession) error) error
+	TS(fn func(sess ISession) error,commit ... bool) error
 	Exec() error
 }

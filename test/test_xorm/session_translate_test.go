@@ -2,6 +2,7 @@ package test_xorm
 
 import (
 	"context"
+	"fmt"
 	"github.com/zhanghup/go-tools"
 	"github.com/zhanghup/go-tools/database/txorm"
 	"testing"
@@ -9,7 +10,8 @@ import (
 )
 
 func TestSession_TS(t *testing.T) {
-	ctx,cancel := context.WithCancel(context.Background())
+	ctx := context.Background()
+	ctx,fn := context.WithTimeout(ctx,time.Second)
 	sess := NewEngine().NewSession(ctx)
 	err := sess.TS(func(sess txorm.ISession) error {
 		_, err := sess.Session().Table("user").Insert(map[string]interface{}{
@@ -48,7 +50,11 @@ func TestSession_TS(t *testing.T) {
 		panic(err)
 	}
 
+	sess.Commit()
+	sess.Close()
+	fmt.Println("11")
+	fn()
+	fmt.Println("22")
 	//sess.ContextClose()
-	cancel()
 	time.Sleep(time.Second * 1)
 }
