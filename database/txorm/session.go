@@ -63,7 +63,7 @@ func (this *Session) Rollback() error {
 		return err
 	}
 	this.beginTranslate = false
-	return this.Close()
+	return this.AutoClose()
 }
 
 func (this *Session) Commit() error {
@@ -85,10 +85,9 @@ func (this *Session) AutoClose() error {
 	if err != nil {
 		return err
 	}
-	return this.Close()
-}
-
-func (this *Session) Close() error {
+	if this.sess.IsClosed() {
+		return nil
+	}
 	return this.sess.Close()
 }
 

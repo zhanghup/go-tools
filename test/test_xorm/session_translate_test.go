@@ -35,7 +35,9 @@ func TestSession_TS(t *testing.T) {
 		panic(err)
 	}
 
-	sess.Close()
+	fmt.Println(sess.Close())
+	fmt.Println(sess.Close())
+	fmt.Println(sess.Session().IsClosed())
 
 	sess = NewEngine().NewSession(sess.Context())
 	err = sess.TS(func(sess txorm.ISession) error {

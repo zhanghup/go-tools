@@ -6,6 +6,7 @@ import (
 )
 
 type ISession interface {
+	Id() string
 	Context() context.Context
 	Session() *xorm.Session
 	Table(table interface{}) ISession
@@ -13,8 +14,7 @@ type ISession interface {
 	Begin() error
 	Rollback() error
 	Commit() error
-	Close() error
-	Id() string
+	AutoClose() error
 
 	Find(bean interface{}) error
 	Insert(bean ...interface{}) error
@@ -23,6 +23,6 @@ type ISession interface {
 	SF(sql string, querys ...map[string]interface{}) ISession
 	Page(index, size int, count bool, bean interface{}) (int, error)
 	Page2(index, size *int, count *bool, bean interface{}) (int, error)
-	TS(fn func(sess ISession) error,commit ... bool) error
+	TS(fn func(sess ISession) error, commit ...bool) error
 	Exec() error
 }
