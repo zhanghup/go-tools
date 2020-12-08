@@ -35,6 +35,8 @@ func TestSession_TS(t *testing.T) {
 		panic(err)
 	}
 
+	sess.Close()
+
 	sess = NewEngine().NewSession(sess.Context())
 	err = sess.TS(func(sess txorm.ISession) error {
 		_, err := sess.Session().Table("user").Insert(map[string]interface{}{
