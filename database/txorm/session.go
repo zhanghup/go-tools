@@ -79,6 +79,15 @@ func (this *Session) Commit() error {
 
 }
 
+// 由engine直接进入的方法，需要自动关闭session
+func (this *Session) AutoClose() error {
+	err := this.Commit()
+	if err != nil {
+		return err
+	}
+	return this.Close()
+}
+
 func (this *Session) Close() error {
 	return this.sess.Close()
 }
