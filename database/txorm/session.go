@@ -21,6 +21,7 @@ type Session struct {
 	autoClose bool
 	tmps      map[string]interface{}
 	withs     []string
+	orderby   []string
 }
 
 func (this *Session) Session() *xorm.Session {

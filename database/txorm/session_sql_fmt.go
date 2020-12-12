@@ -9,6 +9,9 @@ import (
 )
 
 func (this *Session) SF(sql string, querys ...map[string]interface{}) ISession {
+	// 重置排序功能
+	this.orderby = []string{}
+
 	query := map[string]interface{}{}
 	if len(querys) > 0 && querys[0] != nil {
 		query = querys[0]
@@ -71,5 +74,3 @@ func (this *Session) sf_args_item(key string, value reflect.Value) ISession {
 	}
 	return this
 }
-
-

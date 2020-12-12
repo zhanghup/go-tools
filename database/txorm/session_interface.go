@@ -11,6 +11,7 @@ type ISession interface {
 	Session() *xorm.Session
 	Table(table interface{}) ISession
 	With(name string) ISession
+	Order(order ...string) ISession
 	Begin() error
 	Rollback() error
 	Commit() error

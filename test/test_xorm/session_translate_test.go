@@ -35,8 +35,6 @@ func TestSession_TS(t *testing.T) {
 		panic(err)
 	}
 
-	fmt.Println(sess.Close())
-	fmt.Println(sess.Close())
 	fmt.Println(sess.Session().IsClosed())
 
 	sess = NewEngine().NewSession(sess.Context())
@@ -55,7 +53,6 @@ func TestSession_TS(t *testing.T) {
 	}
 
 	sess.Commit()
-	sess.Close()
 	fmt.Println("11")
 	fn()
 	fmt.Println("22")
