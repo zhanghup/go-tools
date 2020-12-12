@@ -17,6 +17,7 @@ type ISession interface {
 	AutoClose() error
 
 	Find(bean interface{}) error
+	Get(bean interface{}) (bool, error)
 	Insert(bean ...interface{}) error
 	Update(bean interface{}, condiBean ...interface{}) error
 	Delete(bean interface{}) error

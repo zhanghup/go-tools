@@ -23,7 +23,6 @@ func (this *Session) Update(bean interface{}, condiBean ...interface{}) error {
 	return err
 }
 
-
 func (this *Session) Delete(bean interface{}) error {
 	if this.autoClose {
 		// 由engine直接进入的方法，需要自动关闭session
@@ -56,8 +55,16 @@ func (this *Session) Find(bean interface{}) error {
 		// 由engine直接进入的方法，需要自动关闭session
 		defer this.AutoClose()
 	}
-	err := this.sess.SQL(this.sqlwith+" "+this.sql, this.args...).Find(bean)
-	return err
+	return this.sess.SQL(this.sqlwith+" "+this.sql, this.args...).Find(bean)
+}
+
+func (this *Session) Get(bean interface{}) (bool, error) {
+	if this.autoClose {
+		// 由engine直接进入的方法，需要自动关闭session
+		defer this.AutoClose()
+	}
+	return this.sess.SQL(this.sqlwith+" "+this.sql, this.args...).Get(bean)
+
 }
 
 func (this *Session) Page(index, size int, count bool, bean interface{}) (int, error) {
