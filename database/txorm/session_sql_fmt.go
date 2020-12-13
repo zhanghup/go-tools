@@ -40,7 +40,7 @@ func (this *Session) SF(sql string, querys ...map[string]interface{}) ISession {
 }
 
 func (this *Session) sf_args() ISession {
-	r := regexp.MustCompile(`:[0-1a-zA-Z]+`)
+	r := regexp.MustCompile(`:[0-9a-zA-Z_]+`)
 	ss := r.FindAllString(this.sql, -1)
 	for _, s := range ss {
 		key := s[1:]

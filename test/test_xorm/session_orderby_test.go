@@ -22,8 +22,10 @@ func TestOrderBy(t *testing.T) {
 	db := NewEngine()
 	datas := make([]BizWorkflow, 0)
 	err := db.SF(`
-		select * from (select  * from (select * from biz_workflow order by state) s order by state desc) s  order by s.state
-	`).Order("id", "-name").Find(&datas)
+		select * from (select  * from (select * from biz_workflow order by state) s order by state desc) s 
+		where s.name like concat('%',:a,'%')
+		order by s.state
+	`, map[string]interface{}{"a":"123"}).Order("id", "-name").Find(&datas)
 	if err != nil {
 		panic(err)
 	}
