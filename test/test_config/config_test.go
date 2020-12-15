@@ -2,7 +2,7 @@ package test_config
 
 import (
 	"fmt"
-	rice "github.com/giter/go.rice"
+	rice "github.com/GeertJohan/go.rice"
 	"github.com/zhanghup/go-tools"
 	"testing"
 )
@@ -33,5 +33,5 @@ func TestConfig(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(tools.S.JSONString(cfg, true))
+	fmt.Println(tools.Str.JSONString(cfg, true))
 }

@@ -7,7 +7,7 @@ package tools
 
 import (
 	"errors"
-	rice "github.com/giter/go.rice"
+	rice "github.com/GeertJohan/go.rice"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 )

@@ -1,14 +1,14 @@
 module github.com/zhanghup/go-tools
 
-go 1.12
+go 1.13
 
 require (
 	github.com/360EntSecGroup-Skylar/excelize/v2 v2.3.1
 	github.com/99designs/gqlgen v0.13.0
+	github.com/GeertJohan/go.rice v1.0.1
 	github.com/PuerkitoBio/goquery v1.5.1
 	github.com/daaku/go.zipexe v1.0.1 // indirect
 	github.com/gin-gonic/gin v1.6.2
-	github.com/giter/go.rice v0.0.0-20171227004756-39a3aa768429
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
 	github.com/satori/go.uuid v1.2.0
