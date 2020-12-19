@@ -4,7 +4,7 @@ import "time"
 
 type mytime struct{}
 
-var Ti = mytime{}
+var Time = mytime{}
 
 func (this mytime) format(t []time.Time, fmt string) string {
 	var tt time.Time
@@ -16,6 +16,25 @@ func (this mytime) format(t []time.Time, fmt string) string {
 	return tt.Format(fmt)
 }
 
+func (this mytime) UnixYMDHMS(t int64) string {
+	return this.YMDHMS(time.Unix(t, 0))
+}
+func (this mytime) UnixHMS(t int64) string {
+	return this.HMS(time.Unix(t, 0))
+}
+func (this mytime) UnixYMD(t int64) string {
+	return this.YMD(time.Unix(t, 0))
+}
+func (this mytime) UnixYM(t int64) string {
+	return this.YM(time.Unix(t, 0))
+}
+func (this mytime) UnixYear(t int64) string {
+	return this.Year(time.Unix(t, 0))
+}
+
+func (this mytime) YMDHMS(t ...time.Time) string {
+	return this.format(t, "2006-01-02 15:04:05")
+}
 func (this mytime) HMS(t ...time.Time) string {
 	return this.format(t, "15:04:05")
 }
