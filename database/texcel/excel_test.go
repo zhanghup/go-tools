@@ -7,7 +7,7 @@ import (
 )
 
 func TestOpenExcel(t *testing.T) {
-	f, err := os.Open("C:\\Users\\Administrator\\Downloads\\表具档案 (1).xlsx")
+	f, err := os.Open("./TestOrder.xlsx")
 	if err != nil {
 		panic(err)
 	}
@@ -15,7 +15,26 @@ func TestOpenExcel(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	res, err := e.ReadMapBySheetName(0, 0, 2)
+	err = e.ReadRow(func(row int, cell []TCell) {
+		fmt.Println(cell)
+	})
+	if err != nil {
+		panic(err)
+	}
+}
+
+func TestExcelData(t *testing.T) {
+	f, err := os.Open("./TestOrder.xlsx")
+	if err != nil {
+		panic(err)
+	}
+	e, err := ExcelIO(f)
+	if err != nil {
+		panic(err)
+	}
+
+	res,err := e.ReadMapBySheetName(0,4,5)
+
 	if err != nil {
 		panic(err)
 	}
