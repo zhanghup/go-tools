@@ -30,6 +30,9 @@ func (this *Engine) With(name string) ISession {
 	return this.newSession(true).With(name)
 }
 
+func (this *Engine) Engine() xorm.EngineInterface {
+	return this.DB
+}
 
 func newSeesion(db *xorm.Engine, autoClose bool, tmps map[string]interface{}, ctx ...context.Context) ISession {
 	newSession := &Session{

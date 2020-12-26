@@ -1,6 +1,7 @@
 package txorm
 
 import (
+	"context"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/zhanghup/go-tools/tog"
 	"sync"
@@ -34,17 +35,27 @@ func NewXorm(cfg Config) (*xorm.Engine, error) {
 	return engine, err
 }
 
+type IEngine interface {
+	TemplateFuncAdd(name string, f interface{})
+	TemplateFuncKeys() []string
+	NewSession(ctx ...context.Context) ISession
+	TS(fn func(sess ISession) error) error
+	SF(sql string, querys ...map[string]interface{}) ISession
+	With(name string) ISession
+	Engine() xorm.EngineInterface
+}
+
 // 单例
 var newengine *Engine
 
-func NewEngine(db *xorm.Engine, flag ...bool) *Engine {
+func NewEngine(db *xorm.Engine, flag ...bool) IEngine {
 	if newengine != nil && (len(flag) == 0 || !flag[0]) {
 		return newengine
 	}
-	if len(flag) > 0 && flag[0]{
+	if len(flag) > 0 && flag[0] {
 		return &Engine{DB: db, tmps: map[string]interface{}{}}
 	}
 
-	newengine =  &Engine{DB: db, tmps: map[string]interface{}{}}
+	newengine = &Engine{DB: db, tmps: map[string]interface{}{}}
 	return newengine
 }

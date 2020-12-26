@@ -7,16 +7,17 @@ import (
 
 type ISession interface {
 	Id() string
-	Context() context.Context
-	Session() *xorm.Session
-	Table(table interface{}) ISession
+	E() xorm.EngineInterface
+	S() *xorm.Session
+	Ctx() context.Context
 	With(name string) ISession
-	Order(order ...string) ISession
 	Begin() error
 	Rollback() error
 	Commit() error
 	AutoClose() error
 
+	Table(table interface{}) ISession
+	Order(order ...string) ISession
 	Find(bean interface{}) error
 	Get(bean interface{}) (bool, error)
 	Insert(bean ...interface{}) error

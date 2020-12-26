@@ -23,11 +23,15 @@ type Session struct {
 	orderby   []string
 }
 
-func (this *Session) Session() *xorm.Session {
+func (this *Session) S() *xorm.Session {
 	return this.sess
 }
 
-func (this *Session) Context() context.Context {
+func (this *Session) E() xorm.EngineInterface {
+	return this._db
+}
+
+func (this *Session) Ctx() context.Context {
 	if this.context == nil {
 		this.context = context.Background()
 	}
