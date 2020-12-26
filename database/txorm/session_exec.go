@@ -78,7 +78,7 @@ func (this *Session) _sql_with() string {
 		}
 
 		sqlwith = strings.Join(withs, ",")
-		sqlwith = tools.Str.Tmp(sqlwith, map[string]interface{}{"ctx": this.Context()}).FuncMap(this.tmps).String()
+		sqlwith = tools.Str.Tmp(sqlwith, map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmps).String()
 	}
 	return sqlwith
 }
