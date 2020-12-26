@@ -12,7 +12,7 @@ import (
 type ObjectLoader struct {
 	sql          string
 	param        map[string]interface{}
-	db           *txorm.Engine
+	db           txorm.IEngine
 	keyField     string
 	resultField  string
 	requestTable reflect.Type
