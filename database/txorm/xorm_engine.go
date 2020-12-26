@@ -9,7 +9,7 @@ import (
 const CONTEXT_SESSION = "context-session"
 
 func (this *Engine) NewSession(autoClose bool, ctx ...context.Context) ISession {
-	return newSeesion(this.DB, autoClose, this.tmps, ctx...)
+	return newClearSession(this.DB, autoClose, this.tmps, ctx...)
 }
 
 func (this *Engine) Session(ctx ...context.Context) ISession {
@@ -35,14 +35,7 @@ func (this *Engine) Engine() *xorm.Engine {
 }
 
 func newSeesion(db *xorm.Engine, autoClose bool, tmps map[string]interface{}, ctx ...context.Context) ISession {
-	newSession := &Session{
-		id:             tools.Str.Uid(),
-		_db:            db,
-		sess:           db.NewSession(),
-		tmps:           tmps,
-		autoClose:      autoClose,
-		beginTranslate: false,
-	}
+	newSession := newClearSession(db, autoClose, tmps, ctx...)
 
 	if len(ctx) > 0 && ctx[0] != nil {
 		c := ctx[0]
@@ -61,5 +54,16 @@ func newSeesion(db *xorm.Engine, autoClose bool, tmps map[string]interface{}, ct
 		}
 	} else {
 		return newSession
+	}
+}
+
+func newClearSession(db *xorm.Engine, autoClose bool, tmps map[string]interface{}, ctx ...context.Context) *Session {
+	return &Session{
+		id:             tools.Str.Uid(),
+		_db:            db,
+		sess:           db.NewSession(),
+		tmps:           tmps,
+		autoClose:      autoClose,
+		beginTranslate: false,
 	}
 }
