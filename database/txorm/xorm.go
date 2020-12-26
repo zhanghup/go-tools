@@ -41,5 +41,6 @@ func NewEngine(db *xorm.Engine, flag ...bool) *Engine {
 	if newengine != nil && (len(flag) == 0 || !flag[0]) {
 		return newengine
 	}
-	return &Engine{DB: db, tmps: map[string]interface{}{}}
+	newengine =  &Engine{DB: db, tmps: map[string]interface{}{}}
+	return newengine
 }
