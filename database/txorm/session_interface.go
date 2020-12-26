@@ -7,7 +7,7 @@ import (
 
 type ISession interface {
 	Id() string
-	E() xorm.EngineInterface
+	E() *xorm.Engine
 	S() *xorm.Session
 	Ctx() context.Context
 	With(name string) ISession

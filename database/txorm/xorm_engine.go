@@ -30,7 +30,7 @@ func (this *Engine) With(name string) ISession {
 	return this.NewSession(true).With(name)
 }
 
-func (this *Engine) Engine() xorm.EngineInterface {
+func (this *Engine) Engine() *xorm.Engine {
 	return this.DB
 }
 

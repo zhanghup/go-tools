@@ -27,7 +27,7 @@ func (this *Session) S() *xorm.Session {
 	return this.sess
 }
 
-func (this *Session) E() xorm.EngineInterface {
+func (this *Session) E() *xorm.Engine {
 	return this._db
 }
 

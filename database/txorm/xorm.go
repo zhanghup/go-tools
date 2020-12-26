@@ -43,7 +43,7 @@ type IEngine interface {
 	TS(fn func(sess ISession) error) error
 	SF(sql string, querys ...map[string]interface{}) ISession
 	With(name string) ISession
-	Engine() xorm.EngineInterface
+	Engine() *xorm.Engine
 }
 
 // 单例
