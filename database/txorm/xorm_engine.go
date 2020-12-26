@@ -58,7 +58,7 @@ func newSeesion(db *xorm.Engine, autoClose bool, tmps map[string]interface{}, ct
 }
 
 func newClearSession(db *xorm.Engine, autoClose bool, tmps map[string]interface{}, ctx ...context.Context) *Session {
-	return &Session{
+	s := &Session{
 		id:             tools.Str.Uid(),
 		_db:            db,
 		sess:           db.NewSession(),
@@ -66,4 +66,8 @@ func newClearSession(db *xorm.Engine, autoClose bool, tmps map[string]interface{
 		autoClose:      autoClose,
 		beginTranslate: false,
 	}
+	if len(ctx) > 0 {
+		s.context = ctx[0]
+	}
+	return s
 }
