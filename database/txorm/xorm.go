@@ -38,7 +38,8 @@ func NewXorm(cfg Config) (*xorm.Engine, error) {
 type IEngine interface {
 	TemplateFuncAdd(name string, f interface{})
 	TemplateFuncKeys() []string
-	NewSession(ctx ...context.Context) ISession
+	NewSession(autoClose bool, ctx ...context.Context) ISession
+	Session(ctx ...context.Context) ISession
 	TS(fn func(sess ISession) error) error
 	SF(sql string, querys ...map[string]interface{}) ISession
 	With(name string) ISession

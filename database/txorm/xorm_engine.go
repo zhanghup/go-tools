@@ -8,26 +8,26 @@ import (
 
 const CONTEXT_SESSION = "context-session"
 
-func (this *Engine) newSession(autoClose bool, ctx ...context.Context) ISession {
+func (this *Engine) NewSession(autoClose bool, ctx ...context.Context) ISession {
 	return newSeesion(this.DB, autoClose, this.tmps, ctx...)
 }
 
-func (this *Engine) NewSession(ctx ...context.Context) ISession {
+func (this *Engine) Session(ctx ...context.Context) ISession {
 	return newSeesion(this.DB, false, this.tmps, ctx...)
 }
 
 func (this *Engine) TS(fn func(sess ISession) error) error {
-	return this.newSession(true).TS(fn)
+	return this.NewSession(true).TS(fn)
 }
 
 // Engine直接调用，自动结束session
 func (this *Engine) SF(sql string, querys ...map[string]interface{}) ISession {
-	sess := this.newSession(true)
+	sess := this.NewSession(true)
 	return sess.SF(sql, querys...)
 }
 
 func (this *Engine) With(name string) ISession {
-	return this.newSession(true).With(name)
+	return this.NewSession(true).With(name)
 }
 
 func (this *Engine) Engine() xorm.EngineInterface {
