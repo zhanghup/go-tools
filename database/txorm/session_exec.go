@@ -64,6 +64,25 @@ func (this *Session) _sql() string {
 	}
 }
 
+func (this *Session) _sql_with() string {
+	sqlwith := ""
+	if len(this.withs) > 0 {
+		// 去重
+		withs := []string{"\n with recursive _ as (select 1)"}
+		wmap := map[string]bool{}
+		for _, w := range this.withs {
+			wmap[w] = true
+		}
+		for k := range wmap {
+			withs = append(withs, k)
+		}
+
+		sqlwith = strings.Join(withs, ",")
+		sqlwith = tools.Str.Tmp(sqlwith, map[string]interface{}{"ctx": this.Context()}).FuncMap(this.tmps).String()
+	}
+	return sqlwith
+}
+
 func (this *Session) TS(fn func(sess ISession) error, commit ...bool) error {
 	err := this.Begin()
 	if err != nil {
@@ -87,7 +106,7 @@ func (this *Session) Find(bean interface{}) error {
 		// 由engine直接进入的方法，需要自动关闭session
 		defer this.AutoClose()
 	}
-	return this.sess.SQL(this.sqlwith+" "+this._sql(), this.args...).Find(bean)
+	return this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Find(bean)
 }
 
 func (this *Session) Get(bean interface{}) (bool, error) {
@@ -95,7 +114,7 @@ func (this *Session) Get(bean interface{}) (bool, error) {
 		// 由engine直接进入的方法，需要自动关闭session
 		defer this.AutoClose()
 	}
-	return this.sess.SQL(this.sqlwith+" "+this._sql(), this.args...).Get(bean)
+	return this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Get(bean)
 
 }
 
@@ -105,20 +124,20 @@ func (this *Session) Page(index, size int, count bool, bean interface{}) (int, e
 		defer this.AutoClose()
 	}
 	if size < 0 {
-		err := this.sess.SQL(this.sqlwith+" "+this._sql(), this.args...).Find(bean)
+		err := this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Find(bean)
 		return 0, err
 	} else if size == 0 {
 		total := 0
-		_, err := this.sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this.sqlwith, this.sql), this.args...).Get(&total)
+		_, err := this.sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this._sql_with(), this.sql), this.args...).Get(&total)
 		return total, err
 	} else {
-		err := this.sess.SQL(fmt.Sprintf("%s limit ?,?", this.sqlwith+" "+this._sql()), append(this.args, (index-1)*size, size)...).Find(bean)
+		err := this.sess.SQL(fmt.Sprintf("%s limit ?,?", this._sql_with()+" "+this._sql()), append(this.args, (index-1)*size, size)...).Find(bean)
 		if err != nil {
 			return 0, err
 		}
 		if count {
 			total := 0
-			_, err := this.sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this.sqlwith, this.sql), this.args...).Get(&total)
+			_, err := this.sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this._sql_with(), this.sql), this.args...).Get(&total)
 			return total, err
 		}
 	}

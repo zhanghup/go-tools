@@ -2,7 +2,7 @@ package txorm
 
 func (this *Engine) TemplateFuncAdd(name string, f interface{}) {
 	this.tmpsync.Lock()
-	this.tmps[name] = f
+	this.tmps["sql_with_"+name] = f
 	this.tmpsync.Unlock()
 }
 

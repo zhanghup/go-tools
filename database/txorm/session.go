@@ -15,7 +15,6 @@ type Session struct {
 	_db  *xorm.Engine
 
 	sql       string
-	sqlwith   string
 	query     map[string]interface{}
 	args      []interface{}
 	autoClose bool
@@ -41,7 +40,7 @@ func (this *Session) Table(table interface{}) ISession {
 }
 
 func (this *Session) With(name string) ISession {
-	this.withs = append(this.withs, fmt.Sprintf("{{ %s .ctx }}", name))
+	this.withs = append(this.withs, fmt.Sprintf("{{ sql_with_%s .ctx }}", name))
 	return this
 }
 
