@@ -10,6 +10,7 @@ type ICache interface {
 	Set(key string, obj interface{}, timeout ...int64)
 	Delete(key string)
 	Exist(key string) bool
+	Clear()
 }
 
 type cache struct {
@@ -98,4 +99,11 @@ func (this *cache) Set(key string, obj interface{}, timeout ...int64) {
 
 func (this *cache) Delete(key string) {
 	this.data.Delete(key)
+}
+
+func (this *cache) Clear() {
+	this.data.Range(func(key, value interface{}) bool {
+		this.data.Delete(key)
+		return true
+	})
 }
