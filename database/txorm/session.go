@@ -2,7 +2,6 @@ package txorm
 
 import (
 	"context"
-	"fmt"
 	"xorm.io/xorm"
 )
 
@@ -44,7 +43,7 @@ func (this *Session) Table(table interface{}) ISession {
 }
 
 func (this *Session) With(name string) ISession {
-	this.withs = append(this.withs, fmt.Sprintf("{{ sql_with_%s .ctx }}", name))
+	this.withs = append(this.withs,name)
 	return this
 }
 

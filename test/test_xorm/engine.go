@@ -6,7 +6,7 @@ import (
 	"github.com/zhanghup/go-tools/database/txorm"
 )
 
-func NewEngine() *txorm.Engine {
+func NewEngine() txorm.IEngine {
 	e, err := txorm.NewXorm(txorm.Config{
 		Driver: "mysql",
 		Uri:    "root:123@/test?charset=utf8",
@@ -18,7 +18,7 @@ func NewEngine() *txorm.Engine {
 	dbs := txorm.NewEngine(e)
 	dbs.TemplateFuncAdd("users", func(ctx context.Context) string {
 		return tools.Str.Tmp(`
-			users as (select id from user)
+			select id from user
 		`, map[string]interface{}{}).String()
 	})
 

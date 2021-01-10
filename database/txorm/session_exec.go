@@ -74,7 +74,8 @@ func (this *Session) _sql_with() string {
 			wmap[w] = true
 		}
 		for k := range wmap {
-			withs = append(withs, k)
+			kk := tools.Str.Tmp(fmt.Sprintf("{{ sql_with_%s .ctx }}", k), map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmps).String()
+			withs = append(withs, fmt.Sprintf("%s as (%s)", k, kk))
 		}
 
 		sqlwith = strings.Join(withs, ",")
