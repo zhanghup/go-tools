@@ -24,6 +24,26 @@ func (this *Session) SF(sql string, querys ...map[string]interface{}) ISession {
 	return this
 }
 
+func (this *Session) SF2(sql string, querys ...interface{}) ISession {
+	// 重置排序功能
+	this.orderby = []string{}
+
+	query := map[string]interface{}{}
+
+	for i := range querys {
+		uid := strings.ReplaceAll(tools.Str.Uid(), "-", "")
+		sql = strings.Replace(sql, "?", ":"+uid, 1)
+		query[uid] = querys[i]
+	}
+
+	this.query = query
+	this.sql = tools.Str.Tmp(sql, query).FuncMap(this.tmps).String()
+
+	this.args = make([]interface{}, 0)
+	this.sf_args()
+	return this
+}
+
 func (this *Session) sf_args() ISession {
 	r := regexp.MustCompile(`:[0-9a-zA-Z_]+`)
 	ss := r.FindAllString(this.sql, -1)

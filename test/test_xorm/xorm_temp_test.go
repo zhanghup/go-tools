@@ -72,3 +72,13 @@ func TestPage(t *testing.T) {
 	fmt.Println(n)
 	fmt.Println(tools.Str.JSONString(dict, true))
 }
+
+func TestSF2(t *testing.T) {
+	dict := make([]Dict, 0)
+	n, err := NewEngine().SF2("select * from dict where status = ?",1).Page(2, 2, true, &dict)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(n)
+	fmt.Println(tools.Str.JSONString(dict, true))
+}
