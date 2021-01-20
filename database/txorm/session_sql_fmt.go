@@ -31,9 +31,16 @@ func (this *Session) SF2(sql string, querys ...interface{}) ISession {
 	query := map[string]interface{}{}
 
 	for i := range querys {
-		uid := strings.ReplaceAll(tools.Str.Uid(), "-", "")
-		sql = strings.Replace(sql, "?", ":"+uid, 1)
-		query[uid] = querys[i]
+		switch querys[i].(type) {
+		case map[string]interface{}:
+			for k, v := range querys[i].(map[string]interface{}) {
+				query[k] = v
+			}
+		default:
+			uid := strings.ReplaceAll(tools.Str.Uid(), "-", "")
+			sql = strings.Replace(sql, "?", ":"+uid, 1)
+			query[uid] = querys[i]
+		}
 	}
 
 	this.query = query
