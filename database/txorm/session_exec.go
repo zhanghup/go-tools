@@ -169,3 +169,12 @@ func (this *Session) Exec() error {
 	_, err := this.sess.Exec(append(sqls, this.args...)...)
 	return err
 }
+
+func (this *Session) Count() (int64, error) {
+	if this.autoClose {
+		// 由engine直接进入的方法，需要自动关闭session
+		defer this.AutoClose()
+	}
+
+	return this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Count()
+}

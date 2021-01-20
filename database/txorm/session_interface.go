@@ -33,4 +33,5 @@ type ISession interface {
 	Page2(index, size *int, count *bool, bean interface{}) (int, error)
 	TS(fn func(sess ISession) error, commit ...bool) error
 	Exec() error
+	Count() (int64,error)
 }
