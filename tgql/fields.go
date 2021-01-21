@@ -49,7 +49,7 @@ func (this myfields) Fields(ctx context.Context, root string, fields ...string) 
 
 	result := make([]string, 0)
 	for _, s := range flist {
-		if tools.Str.Contains(fields, s) {
+		if tools.StrContains(fields, s) {
 			result = append(result, s)
 		}
 	}

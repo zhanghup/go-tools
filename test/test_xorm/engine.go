@@ -17,7 +17,7 @@ func NewEngine() txorm.IEngine {
 	e.ShowSQL(true)
 	dbs := txorm.NewEngine(e)
 	dbs.TemplateFuncAdd("users", func(ctx context.Context) string {
-		return tools.Str.Tmp(`
+		return tools.StrTmp(`
 			select id from user
 		`, map[string]interface{}{}).String()
 	})

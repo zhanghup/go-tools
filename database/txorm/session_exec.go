@@ -74,12 +74,12 @@ func (this *Session) _sql_with() string {
 			wmap[w] = true
 		}
 		for k := range wmap {
-			kk := tools.Str.Tmp(fmt.Sprintf("{{ sql_with_%s .ctx }}", k), map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmps).String()
+			kk := tools.StrTmp(fmt.Sprintf("{{ sql_with_%s .ctx }}", k), map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmps).String()
 			withs = append(withs, fmt.Sprintf("%s as (%s)", k, kk))
 		}
 
 		sqlwith = strings.Join(withs, ",")
-		sqlwith = tools.Str.Tmp(sqlwith, map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmps).String()
+		sqlwith = tools.StrTmp(sqlwith, map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmps).String()
 	}
 	return sqlwith
 }
@@ -148,13 +148,13 @@ func (this *Session) Page(index, size int, count bool, bean interface{}) (int, e
 
 func (this *Session) Page2(index, size *int, count *bool, bean interface{}) (int, error) {
 	if index == nil {
-		index = tools.Ptr.Int(1)
+		index = tools.PtrOfInt(1)
 	}
 	if size == nil {
-		size = tools.Ptr.Int(1)
+		size = tools.PtrOfInt(1)
 	}
 	if count == nil {
-		count = tools.Ptr.Bool(false)
+		count = tools.PtrOfBool(false)
 	}
 	return this.Page(*index, *size, *count, bean)
 }

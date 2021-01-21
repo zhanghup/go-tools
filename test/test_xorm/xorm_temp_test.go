@@ -16,7 +16,7 @@ func TestTemplate(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Print(tools.Str.JSONString(s))
+	fmt.Print(tools.JSONString(s))
 }
 
 
@@ -51,7 +51,7 @@ func TestSF(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	tog.Info(tools.Str.JSONString(datas))
+	tog.Info(tools.JSONString(datas))
 }
 
 func TestSession_Exec(t *testing.T) {
@@ -70,7 +70,7 @@ func TestPage(t *testing.T) {
 		panic(err)
 	}
 	fmt.Println(n)
-	fmt.Println(tools.Str.JSONString(dict, true))
+	fmt.Println(tools.JSONString(dict, true))
 }
 
 func TestSF2(t *testing.T) {
@@ -80,5 +80,5 @@ func TestSF2(t *testing.T) {
 		panic(err)
 	}
 	fmt.Println(n)
-	fmt.Println(tools.Str.JSONString(dict, true))
+	fmt.Println(tools.JSONString(dict, true))
 }

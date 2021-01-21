@@ -15,7 +15,7 @@ type myString struct{}
 
 var Str = myString{}
 
-func (this myString) Fmt(format string, args ...interface{}) string {
+func StrFmt(format string, args ...interface{}) string {
 	params := make([]interface{}, 0)
 	for _, p := range args {
 		params = append(params, Rft.RealValue(p))
@@ -24,13 +24,13 @@ func (this myString) Fmt(format string, args ...interface{}) string {
 }
 
 // bson 的 UUID
-func (this myString) Uid() string {
+func UUID() string {
 	id := uuid.NewV4()
 	return id.String()
 }
 
 // 以json格式输出struct对象
-func (this myString) JSONString(obj interface{}, format ...bool) string {
+func JSONString(obj interface{}, format ...bool) string {
 	var datas []byte
 	if len(format) > 0 && format[0] {
 
@@ -52,7 +52,7 @@ func (this myString) JSONString(obj interface{}, format ...bool) string {
 }
 
 // 判断字符串是否包含在数组中
-func (this myString) Contains(src []string, tag string) bool {
+func StrContains(src []string, tag string) bool {
 	for _, s := range src {
 		if s == tag {
 			return true
@@ -63,7 +63,7 @@ func (this myString) Contains(src []string, tag string) bool {
 
 // 取固定长度的随机字符串
 // flag 自否可包含特殊字符
-func (this myString) RandString(l int, flag ...bool) string {
+func StrOfRand(l int, flag ...bool) string {
 	r := rand.New(rand.NewSource(time.Now().Unix()))
 	res := make([]byte, l)
 	for i := 0; i < l; i++ {

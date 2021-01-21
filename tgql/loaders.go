@@ -80,7 +80,7 @@ func (this *dataLoaden) Object(table interface{}, sql string, param map[string]i
 	}
 	path := reflect.TypeOf(tools.Rft.RealValue(table)).PkgPath()
 	name := reflect.TypeOf(tools.Rft.RealValue(table)).Name()
-	key := fmt.Sprintf("table: %s/%s, sql: %s, param: %s, field: %s,resultField: %s", path, name, sql, tools.Str.JSONString(query), keyField, resultField)
+	key := fmt.Sprintf("table: %s/%s, sql: %s, param: %s, field: %s,resultField: %s", path, name, sql, tools.JSONString(query), keyField, resultField)
 	key = tools.Crypto.MD5([]byte(key))
 	this.objSync.Lock()
 	defer this.objSync.Unlock()
@@ -131,7 +131,7 @@ func (this *dataLoaden) Slice(table interface{}, sql string, param map[string]in
 
 	path := reflect.TypeOf(tools.Rft.RealValue(table)).PkgPath()
 	name := reflect.TypeOf(tools.Rft.RealValue(table)).Name()
-	key := fmt.Sprintf("table: %s/%s, sql: %s, param: %s, field: %s,resultField: %s,resultTable: %s", path, name, sql, tools.Str.JSONString(query), keyField, resultField, resultTable.PkgPath()+"/"+resultTable.Name())
+	key := fmt.Sprintf("table: %s/%s, sql: %s, param: %s, field: %s,resultField: %s,resultTable: %s", path, name, sql, tools.JSONString(query), keyField, resultField, resultTable.PkgPath()+"/"+resultTable.Name())
 	key = tools.Crypto.MD5([]byte(key))
 
 	this.sliceSync.Lock()

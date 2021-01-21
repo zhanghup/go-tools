@@ -33,5 +33,5 @@ func TestConfig(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(tools.Str.JSONString(cfg, true))
+	fmt.Println(tools.JSONString(cfg, true))
 }

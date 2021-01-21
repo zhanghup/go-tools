@@ -17,7 +17,7 @@ func TestWindows1521Encoding(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	res, err := tools.Charset.Windows1251decode(data)
+	res, err := tools.Charset.Windows1251Decode(data)
 	if err != nil {
 		panic(err)
 	}

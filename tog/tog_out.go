@@ -3,7 +3,7 @@ package tog
 import "github.com/zhanghup/go-tools"
 
 func jsonFormat(o interface{}, flag ...bool) string{
-	s := tools.Str.JSONString(o, flag...)
+	s := tools.JSONString(o, flag...)
 	if len(flag) > 0 && flag[0]{
 		s = "\n" +s
 	}

@@ -14,8 +14,8 @@ type myStringTemplate struct {
 	param interface{}
 }
 
-func (this myString) Tmp(str string, param ...interface{}) myStringTemplate {
-	tt := template.New(this.Uid())
+func StrTmp(str string, param ...interface{}) myStringTemplate {
+	tt := template.New(UUID())
 	fmap := template.FuncMap{
 		"title": strings.Title,
 	}
@@ -45,11 +45,11 @@ func (this myStringTemplate) String() string {
 	data := bytes.NewBuffer(nil)
 	tpl, err := this.tpl.Funcs(this.fns).Parse(this.str)
 	if err != nil {
-		return Str.Fmt("[1] 模板格式化异常,error:%s", err.Error())
+		return StrFmt("[1] 模板格式化异常,error:%s", err.Error())
 	}
 	err = tpl.Execute(data, this.param)
 	if err != nil {
-		return Str.Fmt("[2] 模板格式化异常,error:%s", err.Error())
+		return StrFmt("[2] 模板格式化异常,error:%s", err.Error())
 	}
 	return data.String()
 

@@ -17,7 +17,7 @@ func (this *Session) SF(sql string, querys ...map[string]interface{}) ISession {
 		query = querys[0]
 	}
 	this.query = query
-	this.sql = tools.Str.Tmp(sql, query).FuncMap(this.tmps).String()
+	this.sql = tools.StrTmp(sql, query).FuncMap(this.tmps).String()
 
 	this.args = make([]interface{}, 0)
 	this.sf_args()
@@ -37,14 +37,14 @@ func (this *Session) SF2(sql string, querys ...interface{}) ISession {
 				query[k] = v
 			}
 		default:
-			uid := strings.ReplaceAll(tools.Str.Uid(), "-", "")
+			uid := strings.ReplaceAll(tools.UUID(), "-", "")
 			sql = strings.Replace(sql, "?", ":"+uid, 1)
 			query[uid] = querys[i]
 		}
 	}
 
 	this.query = query
-	this.sql = tools.Str.Tmp(sql, query).FuncMap(this.tmps).String()
+	this.sql = tools.StrTmp(sql, query).FuncMap(this.tmps).String()
 
 	this.args = make([]interface{}, 0)
 	this.sf_args()

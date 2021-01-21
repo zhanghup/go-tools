@@ -7,6 +7,6 @@ import (
 )
 
 func TestFloat(t *testing.T) {
-	s := tools.Parse.Float64ToStr(1.111111111111111111111111111111111111111)
+	s := tools.Float64ToStr(1.111111111111111111111111111111111111111)
 	fmt.Println(s)
 }

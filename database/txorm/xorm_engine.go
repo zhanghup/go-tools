@@ -65,7 +65,7 @@ func newSeesion(db *xorm.Engine, autoClose bool, tmps map[string]interface{}, ct
 
 func newClearSession(db *xorm.Engine, autoClose bool, tmps map[string]interface{}, ctx ...context.Context) *Session {
 	s := &Session{
-		id:             tools.Str.Uid(),
+		id:             tools.UUID(),
 		_db:            db,
 		sess:           db.NewSession(),
 		tmps:           tmps,

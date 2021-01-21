@@ -15,13 +15,13 @@ import (
 )
 
 func Conf(box *rice.Box, data interface{}) error {
-	err := Ptr.Check(data)
+	err := PtrCheck(data)
 	if err != nil {
 		return err
 	}
 
 	exception := func(s string, err error) error {
-		return errors.New(Str.Fmt(`config.yml - %s - err: %s`, s, err.Error()))
+		return errors.New(StrFmt(`config.yml - %s - err: %s`, s, err.Error()))
 	}
 
 	f, err := os.Open(fmt.Sprintf("%s/%s", box.Name(), "config.yml"))
