@@ -69,7 +69,12 @@ func (this *Session) sf_args_item(key string, value reflect.Value) ISession {
 	ty := value.Type()
 	switch ty.Kind() {
 	case reflect.Ptr:
-		return this.sf_args_item(key, value.Elem())
+		if value.Pointer() == 0 {
+			this.sql = strings.Replace(this.sql, key, "?", 1)
+			this.args = append(this.args, nil)
+		} else {
+			return this.sf_args_item(key, value.Elem())
+		}
 	case reflect.Array, reflect.Slice:
 		ps := []string{}
 		args := []interface{}{}
