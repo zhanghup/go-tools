@@ -76,7 +76,7 @@ func (this *TExcel) ReadMapBySheetName(startCol, rowHeader, rowData int, sheetNa
 	keys := make([]TCell, 0)
 	resultmap := make(TSheet, 0)
 
-	err := this.ReadRow(func(i int, cols []TCell) {
+	err := this.ReadRow(func(i int, cols []TCell) error {
 		if i == rowHeader {
 			for j := range cols {
 				if j < startCol {
@@ -98,6 +98,7 @@ func (this *TExcel) ReadMapBySheetName(startCol, rowHeader, rowData int, sheetNa
 			}
 			resultmap = append(resultmap, result)
 		}
+		return nil
 	}, sheetNames...)
 
 	return resultmap, err
