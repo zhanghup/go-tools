@@ -42,7 +42,7 @@ func (this *TExcel) sheetByName(name ...string) (*excelize.Rows, error) {
 	return this.excel.Rows(sn)
 }
 
-func (this *TExcel) ReadRow(fn func(row int, cols []TCell), sheetName ...string) error {
+func (this *TExcel) ReadRow(fn func(row int, cols []TCell) error, sheetName ...string) error {
 	rows, err := this.sheetByName(sheetName...)
 	if err != nil {
 		return err
@@ -56,7 +56,10 @@ func (this *TExcel) ReadRow(fn func(row int, cols []TCell), sheetName ...string)
 		for j := 0; j < len(cols); j++ {
 			tcells = append(tcells, TCell(cols[j]))
 		}
-		fn(i, tcells)
+		err = fn(i, tcells)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
