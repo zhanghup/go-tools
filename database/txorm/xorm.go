@@ -41,8 +41,7 @@ type IEngine interface {
 	NewSession(autoClose bool, ctx ...context.Context) ISession
 	Session(ctx ...context.Context) ISession
 	TS(fn func(sess ISession) error) error
-	SF(sql string, querys ...map[string]interface{}) ISession
-	SF2(sql string, querys ...interface{}) ISession
+	SF(sql string, querys ...interface{}) ISession
 	With(name string) ISession
 	Engine() *xorm.Engine
 }

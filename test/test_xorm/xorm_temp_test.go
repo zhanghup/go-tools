@@ -75,7 +75,7 @@ func TestPage(t *testing.T) {
 
 func TestSF2(t *testing.T) {
 	dict := make([]Dict, 0)
-	n, err := NewEngine().SF2("select * from dict where status = ?",1).Page(2, 2, true, &dict)
+	n, err := NewEngine().SF("select * from dict where status = ?",1).Page(2, 2, true, &dict)
 	if err != nil {
 		panic(err)
 	}

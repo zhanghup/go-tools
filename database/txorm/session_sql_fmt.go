@@ -8,36 +8,22 @@ import (
 	"strings"
 )
 
-func (this *Session) SF(sql string, querys ...map[string]interface{}) ISession {
-	// 重置排序功能
-	this.orderby = []string{}
-
-	query := map[string]interface{}{}
-	if len(querys) > 0 && querys[0] != nil {
-		query = querys[0]
-	}
-	this.query = query
-	this.sql = tools.StrTmp(sql, query).FuncMap(this.tmps).String()
-
-	this.args = make([]interface{}, 0)
-	this.sf_args()
-	return this
-}
-
-func (this *Session) SF2(sql string, querys ...interface{}) ISession {
+func (this *Session) SF(sql string, querys ...interface{}) ISession {
 	// 重置排序功能
 	this.orderby = []string{}
 
 	query := map[string]interface{}{}
 
 	for i := range querys {
-		switch querys[i].(type) {
-		case map[string]interface{}:
-			for k, v := range querys[i].(map[string]interface{}) {
-				query[k] = v
+		ty := reflect.TypeOf(querys[i])
+		if ty.Kind() == reflect.Map {
+			vl := reflect.ValueOf(querys[i])
+			for _, key := range vl.MapKeys() {
+				v := vl.MapIndex(key)
+				query[key.String()] = v.Interface()
 			}
-		default:
-			uid := strings.ReplaceAll(tools.UUID(), "-", "")
+		} else {
+			uid := strings.ReplaceAll(tools.UUID(), "-", "_")
 			sql = strings.Replace(sql, "?", ":"+uid, 1)
 			query[uid] = querys[i]
 		}

@@ -21,15 +21,9 @@ func (this *Engine) TS(fn func(sess ISession) error) error {
 }
 
 // Engine直接调用，自动结束session
-func (this *Engine) SF(sql string, querys ...map[string]interface{}) ISession {
+func (this *Engine) SF(sql string, querys ...interface{}) ISession {
 	sess := this.NewSession(true)
 	return sess.SF(sql, querys...)
-}
-
-// Engine直接调用，自动结束session
-func (this *Engine) SF2(sql string, querys ...interface{}) ISession {
-	sess := this.NewSession(true)
-	return sess.SF2(sql, querys...)
 }
 
 func (this *Engine) With(name string) ISession {

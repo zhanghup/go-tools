@@ -2,19 +2,22 @@ package tools
 
 import "github.com/zhanghup/go-tools/pinyin"
 
-type mypy struct{}
-
-var Pin = mypy{}
-
-func (mypy) Py(str string) string {
+/* 中文转拼音，例如：“你好” => “nh”  */
+func Py(str string) string {
 	return pinyin.Py(str)
 }
-func (mypy) PY(str string) string {
+
+/* 中文转拼音，例如：“你好” => “NH”  */
+func PY(str string) string {
 	return pinyin.PY(str)
 }
-func (mypy) Pinyin(str string) string {
+
+/* 中文转拼音，例如：“你好” => “nihao”  */
+func Pinyin(str string) string {
 	return pinyin.Pinyin(str)
 }
-func (mypy) PINYIN(str string) string {
+
+/* 中文转拼音，例如：“你好” => “NIHAO”  */
+func PINYIN(str string) string {
 	return pinyin.Pinyin(str)
 }
