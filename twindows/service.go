@@ -86,7 +86,7 @@ func (m *anyservice) Execute(args []string, r <-chan svc.ChangeRequest, changes 
 
 	for {
 		select {
-		case <-die: // 进程已挂逼
+		case <-die:
 			changes <- svc.Status{State: svc.Stopped}
 			os.Exit(0)
 		case c := <-r:

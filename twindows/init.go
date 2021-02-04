@@ -15,22 +15,7 @@ func run(name string, entry svc.Handler) error {
 	return svc.Run(name, entry)
 }
 
-func Service() {
-	if len(os.Args) < 3 {
-		return
-	}
-
-	var err error
-
-	ctx := os.Args[1]
-
-	if ctx != "service" {
-		return
-	}
-
-	cmd := os.Args[2]
-	svcName := os.Args[3]
-
+func Service(cmd, svcName string, arg2s ...string) {
 	isIntSess, err := svc.IsAnInteractiveSession()
 
 	if err != nil {
@@ -41,8 +26,8 @@ func Service() {
 	if !isIntSess {
 
 		args := []string{os.Args[0]}
-		if len(os.Args) > 4 {
-			args = append(args, os.Args[4:]...)
+		if len(arg2s) > 0 {
+			args = append(args, arg2s...)
 		}
 
 		err := run(svcName, &anyservice{args: args})
@@ -63,8 +48,8 @@ func Service() {
 
 		args := []string{"service", "deamon", svcName}
 
-		if len(os.Args) > 4 {
-			args = append(args, os.Args[4:]...)
+		if len(arg2s) > 0 {
+			args = append(args, arg2s...)
 		}
 
 		err = install(svcName, svcName, args...)
