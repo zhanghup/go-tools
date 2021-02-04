@@ -1,6 +1,6 @@
 // +build windows
 
-package service
+package twindows
 
 import (
 	"fmt"
