@@ -178,3 +178,25 @@ func (this *Session) Count() (int64, error) {
 
 	return this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Count()
 }
+
+func (this *Session) Int64() (int64, error) {
+	if this.autoClose {
+		// 由engine直接进入的方法，需要自动关闭session
+		defer this.AutoClose()
+	}
+
+	n := int64(0)
+	_, err := this.Get(&n)
+	return n, err
+}
+
+func (this *Session) Float64() (float64, error) {
+	if this.autoClose {
+		// 由engine直接进入的方法，需要自动关闭session
+		defer this.AutoClose()
+	}
+
+	n := float64(0)
+	_, err := this.Get(&n)
+	return n, err
+}

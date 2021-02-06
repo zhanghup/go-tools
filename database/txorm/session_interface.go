@@ -37,4 +37,6 @@ type ISession interface {
 	TS(fn func(sess ISession) error, commit ...bool) error
 	Exec() error
 	Count() (int64,error)
+	Int64() (int64,error)
+	Float64() (float64,error)
 }
