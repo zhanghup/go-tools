@@ -5,17 +5,22 @@ import (
 	"fmt"
 	"github.com/satori/go.uuid"
 	"math/rand"
+	"reflect"
+	"regexp"
 	"time"
 )
 
 /*
 	快速操作字符串
 */
-type myString struct{}
 
-var Str = myString{}
+var strfmtregex = regexp.MustCompile("{{.*?}}")
 
 func StrFmt(format string, args ...interface{}) string {
+	if strfmtregex.MatchString(format) && len(args) > 0 && reflect.TypeOf(args[0]).Kind() == reflect.Map {
+		return StrTmp(format, args...).String()
+	}
+
 	params := make([]interface{}, 0)
 	for _, p := range args {
 		params = append(params, Rft.RealValue(p))
