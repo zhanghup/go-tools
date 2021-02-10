@@ -18,7 +18,6 @@ func TestCode2Session(t *testing.T) {
 }
 
 func TestUserInfoCheck(t *testing.T) { // DecryptUserInfo
-	info := map[string]interface{}{"encryptedData":"","iv":""}
 	res,err := engine.UserInfoDecrypt(
 		"LuBqfEjsP3BL/T+G17Zs5Q==",
 		"{\"nickName\":\"zander\",\"gender\":1,\"language\":\"zh_CN\",\"city\":\"Jiaxing\",\"province\":\"Zhejiang\",\"country\":\"China\",\"avatarUrl\":\"https://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83eoqV4knJupHGCkJY6MUEia4A6Ye3WEUMUGyrfXunbwib0T5ZgNXR770aUvvvWHDDK6IpRiaUFl8DxYaQ/132\"}",
@@ -30,7 +29,7 @@ func TestUserInfoCheck(t *testing.T) { // DecryptUserInfo
 		fmt.Println(err.Error())
 		return
 	}
-	fmt.Println(info,res)
+	fmt.Println(tools.JSONString(res,true))
 }
 
 func init() {

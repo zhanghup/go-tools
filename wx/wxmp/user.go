@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"github.com/zhanghup/go-tools"
 )
 
@@ -38,12 +37,13 @@ func (this *Engine) Code2Session(code string) (*ViewCode2Session, error) {
 type ViewUserInfo struct {
 	Openid    string `json:"openId"`
 	Nickname  string `json:"nickName"`
-	Gender    string `json:"gender"`
+	Gender    int `json:"gender"`
 	City      string `json:"city"`
 	Province  string `json:"province"`
 	Country   string `json:"country"`
 	AvatarUrl string `json:"avatarUrl"`
 	Unionid   string `json:"unionId"`
+	Language string `json:"language"`
 	Watermark struct {
 		Appid     string `json:"appid"`
 		Timestamp int64  `json:"timestamp"`
@@ -58,10 +58,15 @@ func (this *Engine) UserInfoDecrypt(ssk, rawData, encryptedData, signature, iv s
 	}
 	resdata, err := this.DecryptUserData(ssk, encryptedData, iv)
 	if err != nil {
-		return nil, err
+		return nil, this.error(err)
 	}
-	fmt.Println(string(resdata), err)
-	return nil, nil
+
+	result := ViewUserInfo{}
+	err = json.Unmarshal(resdata, &result)
+	if err != nil {
+		return nil, this.error(err)
+	}
+	return &result, nil
 }
 
 func (this *Engine) DecryptUserData(sskStr, ciphertextStr, ivStr string) ([]byte, error) {
