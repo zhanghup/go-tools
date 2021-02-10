@@ -24,7 +24,7 @@ func (this *Engine) Code2Session(code string) (*ViewCode2Session, error) {
 	}
 	res, err := this.get(tools.StrFmt(`/sns/jscode2session?appid={{ .appid }}&secret={{ .appsecret }}&js_code={{ .code }}&grant_type=authorization_code`, query))
 	if err != nil {
-		return nil, this.error(err)
+		return nil, err
 	}
 	resu := ViewCode2Session{}
 	err = json.Unmarshal(res, &resu)
