@@ -37,13 +37,13 @@ func (this *Engine) Code2Session(code string) (*ViewCode2Session, error) {
 type ViewUserInfo struct {
 	Openid    string `json:"openId"`
 	Nickname  string `json:"nickName"`
-	Gender    int `json:"gender"`
+	Gender    int    `json:"gender"`
 	City      string `json:"city"`
 	Province  string `json:"province"`
 	Country   string `json:"country"`
 	AvatarUrl string `json:"avatarUrl"`
 	Unionid   string `json:"unionId"`
-	Language string `json:"language"`
+	Language  string `json:"language"`
 	Watermark struct {
 		Appid     string `json:"appid"`
 		Timestamp int64  `json:"timestamp"`
@@ -62,6 +62,30 @@ func (this *Engine) UserInfoDecrypt(ssk, rawData, encryptedData, signature, iv s
 	}
 
 	result := ViewUserInfo{}
+	err = json.Unmarshal(resdata, &result)
+	if err != nil {
+		return nil, this.error(err)
+	}
+	return &result, nil
+}
+
+type ViewUserMobile struct {
+	PhoneNumber     string `json:"phoneNumber"`
+	PurePhoneNumber string `json:"purePhoneNumber"`
+	CountryCode     string `json:"countryCode"`
+	Watermark       struct {
+		Appid     string `json:"appid"`
+		Timestamp int64  `json:"timestamp"`
+	} `json:"watermark"`
+}
+
+func (this *Engine) UserMobileDecrypt(ssk, encryptedData, iv string) (*ViewUserMobile,error){
+	resdata, err := this.DecryptUserData(ssk, encryptedData, iv)
+	if err != nil {
+		return nil, this.error(err)
+	}
+
+	result := ViewUserMobile{}
 	err = json.Unmarshal(resdata, &result)
 	if err != nil {
 		return nil, this.error(err)

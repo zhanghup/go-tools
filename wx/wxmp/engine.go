@@ -17,6 +17,7 @@ const HOST = "https://api.weixin.qq.com"
 type IEngine interface {
 	Code2Session(code string) (*ViewCode2Session, error)
 	UserInfoDecrypt(ssk, rawData, encryptedData, signature, iv string) (*ViewUserInfo, error)
+	UserMobileDecrypt(ssk, encryptedData, iv string) (*ViewUserMobile, error)
 }
 
 type Engine struct {
