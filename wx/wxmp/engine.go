@@ -12,6 +12,7 @@ type Option struct {
 	Appsecret     string `yaml:"appsecret"`
 	Mchid         string `yaml:"mchid"`
 	MchPrivateKey string `yaml:"mch_private_key"`
+	MchSeriesNo   string `yaml:"mch_series_no"`
 }
 
 const HOST = "https://api.weixin.qq.com"
