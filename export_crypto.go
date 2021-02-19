@@ -51,10 +51,10 @@ func RsaSign(signContent string, privateKey string, hash crypto.Hash) string {
 	ParsePrivateKey := func(privateKey string) (*rsa.PrivateKey, error) {
 		PEM_BEGIN := "-----BEGIN RSA PRIVATE KEY-----\n"
 		PEM_END := "\n-----END RSA PRIVATE KEY-----"
-		if !strings.HasPrefix(privateKey, PEM_BEGIN) {
+		if !strings.HasPrefix(privateKey, "-----") {
 			privateKey = PEM_BEGIN + privateKey
 		}
-		if !strings.HasSuffix(privateKey, PEM_END) {
+		if !strings.HasSuffix(privateKey, "-----") {
 			privateKey = privateKey + PEM_END
 		}
 

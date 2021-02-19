@@ -99,5 +99,6 @@ func (this *Engine) PaySign(method, url, t, nonce_str, body string) string {
 		"rand":   nonce_str,
 		"body":   body,
 	})
-	return content
+	s := tools.SHA256WithRSA(content, this.opt.MchPrivateKey)
+	return tools.Base64Encode(s)
 }
