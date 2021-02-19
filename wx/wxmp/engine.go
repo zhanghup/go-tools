@@ -8,8 +8,10 @@ import (
 )
 
 type Option struct {
-	Appid     string `yaml:"appid"`
-	Appsecret string `yaml:"appsecret"`
+	Appid         string `yaml:"appid"`
+	Appsecret     string `yaml:"appsecret"`
+	Mchid         string `yaml:"mchid"`
+	MchPrivateKey string `yaml:"mch_private_key"`
 }
 
 const HOST = "https://api.weixin.qq.com"
@@ -18,6 +20,8 @@ type IEngine interface {
 	Code2Session(code string) (*ViewCode2Session, error)
 	UserInfoDecrypt(ssk, rawData, encryptedData, signature, iv string) (*ViewUserInfo, error)
 	UserMobileDecrypt(ssk, encryptedData, iv string) (*ViewUserMobile, error)
+
+	Pay(charge *PayOption) (*PayRes, error)
 }
 
 type Engine struct {
