@@ -24,8 +24,10 @@ type PayOption struct {
 type PayRes struct {
 	Appid     string `json:"appid"`
 	Timestamp int64  `json:"timestamp"`
-	NonceStr  string `json:"nonce_str"`
-	PrepayId  string `json:"prepay_id"`
+	NonceStr  string `json:"nonceStr"`
+	Package   string `json:"package"`
+	SignType  string `json:"signType"`
+	PaySign   string `json:"paySign"`
 }
 
 func (this *Engine) Pay(charge *PayOption) (*PayRes, error) {
@@ -87,7 +89,9 @@ func (this *Engine) Pay(charge *PayOption) (*PayRes, error) {
 		Appid:     this.opt.Appid,
 		Timestamp: timestamp,
 		NonceStr:  nonce_str,
-		PrepayId:  rest.PrepayId,
+		Package:   fmt.Sprintf("prepay_id=" + rest.PrepayId),
+		SignType:  "RSA",
+		PaySign:   tools.Base64Encode(tools.SHA256WithRSA(fmt.Sprintf(`%s\n%s\n%s\n%s\n`), this.opt.MchPrivateKey)),
 	}, nil
 }
 
