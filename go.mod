@@ -1,6 +1,6 @@
 module github.com/zhanghup/go-tools
 
-go 1.13
+go 1.16
 
 require (
 	github.com/360EntSecGroup-Skylar/excelize/v2 v2.3.1
