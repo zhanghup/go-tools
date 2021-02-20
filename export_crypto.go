@@ -28,22 +28,28 @@ func MD5(data []byte) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
+func Base64Enc(data []byte) string {
+	return base64.StdEncoding.EncodeToString(data)
+}
 func Base64Encode(data string) string {
-	return base64.StdEncoding.EncodeToString([]byte(data))
+	return Base64Enc([]byte(data))
+}
+func Base64Dec(data string) ([]byte, error) {
+	return base64.StdEncoding.DecodeString(data)
 }
 func Base64Decode(data string) (string, error) {
-	b, err := base64.StdEncoding.DecodeString(data)
+	b, err := Base64Dec(data)
 	if err != nil {
 		return "", err
 	}
 	return string(b), nil
 }
 
-func SHA256WithRSA(signContent string, privateKey string) string {
+func SHA256WithRSA(signContent string, privateKey string) []byte {
 	return RsaSign(signContent, privateKey, crypto.SHA256)
 }
 
-func RsaSign(signContent string, privateKey string, hash crypto.Hash) string {
+func RsaSign(signContent string, privateKey string, hash crypto.Hash) []byte {
 	shaNew := hash.New()
 	shaNew.Write([]byte(signContent))
 	hashed := shaNew.Sum(nil)
@@ -64,11 +70,11 @@ func RsaSign(signContent string, privateKey string, hash crypto.Hash) string {
 			return nil, errors.New("私钥信息错误！")
 		}
 		// 3、解析DER编码的私钥，生成私钥对象
-		priKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+		priKey, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 		if err != nil {
 			return nil, err
 		}
-		return priKey, nil
+		return priKey.(*rsa.PrivateKey), nil
 	}
 
 	priKey, err := ParsePrivateKey(privateKey)
@@ -80,5 +86,5 @@ func RsaSign(signContent string, privateKey string, hash crypto.Hash) string {
 	if err != nil {
 		panic(err)
 	}
-	return base64.StdEncoding.EncodeToString(signature)
+	return signature
 }

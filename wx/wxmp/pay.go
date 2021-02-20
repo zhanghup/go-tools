@@ -10,20 +10,20 @@ import (
 
 // Pay 支付
 type PayOption struct {
-	OutTradeNo string
-	NotifyUrl  string
-	Openid     string
-	TotalPrice int // 支付金额
+	OutTradeNo  string
+	NotifyUrl   string
+	Openid      string
+	TotalPrice  int // 支付金额
+	Description string
 
-	Description *string
-	TimeExpire  *int64
-	Attach      *string
-	Currency    *string // 支付货币
-	GoodsTag    *string
+	TimeExpire *int64
+	Attach     *string
+	Currency   *string // 支付货币
+	GoodsTag   *string
 }
 type PayRes struct {
 	Appid     string `json:"appid"`
-	Timestamp int64  `json:"timestamp"`
+	Timestamp int64  `json:"timeStamp"`
 	NonceStr  string `json:"nonceStr"`
 	Package   string `json:"package"`
 	SignType  string `json:"signType"`
@@ -35,16 +35,14 @@ func (this *Engine) Pay(charge *PayOption) (*PayRes, error) {
 		"appid":        this.opt.Appid,
 		"mchid":        this.opt.Mchid,
 		"out_trade_no": charge.OutTradeNo,
+		"description":  charge.Description,
 		"notify_url":   charge.NotifyUrl,
-		"paper": map[string]interface{}{
+		"payer": map[string]interface{}{
 			"openid": charge.Openid,
 		},
 	}
 	if charge.TimeExpire != nil {
 		m["time_expire"] = time.Unix(*charge.TimeExpire, 0).Format("2006-01-02T15:04:05+") + "08:00"
-	}
-	if charge.Description != nil {
-		m["description"] = *charge.Description
 	}
 	if charge.Attach != nil {
 		m["attach"] = *charge.Attach
@@ -59,25 +57,24 @@ func (this *Engine) Pay(charge *PayOption) (*PayRes, error) {
 		amount["currency"] = *charge.Currency
 	}
 	m["amount"] = amount
-	m["payer"] = map[string]interface{}{
-		"openid": charge.Openid,
-	}
 
 	timestamp := time.Now().Unix()
 	nonce_str := tools.StrOfRand(32)
+	header := map[string]string{
+		"Accept":       "*/*",
+		"Content-Type": "application/json",
+		"Authorization": fmt.Sprintf(`WECHATPAY2-SHA256-RSA2048 mchid="%s",serial_no="%s",nonce_str="%s",timestamp="%d",signature="%s"`,
+			this.opt.Mchid, this.opt.MchSeriesNo, nonce_str, timestamp,
+			this.PaySign("POST", "/v3/pay/transactions/jsapi", tools.Int64ToStr(timestamp), nonce_str, tools.JSONString(m))),
+	}
 	res, err := resty.New().
 		R().
 		SetBody(m).
-		SetHeaders(map[string]string{
-			"Authorization": fmt.Sprintf(`WECHATPAY2-SHA256-RSA2048 mchid="%s",serial_no="%s",nonce_str="%s",timestamp="%d",signature="%s"`,
-				this.opt.Mchid, this.opt.MchSeriesNo, nonce_str, timestamp,
-				this.PaySign("POST", "/v3/pay/transactions/jsapi", tools.Int64ToStr(timestamp), nonce_str, tools.JSONString(m))),
-		}).Post("https://api.mch.weixin.qq.com/v3/pay/transactions/jsapi")
+		SetHeaders(header).Post("https://api.mch.weixin.qq.com/v3/pay/transactions/jsapi")
 
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(res.String())
 	rest := struct {
 		PrepayId string `json:"prepay_id"`
 	}{}
@@ -85,18 +82,21 @@ func (this *Engine) Pay(charge *PayOption) (*PayRes, error) {
 	if err != nil {
 		return nil, err
 	}
+	timestamp = time.Now().Unix()
+	nonce_str = tools.StrOfRand(32)
+	pk := fmt.Sprintf("prepay_id=" + rest.PrepayId)
 	return &PayRes{
 		Appid:     this.opt.Appid,
 		Timestamp: timestamp,
 		NonceStr:  nonce_str,
-		Package:   fmt.Sprintf("prepay_id=" + rest.PrepayId),
+		Package:   pk,
 		SignType:  "RSA",
-		PaySign:   tools.Base64Encode(tools.SHA256WithRSA(fmt.Sprintf(`%s\n%s\n%s\n%s\n`), this.opt.MchPrivateKey)),
+		PaySign:   tools.Base64Enc(tools.SHA256WithRSA(fmt.Sprintf("%s\n%d\n%s\n%s\n", this.opt.Appid, timestamp, nonce_str, pk), this.opt.MchPrivateKey)),
 	}, nil
 }
 
 func (this *Engine) PaySign(method, url, t, nonce_str, body string) string {
-	content := tools.StrFmt(`{{.method}}\n{{.url}}\n{{.t}}\n{{.rand}}\n{{.body}}\n`, map[string]interface{}{
+	content := tools.StrFmt("{{.method}}\n{{.url}}\n{{.t}}\n{{.rand}}\n{{.body}}\n", map[string]interface{}{
 		"method": method,
 		"url":    url,
 		"t":      t,
@@ -104,5 +104,5 @@ func (this *Engine) PaySign(method, url, t, nonce_str, body string) string {
 		"body":   body,
 	})
 	s := tools.SHA256WithRSA(content, this.opt.MchPrivateKey)
-	return tools.Base64Encode(s)
+	return tools.Base64Enc(s)
 }
