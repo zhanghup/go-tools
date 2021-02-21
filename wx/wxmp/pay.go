@@ -30,6 +30,19 @@ type PayRes struct {
 	PaySign   string `json:"paySign"`
 }
 
+func (this *Engine) PayHeader(path string, param map[string]interface{}) map[string]string {
+	nonce_str := tools.StrOfRand(32)
+	timestamp := time.Now().Unix()
+	header := map[string]string{
+		"Accept":       "*/*",
+		"Content-Type": "application/json",
+		"Authorization": fmt.Sprintf(`WECHATPAY2-SHA256-RSA2048 mchid="%s",serial_no="%s",nonce_str="%s",timestamp="%d",signature="%s"`,
+			this.opt.Mchid, this.opt.MchSeriesNo, nonce_str, timestamp,
+			this.PaySign("POST", path, tools.Int64ToStr(timestamp), nonce_str, tools.JSONString(param))),
+	}
+	return header
+}
+
 func (this *Engine) Pay(charge *PayOption) (*PayRes, error) {
 	var m = map[string]interface{}{
 		"appid":        this.opt.Appid,
@@ -58,19 +71,8 @@ func (this *Engine) Pay(charge *PayOption) (*PayRes, error) {
 	}
 	m["amount"] = amount
 
-	timestamp := time.Now().Unix()
-	nonce_str := tools.StrOfRand(32)
-	header := map[string]string{
-		"Accept":       "*/*",
-		"Content-Type": "application/json",
-		"Authorization": fmt.Sprintf(`WECHATPAY2-SHA256-RSA2048 mchid="%s",serial_no="%s",nonce_str="%s",timestamp="%d",signature="%s"`,
-			this.opt.Mchid, this.opt.MchSeriesNo, nonce_str, timestamp,
-			this.PaySign("POST", "/v3/pay/transactions/jsapi", tools.Int64ToStr(timestamp), nonce_str, tools.JSONString(m))),
-	}
-	res, err := resty.New().
-		R().
-		SetBody(m).
-		SetHeaders(header).Post("https://api.mch.weixin.qq.com/v3/pay/transactions/jsapi")
+	res, err := resty.New().R().SetBody(m).SetHeaders(this.PayHeader("/v3/pay/transactions/jsapi", m)).
+		Post("https://api.mch.weixin.qq.com/v3/pay/transactions/jsapi")
 
 	if err != nil {
 		return nil, err
@@ -82,8 +84,8 @@ func (this *Engine) Pay(charge *PayOption) (*PayRes, error) {
 	if err != nil {
 		return nil, err
 	}
-	timestamp = time.Now().Unix()
-	nonce_str = tools.StrOfRand(32)
+	timestamp := time.Now().Unix()
+	nonce_str := tools.StrOfRand(32)
 	pk := fmt.Sprintf("prepay_id=" + rest.PrepayId)
 	return &PayRes{
 		Appid:     this.opt.Appid,
@@ -93,6 +95,17 @@ func (this *Engine) Pay(charge *PayOption) (*PayRes, error) {
 		SignType:  "RSA",
 		PaySign:   tools.Base64Enc(tools.SHA256WithRSA(fmt.Sprintf("%s\n%d\n%s\n%s\n", this.opt.Appid, timestamp, nonce_str, pk), this.opt.MchPrivateKey)),
 	}, nil
+}
+
+func (this *Engine) PayCancel(out_trade_no string) error {
+	m := map[string]interface{}{"mchid": this.opt.Mchid}
+	path := "/v3/pay/transactions/out-trade-no/" + out_trade_no + "/close"
+	_, err := resty.New().
+		R().
+		SetBody(m).
+		SetHeaders(this.PayHeader(path, m)).
+		Post("https://api.mch.weixin.qq.com" + path)
+	return err
 }
 
 func (this *Engine) PaySign(method, url, t, nonce_str, body string) string {

@@ -2,7 +2,6 @@ package wxmp_test
 
 import (
 	"fmt"
-	"github.com/zhanghup/go-tools"
 	"github.com/zhanghup/go-tools/wx/wxmp"
 	"testing"
 )
@@ -43,30 +42,22 @@ KpbNjzdogCMvbtQ0cq75+kU=
 `,
 		MchSeriesNo:   "7C74BEB297FF1D9D9DD8CD380CBD43DE79300C1B",
 	})
-	res,err := engine.Pay(&wxmp.PayOption{
-		OutTradeNo:  "test_7FF1D9D9DD8CD38",
-		NotifyUrl:   "http://zander123.cn/pay/test",
-		Description: "测试订单",
-		TotalPrice:  1,
-		Openid:      "o_v1Z4y3jKyeeIG3B5_W52TRzLBQ",
-	})
+	//res,err := engine.Pay(&wxmp.PayOption{
+	//	OutTradeNo:  "test_7FF1D9D9DD8CD383",
+	//	NotifyUrl:   "http://zander123.cn/pay/test",
+	//	Description: "测试订单",
+	//	TotalPrice:  1,
+	//	Openid:      "o_v1Z4y3jKyeeIG3B5_W52TRzLBQ",
+	//})
+	//if err != nil{
+	//	fmt.Println(err.Error())
+	//	return
+	//}
+	//fmt.Println(tools.JSONString(res,true))
+	err := engine.PayCancel("test_7FF1D9D9DD8CD383")
 	if err != nil{
 		fmt.Println(err.Error())
 		return
 	}
-	fmt.Println(tools.JSONString(res,true))
 }
 
-//func TestEngy(t *testing.T) {
-//	secretMessage := []byte("send reinforcements, we're going to advance")
-//	rng := rand.Reader
-//
-//	cipherdata, err := EncryptOAEP(sha1.New(), rng, rsaPublicKey, secretMessage, nil)
-//	if err != nil {
-//		fmt.Fprintf(os.Stderr, "Error from encryption: %s\n", err)
-//		return
-//	}
-//
-//	ciphertext := base64.StdEncoding.EncodeToString(cipherdata)
-//	fmt.Printf("Ciphertext: %s\n", ciphertext)
-//}

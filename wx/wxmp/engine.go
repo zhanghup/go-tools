@@ -23,6 +23,7 @@ type IEngine interface {
 	UserMobileDecrypt(ssk, encryptedData, iv string) (*ViewUserMobile, error)
 
 	Pay(charge *PayOption) (*PayRes, error)
+	PayCancel(out_trade_no string) error
 }
 
 type Engine struct {
