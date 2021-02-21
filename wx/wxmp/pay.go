@@ -23,7 +23,7 @@ type PayOption struct {
 }
 type PayRes struct {
 	Appid     string `json:"appid"`
-	Timestamp int64  `json:"timeStamp"`
+	Timestamp string `json:"timeStamp"`
 	NonceStr  string `json:"nonceStr"`
 	Package   string `json:"package"`
 	SignType  string `json:"signType"`
@@ -87,7 +87,7 @@ func (this *Engine) Pay(charge *PayOption) (*PayRes, error) {
 	pk := fmt.Sprintf("prepay_id=" + rest.PrepayId)
 	return &PayRes{
 		Appid:     this.opt.Appid,
-		Timestamp: timestamp,
+		Timestamp: tools.Int64ToStr(timestamp),
 		NonceStr:  nonce_str,
 		Package:   pk,
 		SignType:  "RSA",
