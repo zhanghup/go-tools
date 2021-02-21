@@ -39,4 +39,6 @@ type ISession interface {
 	Count() (int64,error)
 	Int64() (int64,error)
 	Float64() (float64,error)
+	String() (string, error)
+	Strings() ([]string, error)
 }
