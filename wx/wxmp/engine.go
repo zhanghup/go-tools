@@ -8,11 +8,13 @@ import (
 )
 
 type Option struct {
-	Appid         string `yaml:"appid"`
-	Appsecret     string `yaml:"appsecret"`
-	Mchid         string `yaml:"mchid"`
-	MchPrivateKey string `yaml:"mch_private_key"`
-	MchSeriesNo   string `yaml:"mch_series_no"`
+	Appid             string `yaml:"appid"`
+	Appsecret         string `yaml:"appsecret"`
+	Mchid             string `yaml:"mchid"`
+	MchPrivateKey     string `yaml:"mch_private_key"`
+	MchSeriesNo       string `yaml:"mch_series_no"`
+	MchPublicCert     string `yaml:"-"`
+	MchPublicCertTime int64  `yaml:"-"`
 }
 
 const HOST = "https://api.weixin.qq.com"

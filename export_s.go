@@ -36,6 +36,9 @@ func UUID() string {
 
 // 以json格式输出struct对象
 func JSONString(obj interface{}, format ...bool) string {
+	if obj == nil {
+		return ""
+	}
 	var datas []byte
 	if len(format) > 0 && format[0] {
 

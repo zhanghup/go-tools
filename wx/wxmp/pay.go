@@ -33,15 +33,50 @@ type PayRes struct {
 	PaySign   string `json:"paySign"`
 }
 
-func (this *Engine) PayHeader(path string, param map[string]interface{}) map[string]string {
+func (this *Engine) PayPublicKeyRefresh() error {
+	if this.opt.MchPublicCert != "" && time.Now().Unix() < this.opt.MchPublicCertTime {
+		return nil
+	}
+
+	res, err := resty.New().R().SetHeaders(this.PayHeader("GET", "/v3/certificates", nil)).
+		Get("https://api.mch.weixin.qq.com/v3/certificates")
+	if err != nil {
+		return err
+	}
+
+	stru := struct {
+		Data []struct {
+			SerialNo           string `json:"serial_no"`
+			EncryptCertificate struct {
+				Ciphertext string `json:"ciphertext"`
+				Nonce      string `json:"nonce"`
+			} `json:"encrypt_certificate"`
+		} `json:"data"`
+	}{}
+
+	err = json.Unmarshal(res.Body(), &stru)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(res.String())
+	return nil
+}
+
+func (this *Engine) PayHeader(method, path string, param map[string]interface{}) map[string]string {
+	p := ""
+	if param != nil {
+		p = tools.JSONString(param)
+	}
 	nonce_str := tools.StrOfRand(32)
 	timestamp := time.Now().Unix()
+
 	header := map[string]string{
 		"Accept":       "*/*",
 		"Content-Type": "application/json",
 		"Authorization": fmt.Sprintf(`WECHATPAY2-SHA256-RSA2048 mchid="%s",serial_no="%s",nonce_str="%s",timestamp="%d",signature="%s"`,
 			this.opt.Mchid, this.opt.MchSeriesNo, nonce_str, timestamp,
-			this.PaySign("POST", path, tools.Int64ToStr(timestamp), nonce_str, tools.JSONString(param))),
+			this.PaySign(method, path, tools.Int64ToStr(timestamp), nonce_str, p)),
 	}
 	return header
 }
@@ -74,7 +109,7 @@ func (this *Engine) Pay(charge *PayOption) (*PayRes, error) {
 	}
 	m["amount"] = amount
 
-	res, err := resty.New().R().SetBody(m).SetHeaders(this.PayHeader("/v3/pay/transactions/jsapi", m)).
+	res, err := resty.New().R().SetBody(m).SetHeaders(this.PayHeader("POST", "/v3/pay/transactions/jsapi", m)).
 		Post("https://api.mch.weixin.qq.com/v3/pay/transactions/jsapi")
 
 	if err != nil {
@@ -110,7 +145,7 @@ func (this *Engine) PayCancel(out_trade_no string) error {
 	_, err := resty.New().
 		R().
 		SetBody(m).
-		SetHeaders(this.PayHeader(path, m)).
+		SetHeaders(this.PayHeader("POST", path, m)).
 		Post("https://api.mch.weixin.qq.com" + path)
 	return err
 }
@@ -125,6 +160,10 @@ type PayCallbackOption struct {
 }
 
 func (this *Engine) PayDecrypt(data []byte) (*PayCallbackOption, error) {
+	err := this.PayPublicKeyRefresh()
+	if err != nil {
+		return nil, err
+	}
 	dataStu := struct {
 		Resource struct {
 			Ciphertext     string `json:"ciphertext"`
@@ -132,7 +171,7 @@ func (this *Engine) PayDecrypt(data []byte) (*PayCallbackOption, error) {
 			Nonce          string `json:"nonce"`
 		} `json:"resource"`
 	}{}
-	err := json.Unmarshal(data, &dataStu)
+	err = json.Unmarshal(data, &dataStu)
 	if err != nil {
 		return nil, err
 	}
@@ -167,5 +206,6 @@ func (this *Engine) PaySign(method, url, t, nonce_str, body string) string {
 		"body":   body,
 	})
 	s := tools.SHA256WithRSA(content, this.opt.MchPrivateKey)
-	return tools.Base64Enc(s)
+	ss := tools.Base64Enc(s)
+	return ss
 }
