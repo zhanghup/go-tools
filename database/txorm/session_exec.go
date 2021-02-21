@@ -200,3 +200,25 @@ func (this *Session) Float64() (float64, error) {
 	_, err := this.Get(&n)
 	return n, err
 }
+
+func (this *Session) String() (string, error) {
+	if this.autoClose {
+		// 由engine直接进入的方法，需要自动关闭session
+		defer this.AutoClose()
+	}
+
+	n := ""
+	_, err := this.Get(&n)
+	return n, err
+}
+
+func (this *Session) Strings() ([]string, error) {
+	if this.autoClose {
+		// 由engine直接进入的方法，需要自动关闭session
+		defer this.AutoClose()
+	}
+
+	n := make([]string,0)
+	err := this.Find(&n)
+	return n, err
+}
