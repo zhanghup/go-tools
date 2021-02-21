@@ -24,6 +24,7 @@ type IEngine interface {
 
 	Pay(charge *PayOption) (*PayRes, error)
 	PayCancel(out_trade_no string) error
+	PayDecrypt(data []byte) (*PayCallbackOption, error)
 }
 
 type Engine struct {
