@@ -2,6 +2,7 @@ package wxmp
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/go-resty/resty/v2"
 	"github.com/zhanghup/go-tools"
@@ -79,10 +80,14 @@ func (this *Engine) Pay(charge *PayOption) (*PayRes, error) {
 	}
 	rest := struct {
 		PrepayId string `json:"prepay_id"`
+		Message string `json:"message"`
 	}{}
 	err = json.Unmarshal(res.Body(), &rest)
 	if err != nil {
 		return nil, err
+	}
+	if rest.PrepayId == ""{
+		return nil,errors.New(rest.Message)
 	}
 	timestamp := time.Now().Unix()
 	nonce_str := tools.StrOfRand(32)
