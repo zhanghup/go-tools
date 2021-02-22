@@ -3,7 +3,11 @@ package wxmp
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/base64"
 	"encoding/json"
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"github.com/go-resty/resty/v2"
@@ -34,7 +38,7 @@ type PayRes struct {
 }
 
 func (this *Engine) PayPublicKeyRefresh() error {
-	if this.opt.MchPublicCert != "" && time.Now().Unix() < this.opt.MchPublicCertTime {
+	if this.opt.MchPublicKey != nil && time.Now().Unix() < this.opt.MchPublicCertTime {
 		return nil
 	}
 
@@ -48,8 +52,9 @@ func (this *Engine) PayPublicKeyRefresh() error {
 		Data []struct {
 			SerialNo           string `json:"serial_no"`
 			EncryptCertificate struct {
-				Ciphertext string `json:"ciphertext"`
-				Nonce      string `json:"nonce"`
+				AssociatedData string `json:"associated_data"`
+				Ciphertext     string `json:"ciphertext"`
+				Nonce          string `json:"nonce"`
 			} `json:"encrypt_certificate"`
 		} `json:"data"`
 	}{}
@@ -59,7 +64,50 @@ func (this *Engine) PayPublicKeyRefresh() error {
 		return err
 	}
 
-	fmt.Println(res.String())
+	if len(stru.Data) == 0 {
+		return this.errorStr("当前商户未配置证书")
+	}
+
+	item := stru.Data[0]
+
+	// 对编码密文进行base64解码
+	decodeBytes, err := base64.StdEncoding.DecodeString(item.EncryptCertificate.Ciphertext)
+	if err != nil {
+		return this.error(err)
+	}
+
+	c, err := aes.NewCipher([]byte(this.opt.MchApiKey))
+	if err != nil {
+		return this.error(err)
+	}
+
+	gcm, err := cipher.NewGCM(c)
+	if err != nil {
+		return this.error(err)
+	}
+
+	nonceSize := gcm.NonceSize()
+	if len(decodeBytes) < nonceSize {
+		return this.errorStr("密文证书长度不够")
+	}
+	plaintext, err := gcm.Open(nil, []byte(item.EncryptCertificate.Nonce), decodeBytes, []byte(item.EncryptCertificate.AssociatedData))
+	if err != nil {
+		return this.error(err)
+	}
+
+	this.opt.MchPublicCertSn = item.SerialNo
+	block_pub, _ := pem.Decode(plaintext)
+
+	if block_pub == nil || block_pub.Type != "CERTIFICATE" {
+		return this.errorStr("解码包含平台公钥的PEM块失败！")
+	}
+	pu, err := x509.ParseCertificate(block_pub.Bytes)
+	if err != nil {
+		return this.error(err)
+	}
+
+	this.opt.MchPublicKey = pu.PublicKey.(*rsa.PublicKey)
+	this.opt.MchPublicCertTime = time.Now().Unix() + 3600
 	return nil
 }
 
@@ -135,7 +183,7 @@ func (this *Engine) Pay(charge *PayOption) (*PayRes, error) {
 		NonceStr:  nonce_str,
 		Package:   pk,
 		SignType:  "RSA",
-		PaySign:   tools.Base64Enc(tools.SHA256WithRSA(fmt.Sprintf("%s\n%d\n%s\n%s\n", this.opt.Appid, timestamp, nonce_str, pk), this.opt.MchPrivateKey)),
+		PaySign:   tools.Base64Enc(tools.SHA256WithRSA(fmt.Sprintf("%s\n%d\n%s\n%s\n", this.opt.Appid, timestamp, nonce_str, pk), this.opt.MchPrivateText)),
 	}, nil
 }
 
@@ -151,12 +199,25 @@ func (this *Engine) PayCancel(out_trade_no string) error {
 }
 
 type PayCallbackOption struct {
-	TransactionId string `json:"transaction_id"`
-	OutTradeNo    string `json:"out_trade_no"`
-	Amount        struct {
+	Mchid          string `json:"mchid"`
+	Appid          string `json:"appid"`
+	OutTradeNo     string `json:"out_trade_no"`
+	TransactionId  string `json:"transaction_id"`
+	TradeType      string `json:"trade_type"`
+	TradeState     string `json:"trade_state"`
+	TradeStateDesc string `json:"trade_state_desc"`
+	BankType       string `json:"bank_type"`
+	Attach         string `json:"attach"`
+	SuccessTime    string `json:"success_time"`
+	Amount         struct {
+		Total         int    `json:"total"`
 		PayerTotal    int    `json:"payer_total"`
+		Currency      string `json:"currency"`
 		PayerCurrency string `json:"payer_currency"`
 	} `json:"amount"`
+	Payer struct {
+		Openid string `json:"openid"`
+	} `json:"payer"`
 }
 
 func (this *Engine) PayDecrypt(data []byte) (*PayCallbackOption, error) {
@@ -176,25 +237,34 @@ func (this *Engine) PayDecrypt(data []byte) (*PayCallbackOption, error) {
 		return nil, err
 	}
 
-	ct, _ := tools.Base64Dec(dataStu.Resource.Ciphertext)
-	nc := []byte(dataStu.Resource.Nonce)
-	block, err := aes.NewCipher([]byte(this.opt.MchPrivateKey))
+	// 对编码密文进行base64解码
+	decodeBytes, err := base64.StdEncoding.DecodeString(dataStu.Resource.Ciphertext)
 	if err != nil {
-		panic(err.Error())
+		return nil, this.error(err)
 	}
 
-	aesgcm, err := cipher.NewGCM(block)
+	c, err := aes.NewCipher([]byte(this.opt.MchApiKey))
 	if err != nil {
-		panic(err.Error())
+		return nil, this.error(err)
 	}
 
-	plaintext, err := aesgcm.Open(nil, nc, ct, []byte(dataStu.Resource.AssociatedData))
+	gcm, err := cipher.NewGCM(c)
 	if err != nil {
-		panic(err.Error())
+		return nil, this.error(err)
 	}
 
-	fmt.Println(string(plaintext))
-	return nil, nil
+	nonceSize := gcm.NonceSize()
+	if len(decodeBytes) < nonceSize {
+		return nil, this.errorStr("密文证书长度不够")
+	}
+	plaintext, err := gcm.Open(nil, []byte(dataStu.Resource.Nonce), decodeBytes, []byte(dataStu.Resource.AssociatedData))
+	if err != nil {
+		return nil, this.error(err)
+	}
+
+	result := PayCallbackOption{}
+	err = json.Unmarshal(plaintext, &result)
+	return &result, err
 }
 
 func (this *Engine) PaySign(method, url, t, nonce_str, body string) string {
@@ -205,7 +275,7 @@ func (this *Engine) PaySign(method, url, t, nonce_str, body string) string {
 		"rand":   nonce_str,
 		"body":   body,
 	})
-	s := tools.SHA256WithRSA(content, this.opt.MchPrivateKey)
+	s := tools.SHA256WithRSA(content, this.opt.MchPrivateText)
 	ss := tools.Base64Enc(s)
 	return ss
 }

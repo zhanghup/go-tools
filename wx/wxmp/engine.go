@@ -1,20 +1,26 @@
 package wxmp
 
 import (
+	"crypto/rsa"
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"github.com/go-resty/resty/v2"
 )
 
 type Option struct {
-	Appid             string `yaml:"appid"`
-	Appsecret         string `yaml:"appsecret"`
-	Mchid             string `yaml:"mchid"`
-	MchPrivateKey     string `yaml:"mch_private_key"`
-	MchSeriesNo       string `yaml:"mch_series_no"`
-	MchPublicCert     string `yaml:"-"`
-	MchPublicCertTime int64  `yaml:"-"`
+	Appid             string          `yaml:"appid"`
+	Appsecret         string          `yaml:"appsecret"`
+	Mchid             string          `yaml:"mchid"`
+	MchPrivateText    string          `yaml:"mch_private_text"`
+	MchSeriesNo       string          `yaml:"mch_series_no"`
+	MchApiKey         string          `yaml:"mch_api_key"`
+	MchPublicKey      *rsa.PublicKey  `yaml:"-"`
+	MchPrivateKey     *rsa.PrivateKey `yaml:"-"`
+	MchPublicCertSn   string          `yaml:"-"`
+	MchPublicCertTime int64           `yaml:"-"`
 }
 
 const HOST = "https://api.weixin.qq.com"
@@ -35,6 +41,15 @@ type Engine struct {
 
 func NewEngine(opt *Option) IEngine {
 	e := Engine{opt: opt}
+	block, _ := pem.Decode([]byte(e.opt.MchPrivateText))
+	if block == nil {
+		panic("私钥解码失败")
+	}
+	priKey, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+	if err != nil {
+		panic(err)
+	}
+	e.opt.MchPrivateKey = priKey.(*rsa.PrivateKey)
 	return &e
 }
 
