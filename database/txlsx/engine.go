@@ -1,6 +1,6 @@
 package txlsx
 
-import "github.com/tealeg/xlsx"
+import "github.com/tealeg/xlsx/v3"
 
 type Engine struct {
 	excel *xlsx.File

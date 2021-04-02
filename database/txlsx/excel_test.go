@@ -9,7 +9,7 @@ import (
 )
 
 func TestExcel(t *testing.T) {
-	path := "C:\\Users\\Administrator\\Downloads\\表具档案20210401103504.xlsx"
+	path := "C:\\Users\\Administrator\\Downloads\\用户档案20210401141102.xlsx"
 	f, err := os.Open(path)
 	if err != nil {
 		panic(err)
@@ -24,13 +24,14 @@ func TestExcel(t *testing.T) {
 		{Code: "S0003", Name: "流量计", Value: "Value"},
 	})
 
-	ex, err := e.Excel(data, 3, 4)
+	ex, err := e.Excel(data, 2, 3)
 	if err != nil {
 		panic(err)
 	}
 	for _, sheet := range ex.Data {
 		for _, row := range sheet.Rows {
-			fmt.Println(row["o_device.type"].DictPtrValue("S0003"))
+			//fmt.Println(row)
+			fmt.Println(row.Cell("o_device.type").DictPtrValue("S0003"))
 		}
 	}
 

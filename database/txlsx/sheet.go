@@ -1,6 +1,7 @@
 package txlsx
 
 import (
+	"github.com/tealeg/xlsx/v3"
 	"github.com/zhanghup/go-tools"
 	"github.com/zhanghup/go-tools/tog"
 	"strconv"
@@ -13,15 +14,18 @@ type Sheet struct {
 	ext    *ExcelExt
 }
 
-type Row map[string]Cell
+type Row struct {
+	data map[string]Cell
+}
 
 type Cell struct {
+	info  *xlsx.Cell
 	value string
 	ext   *ExcelExt
 }
 
 func (this Row) Cell(name string) Cell {
-	c, ok := this[name]
+	c, ok := this.data[name]
 	if !ok {
 		return Cell{value: "", ext: &ExcelExt{dictmap: map[string][]ExcelDictItem{}, custom: map[string]ExcelCustomList{}}}
 	}

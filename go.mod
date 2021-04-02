@@ -11,7 +11,7 @@ require (
 	github.com/go-resty/resty/v2 v2.4.0
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/satori/go.uuid v1.2.0
-	github.com/tealeg/xlsx v1.0.5
+	github.com/tealeg/xlsx/v3 v3.2.3 // indirect
 	github.com/vektah/gqlparser/v2 v2.1.0
 	go.uber.org/zap v1.15.0
 	golang.org/x/sys v0.0.0-20201119102817-f84b799fce68
