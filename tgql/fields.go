@@ -77,7 +77,9 @@ func (this myfields) getNestedPreloads(ctx *graphql.OperationContext, fields []g
 
 func (this myfields) getNestedPreloads2(fields []graphql.CollectedField) (preloads []string) {
 	for _, column := range fields {
-		preloads = append(preloads, column.Name)
+		if len(column.Selections) == 0 {
+			preloads = append(preloads, column.Name)
+		}
 	}
 	return
 }
