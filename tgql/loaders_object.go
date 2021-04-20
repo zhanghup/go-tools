@@ -73,16 +73,16 @@ func (this *ObjectLoader) fetch(keys []string) (map[string]interface{}, error) {
 	return result, nil
 }
 
-func (l *ObjectLoader) Load(key string, result interface{}) error {
+func (l *ObjectLoader) Load(key string, result interface{}) (bool, error) {
 	i, err := l.LoadThunk(key)()
 	if err != nil {
-		return err
+		return false, err
 	}
 	if i == nil {
-		return nil
+		return false, nil
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(i))
-	return nil
+	return true, nil
 }
 
 func (l *ObjectLoader) LoadThunk(key string) func() (interface{}, error) {
