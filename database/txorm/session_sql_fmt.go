@@ -30,6 +30,8 @@ func (this *Session) SF(sql string, querys ...interface{}) ISession {
 	}
 
 	this.query = query
+
+	sql = this.sql_ctx(sql)
 	this.sql = tools.StrTmp(sql, query).FuncMap(this.tmps).String()
 
 	this.args = make([]interface{}, 0)
@@ -49,6 +51,17 @@ func (this *Session) sf_args() ISession {
 		this.sf_args_item(s, reflect.ValueOf(value))
 	}
 	return this
+}
+
+func (this *Session) sql_ctx(sql string) string {
+	r := regexp.MustCompile(`{{\s*ctx_\S+\s*}}`)
+	ss := r.FindAllString(sql, -1)
+
+	for _, s := range ss {
+		rdata := tools.StrTmp(strings.Replace(s, "}}", " .ctx }}", 1), map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmpCtxs).String()
+		sql = strings.Replace(sql, s, rdata, -1)
+	}
+	return sql
 }
 
 func (this *Session) sf_args_item(key string, value reflect.Value) ISession {

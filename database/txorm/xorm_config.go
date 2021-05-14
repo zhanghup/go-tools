@@ -1,8 +1,22 @@
 package txorm
 
-func (this *Engine) TemplateFuncAdd(name string, f interface{}) {
+import "context"
+
+func (this *Engine) TemplateFunc(name string, f interface{}) {
 	this.tmpsync.Lock()
-	this.tmps["sql_with_"+name] = f
+	this.tmps[name] = f
+	this.tmpsync.Unlock()
+}
+
+func (this *Engine) TemplateFuncWith(name string, fn func(ctx context.Context) string) {
+	this.tmpsync.Lock()
+	this.tmpWiths["sql_with_"+name] = fn
+	this.tmpsync.Unlock()
+}
+
+func (this *Engine) TemplateFuncCtx(name string, fn func(ctx context.Context) string) {
+	this.tmpsync.Lock()
+	this.tmpCtxs["ctx_"+name] = fn
 	this.tmpsync.Unlock()
 }
 

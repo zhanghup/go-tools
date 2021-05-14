@@ -16,9 +16,11 @@ type Config struct {
 }
 
 type Engine struct {
-	DB      *xorm.Engine
-	tmps    map[string]interface{}
-	tmpsync sync.RWMutex
+	DB       *xorm.Engine
+	tmps     map[string]interface{}
+	tmpWiths map[string]interface{}
+	tmpCtxs  map[string]interface{}
+	tmpsync  sync.RWMutex
 }
 
 func NewXorm(cfg Config) (*xorm.Engine, error) {
@@ -36,7 +38,9 @@ func NewXorm(cfg Config) (*xorm.Engine, error) {
 }
 
 type IEngine interface {
-	TemplateFuncAdd(name string, f interface{})
+	TemplateFuncWith(name string, fn func(ctx context.Context) string)          // sql_with_{{name}}
+	TemplateFuncCtx(name string, fn func(ctx context.Context) string) // ctx_{{name}}
+	TemplateFunc(name string, f interface{})                                    // template func
 	TemplateFuncKeys() []string
 	NewSession(autoClose bool, ctx ...context.Context) ISession
 	Session(ctx ...context.Context) ISession
@@ -54,9 +58,19 @@ func NewEngine(db *xorm.Engine, flag ...bool) IEngine {
 		return newengine
 	}
 	if len(flag) > 0 && flag[0] {
-		return &Engine{DB: db, tmps: map[string]interface{}{}}
+		return &Engine{
+			DB:       db,
+			tmps:     map[string]interface{}{},
+			tmpCtxs:  map[string]interface{}{},
+			tmpWiths: map[string]interface{}{},
+		}
 	}
 
-	newengine = &Engine{DB: db, tmps: map[string]interface{}{}}
+	newengine = &Engine{
+		DB:       db,
+		tmps:     map[string]interface{}{},
+		tmpCtxs:  map[string]interface{}{},
+		tmpWiths: map[string]interface{}{},
+	}
 	return newengine
 }

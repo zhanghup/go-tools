@@ -74,12 +74,12 @@ func (this *Session) _sql_with() string {
 			wmap[w] = true
 		}
 		for k := range wmap {
-			kk := tools.StrTmp(fmt.Sprintf("{{ sql_with_%s .ctx }}", k), map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmps).String()
+			kk := tools.StrTmp(fmt.Sprintf("{{ sql_with_%s .ctx }}", k), map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmpWiths).String()
 			withs = append(withs, fmt.Sprintf("%s as (%s)", k, kk))
 		}
 
 		sqlwith = strings.Join(withs, ",")
-		sqlwith = tools.StrTmp(sqlwith, map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmps).String()
+		sqlwith = tools.StrTmp(sqlwith, map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmpWiths).String()
 	}
 	return sqlwith
 }
@@ -165,7 +165,7 @@ func (this *Session) Exec() error {
 		defer this.AutoClose()
 	}
 
-	sqls := []interface{}{this.sql}
+	sqls := []interface{}{this._sql_with()+" "+this._sql()}
 	_, err := this.sess.Exec(append(sqls, this.args...)...)
 	return err
 }

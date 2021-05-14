@@ -17,9 +17,13 @@ type Session struct {
 	query     map[string]interface{}
 	args      []interface{}
 	autoClose bool
-	tmps      map[string]interface{}
-	withs     []string
-	orderby   []string
+
+	tmps     map[string]interface{}
+	tmpWiths map[string]interface{}
+	tmpCtxs  map[string]interface{}
+
+	withs   []string
+	orderby []string
 }
 
 func (this *Session) S() *xorm.Session {
@@ -43,7 +47,7 @@ func (this *Session) Table(table interface{}) ISession {
 }
 
 func (this *Session) With(name string) ISession {
-	this.withs = append(this.withs,name)
+	this.withs = append(this.withs, name)
 	return this
 }
 
