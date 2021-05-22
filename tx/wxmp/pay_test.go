@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/zhanghup/go-tools"
-	"github.com/zhanghup/go-tools/wx/wxmp"
+	"github.com/zhanghup/go-tools/tx/wxmp"
 	"testing"
 )
 
