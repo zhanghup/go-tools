@@ -18,7 +18,7 @@ func NewGin(cfg Config, fn func(g *gin.Engine) error) error {
 	gin.DefaultWriter = tog.Toginfo
 
 	e.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
-		return fmt.Sprintf("[GIN]\t%s | %s\t |\t %d |\t \"%s\"",param.ClientIP,param.Method,param.StatusCode, param.Path)
+		return fmt.Sprintf("[GIN]\t%s | %s\t |\t %d |\t \"%s\"", param.ClientIP, param.Method, param.StatusCode, param.Path)
 	}))
 
 	e.Use(gin.Recovery())
@@ -34,19 +34,25 @@ func NewGin(cfg Config, fn func(g *gin.Engine) error) error {
 	return nil
 }
 
+type ResponseEntity struct {
+	Code     int         `json:"code"`
+	Msg      string      `json:"msg"`
+	Response interface{} `json:"response"`
+}
+
 func Do(c *gin.Context, fn func(c *gin.Context) (interface{}, string)) {
 	o, err := fn(c)
 	if len(err) != 0 {
-		c.JSON(200, map[string]interface{}{
-			"code":     -1,
-			"msg":      err,
-			"response": o,
+		c.JSON(200, ResponseEntity{
+			Code:     -1,
+			Msg:      err,
+			Response: o,
 		})
 	} else {
-		c.JSON(200, map[string]interface{}{
-			"code":     0,
-			"msg":      "ok",
-			"response": o,
+		c.JSON(200, ResponseEntity{
+			Code:     0,
+			Msg:      "ok",
+			Response: o,
 		})
 	}
 	c.Abort()
@@ -55,10 +61,10 @@ func Do(c *gin.Context, fn func(c *gin.Context) (interface{}, string)) {
 func DoCustom(c *gin.Context, fn func(c *gin.Context) (interface{}, string)) {
 	o, err := fn(c)
 	if len(err) != 0 {
-		c.JSON(200, map[string]interface{}{
-			"code":     -1,
-			"msg":      err,
-			"response": o,
+		c.JSON(200, ResponseEntity{
+			Code:     -1,
+			Msg:      err,
+			Response: o,
 		})
 		c.Abort()
 	}
