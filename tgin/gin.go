@@ -7,8 +7,8 @@ import (
 )
 
 type Config struct {
-	Mode string `yarn:"mode"` // [debug,release,test]
-	Port string `yarn:"port"`
+	Mode string `yaml:"mode"` // [debug,release,test]
+	Port string `yaml:"port"`
 }
 
 func NewGin(cfg Config, fn func(g *gin.Engine) error) error {
