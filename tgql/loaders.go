@@ -1,9 +1,11 @@
 package tgql
 
 import (
+	"context"
 	"fmt"
 	"github.com/zhanghup/go-tools"
 	"github.com/zhanghup/go-tools/database/txorm"
+	"net/http"
 	"reflect"
 	"sync"
 )
@@ -13,9 +15,11 @@ type Loader interface {
 	Slice(table interface{}, sql string, param map[string]interface{}, keyField string, resultField string) *SliceLoader
 }
 
-//const DATALOADEN_KEY = "go-app-dataloaden"
+const DATALOADEN_KEY = "go-app-dataloaden"
 
 type dataLoaden struct {
+	sess txorm.ISession
+
 	objSync  sync.Locker
 	objStore map[string]*ObjectLoader
 
@@ -23,23 +27,31 @@ type dataLoaden struct {
 	sliceStore map[string]*SliceLoader
 }
 
-var loader = &dataLoaden{
-	objSync:  &sync.Mutex{},
-	objStore: map[string]*ObjectLoader{},
+func NewDataLoaden() Loader {
+	return &dataLoaden{
+		objSync:  &sync.Mutex{},
+		objStore: map[string]*ObjectLoader{},
 
-	sliceSync:  &sync.Mutex{},
-	sliceStore: map[string]*SliceLoader{},
+		sliceSync:  &sync.Mutex{},
+		sliceStore: map[string]*SliceLoader{},
+	}
 }
 
-func Object(sess txorm.ISession, table interface{}, sql string, param map[string]interface{}, keyField string, resultField string) *ObjectLoader {
-	return loader.Object(sess, table, sql, param, keyField, resultField)
+func DataLoadenMiddleware(next http.Handler) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), DATALOADEN_KEY, NewDataLoaden())
+		r = r.WithContext(ctx)
+		next.ServeHTTP(w, r)
+	})
 }
 
-func Slice(sess txorm.ISession, table interface{}, sql string, param map[string]interface{}, keyField string, resultField string) *SliceLoader {
-	return loader.Slice(sess, table, sql, param, keyField, resultField)
+func DataLoaden(ctx context.Context, sess txorm.ISession) Loader {
+	res := ctx.Value(DATALOADEN_KEY).(*dataLoaden)
+	res.sess = sess
+	return res
 }
 
-func (this *dataLoaden) Object(sess txorm.ISession, table interface{}, sql string, param map[string]interface{}, keyField string, resultField string) *ObjectLoader {
+func (this *dataLoaden) Object(table interface{}, sql string, param map[string]interface{}, keyField string, resultField string) *ObjectLoader {
 	requestTable := reflect.TypeOf(table)
 	if requestTable.Kind() == reflect.Ptr {
 		requestTable = requestTable.Elem()
@@ -77,7 +89,7 @@ func (this *dataLoaden) Object(sess txorm.ISession, table interface{}, sql strin
 	}
 	objLoader := &ObjectLoader{
 		sync:         &sync.RWMutex{},
-		db:           sess,
+		db:           this.sess,
 		keyField:     keyField,
 		resultField:  resultField,
 		sql:          sql,
@@ -89,7 +101,7 @@ func (this *dataLoaden) Object(sess txorm.ISession, table interface{}, sql strin
 	return objLoader
 }
 
-func (this *dataLoaden) Slice(sess txorm.ISession, table interface{}, sql string, param map[string]interface{}, keyField string, resultField string) *SliceLoader {
+func (this *dataLoaden) Slice(table interface{}, sql string, param map[string]interface{}, keyField string, resultField string) *SliceLoader {
 	requestTable := reflect.TypeOf(table)
 	if requestTable.Kind() == reflect.Ptr {
 		requestTable = requestTable.Elem()
@@ -129,7 +141,7 @@ func (this *dataLoaden) Slice(sess txorm.ISession, table interface{}, sql string
 	}
 	sliceLoader := &SliceLoader{
 		sync:         &sync.RWMutex{},
-		db:           sess,
+		db:           this.sess,
 		keyField:     keyField,
 		resultField:  resultField,
 		sql:          sql,
