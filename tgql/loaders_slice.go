@@ -12,7 +12,7 @@ import (
 type SliceLoader struct {
 	sql          string
 	param        map[string]interface{}
-	db           txorm.IEngine
+	db           txorm.ISession
 	keyField     string
 	resultField  string
 	requestTable reflect.Type
