@@ -23,7 +23,13 @@ type dataLoaden struct {
 	sliceStore map[string]*SliceLoader
 }
 
-var loader = &dataLoaden{}
+var loader = &dataLoaden{
+	objSync:  &sync.Mutex{},
+	objStore: map[string]*ObjectLoader{},
+
+	sliceSync:  &sync.Mutex{},
+	sliceStore: map[string]*SliceLoader{},
+}
 
 func Object(sess txorm.ISession, table interface{}, sql string, param map[string]interface{}, keyField string, resultField string) *ObjectLoader {
 	return loader.Object(sess, table, sql, param, keyField, resultField)
