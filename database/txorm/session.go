@@ -2,6 +2,7 @@ package txorm
 
 import (
 	"context"
+	"sync"
 	"xorm.io/xorm"
 )
 
@@ -10,8 +11,9 @@ type Session struct {
 	context        context.Context
 	beginTranslate bool
 	// xorm session
-	sess *xorm.Session
-	_db  *xorm.Engine
+	sess  *xorm.Session
+	_db   *xorm.Engine
+	_sync sync.Mutex
 
 	sql       string
 	query     map[string]interface{}
@@ -52,6 +54,8 @@ func (this *Session) With(name string) ISession {
 }
 
 func (this *Session) Begin() error {
+	this._sync.Lock()
+	defer this._sync.Unlock()
 	if this.beginTranslate {
 		return nil
 	}
