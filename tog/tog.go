@@ -53,7 +53,7 @@ func init() {
 		LineEnding: zapcore.DefaultLineEnding,
 		EncodeCaller: func(c zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
 			strs := []string{}
-			for i := 0; i < 100; i++ {
+			for i := 7; i < 100; i++ {
 				_, str, l, ok := runtime.Caller(i)
 				if ok {
 					strs = append(strs, fmt.Sprintf("\n\t%s:%d", str, l))
