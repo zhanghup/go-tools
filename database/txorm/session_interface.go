@@ -42,4 +42,6 @@ type ISession interface {
 	Float64() (float64, error)
 	String() (string, error)
 	Strings() ([]string, error)
+	Exists() (bool, error)
+	Map() ([]map[string][]byte, error)
 }

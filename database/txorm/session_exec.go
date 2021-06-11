@@ -159,13 +159,31 @@ func (this *Session) Page2(index, size *int, count *bool, bean interface{}) (int
 	return this.Page(*index, *size, *count, bean)
 }
 
+func (this *Session) Map() ([]map[string][]byte, error) {
+	if this.autoClose {
+		// 由engine直接进入的方法，需要自动关闭session
+		defer this.AutoClose()
+	}
+
+	return this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Query()
+}
+
+func (this *Session) Exists() (bool, error) {
+	if this.autoClose {
+		// 由engine直接进入的方法，需要自动关闭session
+		defer this.AutoClose()
+	}
+
+	return this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Exist()
+}
+
 func (this *Session) Exec() error {
 	if this.autoClose {
 		// 由engine直接进入的方法，需要自动关闭session
 		defer this.AutoClose()
 	}
 
-	sqls := []interface{}{this._sql_with()+" "+this._sql()}
+	sqls := []interface{}{this._sql_with() + " " + this._sql()}
 	_, err := this.sess.Exec(append(sqls, this.args...)...)
 	return err
 }

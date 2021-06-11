@@ -23,13 +23,7 @@ type ObjectLoader struct {
 	sync  *sync.RWMutex
 }
 
-type objectLoaderBatch struct {
-	keys    []string
-	data    map[string]interface{}
-	error   error
-	closing bool
-	done    chan struct{}
-}
+
 
 func (this *ObjectLoader) fetch(keys []string) (map[string]interface{}, error) {
 	query := map[string]interface{}{}
@@ -124,6 +118,14 @@ func (l *ObjectLoader) unsafeSet(key string, value interface{}) {
 		l.cache = map[string]interface{}{}
 	}
 	l.cache[key] = value
+}
+
+type objectLoaderBatch struct {
+	keys    []string
+	data    map[string]interface{}
+	error   error
+	closing bool
+	done    chan struct{}
 }
 
 func (b *objectLoaderBatch) keyIndex(l *ObjectLoader, key string) {
