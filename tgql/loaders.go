@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"reflect"
 	"sync"
+	"time"
 	"xorm.io/xorm"
 )
 
@@ -22,20 +23,21 @@ type dataLoaden struct {
 	db *xorm.Engine
 
 	objSync  sync.Locker
-	objStore map[string]*ObjectLoader
+	objStore tools.ICache
 
 	sliceSync  sync.Locker
-	sliceStore map[string]*SliceLoader
+	sliceStore tools.ICache
 }
 
 func NewDataLoaden(db *xorm.Engine) Loader {
 	return &dataLoaden{
-		db:       db,
+		db: db,
+
 		objSync:  &sync.Mutex{},
-		objStore: map[string]*ObjectLoader{},
+		objStore: tools.CacheCreate(true),
 
 		sliceSync:  &sync.Mutex{},
-		sliceStore: map[string]*SliceLoader{},
+		sliceStore: tools.CacheCreate(true),
 	}
 }
 
@@ -84,8 +86,8 @@ func (this *dataLoaden) Object(table interface{}, sql string, param map[string]i
 	key = tools.MD5([]byte(key))
 	this.objSync.Lock()
 	defer this.objSync.Unlock()
-	if l, ok := this.objStore[key]; ok {
-		return l
+	if l := this.objStore.Get(key); l != nil {
+		return l.(*ObjectLoader)
 	}
 	objLoader := &ObjectLoader{
 		sync:         &sync.RWMutex{},
@@ -97,7 +99,7 @@ func (this *dataLoaden) Object(table interface{}, sql string, param map[string]i
 		requestTable: requestTable,
 		resultTable:  resultTable,
 	}
-	this.objStore[key] = objLoader
+	this.objStore.Set(key, objLoader, time.Now().Unix()+86400)
 	return objLoader
 }
 
@@ -136,8 +138,8 @@ func (this *dataLoaden) Slice(table interface{}, sql string, param map[string]in
 
 	this.sliceSync.Lock()
 	defer this.sliceSync.Unlock()
-	if l, ok := this.sliceStore[key]; ok {
-		return l
+	if l := this.sliceStore.Get(key); l != nil {
+		return l.(*SliceLoader)
 	}
 	sliceLoader := &SliceLoader{
 		sync:         &sync.RWMutex{},
@@ -149,6 +151,6 @@ func (this *dataLoaden) Slice(table interface{}, sql string, param map[string]in
 		requestTable: requestTable,
 		resultTable:  resultTable,
 	}
-	this.sliceStore[key] = sliceLoader
+	this.sliceStore.Set(key, sliceLoader, time.Now().Unix()+86400)
 	return sliceLoader
 }
