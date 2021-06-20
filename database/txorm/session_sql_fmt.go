@@ -82,8 +82,16 @@ func (this *Session) sf_args_item(key string, value reflect.Value) ISession {
 			ps = append(ps, "?")
 			args = append(args, v.Interface())
 		}
-		this.sql = strings.Replace(this.sql, key, fmt.Sprintf("(%s)", strings.Join(ps, ",")), 1)
-		this.args = append(this.args, args...)
+		if strings.HasPrefix(key, ":between_") {
+			if len(args) == 2 {
+				this.sql = strings.Replace(this.sql, key,"? and ?", 1)
+				this.args = append(this.args, args...)
+			}
+		} else {
+			this.sql = strings.Replace(this.sql, key, fmt.Sprintf("(%s)", strings.Join(ps, ",")), 1)
+			this.args = append(this.args, args...)
+		}
+
 	default:
 		this.sql = strings.Replace(this.sql, key, "?", 1)
 		this.args = append(this.args, value.Interface())
