@@ -105,3 +105,7 @@ func (this *Session) AutoClose() error {
 func (this *Session) Id() string {
 	return this.id
 }
+
+func (this *Session) SetId(id string) {
+	this.id = id
+}

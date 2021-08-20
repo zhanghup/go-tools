@@ -31,8 +31,8 @@ func (this *Session) SF(sql string, querys ...interface{}) ISession {
 
 	this.query = query
 
-	sql = this.sql_ctx(sql)
-	this.sql = tools.StrTmp(sql, query).FuncMap(this.tmps).String()
+	sql = tools.StrTmp(sql, query).FuncMap(this.tmps).String()
+	this.sql = this.sql_ctx(sql)
 
 	this.args = make([]interface{}, 0)
 	this.sf_args()

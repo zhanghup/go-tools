@@ -17,7 +17,8 @@ type cache struct {
 	data sync.Map
 }
 
-// 是否自动清理内存中的过期数据
+// CacheCreate 创建缓存对象
+// flag: 是否自动清理内存中的过期数据
 func CacheCreate(flag ...bool) ICache {
 	c := &cache{data: sync.Map{}}
 

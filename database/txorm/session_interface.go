@@ -7,6 +7,8 @@ import (
 
 type ISession interface {
 	Id() string
+	SetId(id string)
+
 	E() *xorm.Engine
 	S() *xorm.Session
 	Ctx() context.Context
