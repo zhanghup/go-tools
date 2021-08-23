@@ -26,10 +26,6 @@ func (this *Engine) SF(sql string, querys ...interface{}) ISession {
 	return sess.SF(sql, querys...)
 }
 
-func (this *Engine) With(name string) ISession {
-	return this.NewSession(true).With(name)
-}
-
 func (this *Engine) Engine() *xorm.Engine {
 	return this.DB
 }

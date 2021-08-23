@@ -1,6 +1,7 @@
 package loader
 
 import (
+	"encoding/json"
 	"reflect"
 	"sync"
 	"time"
@@ -22,8 +23,8 @@ type IObject interface {
 
 // Object 批量缓存请求列表
 type Object struct {
-	fetch ObjectFetch
-	wait  time.Duration
+	fetch    ObjectFetch
+	wait     time.Duration
 	maxBatch int
 	batch    *objectLoaderBatch
 	mu       sync.Mutex
@@ -57,13 +58,26 @@ func (l *Object) Load(key string, ru interface{}) (bool, error) {
 		return false, nil
 	}
 
-	vl := reflect.ValueOf(ru)
+	switch res.(type) {
+	case map[string]interface{}, []map[string]interface{}:
+		bs, err := json.Marshal(res)
+		if err != nil {
+			return false, err
+		}
+		err = json.Unmarshal(bs, ru)
+		if err != nil {
+			return false, err
+		}
+		return true, nil
+	default:
+		vl := reflect.ValueOf(ru)
 
-	if !vl.Elem().CanSet() {
-		return false, nil
+		if !vl.Elem().CanSet() {
+			return false, nil
+		}
+		vl.Elem().Set(reflect.ValueOf(res))
+		return true, nil
 	}
-	vl.Elem().Set(reflect.ValueOf(res))
-	return true, nil
 }
 
 func (l *Object) LoadThunk(key string) func() (interface{}, error) {

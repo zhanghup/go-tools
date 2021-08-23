@@ -2,42 +2,32 @@ package txorm_test
 
 import (
 	"context"
-	"fmt"
-	"github.com/zhanghup/go-tools"
 	"github.com/zhanghup/go-tools/database/txorm"
-	"regexp"
 	"testing"
 )
 
 var engine txorm.IEngine
 
-func TestTemplate(t *testing.T) {
-	err := engine.SF(`select * from corp where  corp = {{ ctx_corp }}`).With("users").Exec()
+func TestWithTemplate(t *testing.T) {
+	err := engine.SF(`select * from {{ tmp "users" }} as u where u.id = '44bbb8ef-c72f-4f66-a294-d651be5948f4'
+	`).Exec()
 	if err != nil {
 		t.Error(err)
 	}
 }
 
-func TestQuery(t *testing.T) {
-	m, err := engine.SF(`select * from corp `).Map()
+func TestSessionContextTemplate(t *testing.T) {
+	err := engine.SF(`select * from {{ tmp "users" }} as u where u.id = '44bbb8ef-c72f-4f66-a294-d651be5948f4' 
+	and u.corp = {{ ctx "corp" }}
+	{{ if .ty }} and u.corp = {{ ctx "corp" }} {{ end }}
+	{{ if .t }} and u.corp = ? {{ end }}
+	`, map[string]interface{}{
+		"ty": true,
+		"t":  true,
+	}, "ceaaeb6d-9f47-4ecb-ab4b-3247091229b7").Exec()
 	if err != nil {
 		t.Error(err)
 	}
-	fmt.Println(tools.JSONString(m, true))
-}
-
-func TestStrTemp(t *testing.T) {
-	str := ` 
-		fjdsakjfksadjf
-		{{ctx_1  }}
-		{{ ctx_2  }} {{ cvx_4  }} {{ ctx_5  }}
-		{{ ctx_3 "dajskd" }}
-	`
-	fmt.Println(str)
-
-	r := regexp.MustCompile(`{{\s*ctx_\S+\s*}}`)
-	r.FindAllString(str, -1)
-	fmt.Println(r.FindAllString(str, -1))
 }
 
 func init() {
@@ -51,16 +41,11 @@ func init() {
 	}
 	engine = txorm.NewEngine(e)
 
-	engine.TemplateFunc("corp", func(n string) string {
-		fmt.Println(n)
-		return fmt.Sprintf("%s.corp = '{{ .corp }}'", n)
+	engine.TemplateFuncWith("users", func(ctx context.Context) string {
+		return "select * from user"
 	})
 
 	engine.TemplateFuncCtx("corp", func(ctx context.Context) string {
-		return "'12jfkdasljfkla'"
-	})
-
-	engine.TemplateFuncWith("users", func(ctx context.Context) string {
-		return "select 1"
+		return "'ceaaeb6d-9f47-4ecb-ab4b-3247091229b7'"
 	})
 }

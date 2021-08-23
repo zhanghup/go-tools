@@ -86,7 +86,7 @@ func TestLoaderXorm(t *testing.T) {
 		go func(ii int) {
 			oo := Account{}
 			ok, err := lod.LoadXormSess(sess, make([]Account, 0), `
-				select * from account where id in :keys and {{ corp ""}}
+				select * from account where id in :keys and corp =  {{ ctx "corp"}}
 				`, func(tempData interface{}) map[string]interface{} {
 				data := tempData.([]Account)
 				result := map[string]interface{}{}

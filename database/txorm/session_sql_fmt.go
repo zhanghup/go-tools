@@ -12,8 +12,8 @@ func (this *Session) SF(sql string, querys ...interface{}) ISession {
 	// 重置排序功能
 	this.orderby = []string{}
 
+	// sql模板参数格式化
 	query := map[string]interface{}{}
-
 	for i := range querys {
 		ty := reflect.TypeOf(querys[i])
 		if ty.Kind() == reflect.Map {
@@ -28,11 +28,23 @@ func (this *Session) SF(sql string, querys ...interface{}) ISession {
 			query[uid] = querys[i]
 		}
 	}
-
 	this.query = query
 
-	sql = tools.StrTmp(sql, query).FuncMap(this.tmps).String()
-	this.sql = this.sql_ctx(sql)
+	// sql模板格式化
+	this.withs = make([]string, 0)
+	m1 := map[string]interface{}{
+		"tmp": func(name string) string {
+			this.withs = append(this.withs, name)
+			return fmt.Sprintf("__sql_with_%s", name)
+		},
+		"ctx": func(name string) string {
+			return fmt.Sprintf("{{ ctx_%s .ctx }}", name)
+		},
+	}
+	// tmp模板
+	sql = tools.StrTmp(sql, query).FuncMap(tools.MapMerge(m1, this.tmps)).String()
+	// context 模板
+	this.sql = tools.StrTmp(sql).FuncMap(this.tmpCtxs).String()
 
 	this.args = make([]interface{}, 0)
 	this.sf_args()
@@ -51,17 +63,6 @@ func (this *Session) sf_args() ISession {
 		this.sf_args_item(s, reflect.ValueOf(value))
 	}
 	return this
-}
-
-func (this *Session) sql_ctx(sql string) string {
-	r := regexp.MustCompile(`{{\s*ctx_\S+\s*}}`)
-	ss := r.FindAllString(sql, -1)
-
-	for _, s := range ss {
-		rdata := tools.StrTmp(strings.Replace(s, "}}", " .ctx }}", 1), map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmpCtxs).String()
-		sql = strings.Replace(sql, s, rdata, -1)
-	}
-	return sql
 }
 
 func (this *Session) sf_args_item(key string, value reflect.Value) ISession {
@@ -84,7 +85,7 @@ func (this *Session) sf_args_item(key string, value reflect.Value) ISession {
 		}
 		if strings.HasPrefix(key, ":between_") {
 			if len(args) == 2 {
-				this.sql = strings.Replace(this.sql, key,"? and ?", 1)
+				this.sql = strings.Replace(this.sql, key, "? and ?", 1)
 				this.args = append(this.args, args...)
 			}
 		} else {

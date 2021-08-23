@@ -40,32 +40,39 @@ type ResponseEntity struct {
 	Response interface{} `json:"response"`
 }
 
-func Do(c *gin.Context, fn func(c *gin.Context) (interface{}, string)) {
-	o, err := fn(c)
-	if len(err) != 0 {
-		c.JSON(200, ResponseEntity{
-			Code:     -1,
-			Msg:      err,
-			Response: o,
-		})
-	} else {
-		c.JSON(200, ResponseEntity{
-			Code:     0,
-			Msg:      "ok",
-			Response: o,
-		})
-	}
-	c.Abort()
+func (this ResponseEntity) Error() string {
+	return fmt.Sprintf("GIN通用异常，Code：%d，Msg：%s", this.Code, this.Msg)
 }
 
-func DoCustom(c *gin.Context, fn func(c *gin.Context) (interface{}, string)) {
+func NewResponseEntity(code int, msg string, response interface{}) ResponseEntity {
+	return ResponseEntity{
+		Code:     code,
+		Msg:      msg,
+		Response: response,
+	}
+}
+
+func Do(c *gin.Context, fn func(c *gin.Context) (interface{}, error)) {
 	o, err := fn(c)
-	if len(err) != 0 {
-		c.JSON(200, ResponseEntity{
-			Code:     -1,
-			Msg:      err,
-			Response: o,
+	if err != nil {
+		DoDirective(c, func(c *gin.Context) (interface{}, error) {
+			return o, err
 		})
-		c.Abort()
+	} else {
+		c.JSON(200, NewResponseEntity(200, "ok", o))
+	}
+}
+
+func DoDirective(c *gin.Context, fn func(c *gin.Context) (interface{}, error)) {
+	o, err := fn(c)
+	if err != nil {
+		switch err.(type) {
+		case ResponseEntity:
+			c.JSON(200, err)
+			c.Abort()
+		default:
+			c.JSON(200, NewResponseEntity(200, err.Error(), o))
+			c.Abort()
+		}
 	}
 }

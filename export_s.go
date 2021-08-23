@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"reflect"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -28,13 +29,19 @@ func StrFmt(format string, args ...interface{}) string {
 	return fmt.Sprintf(format, params...)
 }
 
-// bson 的 UUID
+// UUID 就是一个36位的UUID
 func UUID() string {
 	id := uuid.NewV4()
 	return id.String()
 }
 
-// 以json格式输出struct对象
+// UUID_ 将 UUID 的”横杠“替代为”下划线“
+func UUID_() string {
+	id := uuid.NewV4()
+	return strings.ReplaceAll(id.String(), "-", "_")
+}
+
+// JSONString 以json格式输出struct对象,format判断时间将json格式化
 func JSONString(obj interface{}, format ...bool) string {
 	if obj == nil {
 		return ""

@@ -8,9 +8,23 @@ func (this *Engine) TemplateFunc(name string, f interface{}) {
 	this.tmpsync.Unlock()
 }
 
+/*
+	TemplateFuncWith Sql With 模板，
+
+	初始化模板：
+	db.TemplateFunc("users",function(ctx context.Context) string{
+		return "select id,name from user"
+	})
+
+	select * from {{ sql_name "users" }}
+	=>
+	{{ sql_with_users }} select * from __sql_with_users
+	=>
+	with recursive _ as (select 1),__sql_with_users as (select id,name from user) select * from __sql_with_users
+*/
 func (this *Engine) TemplateFuncWith(name string, fn func(ctx context.Context) string) {
 	this.tmpsync.Lock()
-	this.tmpWiths["sql_with_"+name] = fn
+	this.tmpWiths["tmp_"+name] = fn
 	this.tmpsync.Unlock()
 }
 

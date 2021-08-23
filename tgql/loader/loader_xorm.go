@@ -5,16 +5,19 @@ import (
 	"github.com/zhanghup/go-tools"
 	"github.com/zhanghup/go-tools/database/txorm"
 	"reflect"
+	"regexp"
 )
 
 type LoadXormFetch func(tempData interface{}) map[string]interface{}
 
+// LoadXorm 为了方便数据唯一，sqlstr可以给一个前缀, 例如 prefix_xxx select * from user => select * from user
 func (this *Loader) LoadXorm(bean interface{}, sqlstr string, fetch LoadXormFetch, param ...interface{}) IObject {
 	sess := this.dbs.NewSession(true)
 	sess.SetId("None")
 	return this.LoadXormSess(sess, bean, sqlstr, fetch, param...)
 }
 
+// LoadXormSess 为了方便数据唯一，sqlstr可以给一个前缀, 例如 prefix_xxx select * from user => select * from user
 func (this *Loader) LoadXormSess(sess txorm.ISession, bean interface{}, sqlstr string, fetch LoadXormFetch, param ...interface{}) IObject {
 	info := tools.RftTypeInfo(bean)
 
@@ -23,14 +26,31 @@ func (this *Loader) LoadXormSess(sess txorm.ISession, bean interface{}, sqlstr s
 		key += ",bean.json: " + tools.JSONString(reflect.New(info.Type).Interface())
 	}
 	key = tools.MD5([]byte(key))
+	re := regexp.MustCompile(`^prefix_\S+\s+`)
 
 	return this.LoadObject(key, func(keys []string) (map[string]interface{}, error) {
 
-		data := reflect.New(reflect.TypeOf(bean))
-		err := sess.SF(sqlstr, append(param, map[string]interface{}{"keys": keys})...).Find(data.Interface())
-		if err != nil {
-			return nil, err
+		sqlstr = re.ReplaceAllString(sqlstr, "")
+
+		s := sess.SF(sqlstr, append(param, map[string]interface{}{"keys": keys})...)
+
+		switch bean.(type) {
+
+		case []map[string]interface{}:
+			maps, err := s.Map()
+			if err != nil {
+				return nil, err
+			}
+			return fetch(maps), nil
+
+		default:
+			data := reflect.New(reflect.TypeOf(bean))
+			err := s.Find(data.Interface())
+			if err != nil {
+				return nil, err
+			}
+			return fetch(data.Elem().Interface()), nil
 		}
-		return fetch(data.Elem().Interface()), nil
+
 	})
 }

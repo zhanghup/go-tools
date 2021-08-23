@@ -12,7 +12,6 @@ type ISession interface {
 	E() *xorm.Engine
 	S() *xorm.Session
 	Ctx() context.Context
-	With(name string) ISession
 	Begin() error
 	Rollback() error
 	Commit() error
@@ -45,5 +44,5 @@ type ISession interface {
 	String() (string, error)
 	Strings() ([]string, error)
 	Exists() (bool, error)
-	Map() ([]map[string][]byte, error)
+	Map() ([]map[string]interface{}, error)
 }

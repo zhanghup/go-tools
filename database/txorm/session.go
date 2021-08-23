@@ -48,11 +48,6 @@ func (this *Session) Table(table interface{}) ISession {
 	return this
 }
 
-func (this *Session) With(name string) ISession {
-	this.withs = append(this.withs, name)
-	return this
-}
-
 func (this *Session) Begin() error {
 	this._sync.Lock()
 	defer this._sync.Unlock()

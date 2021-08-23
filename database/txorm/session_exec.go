@@ -68,17 +68,18 @@ func (this *Session) _sql_with() string {
 	sqlwith := ""
 	if len(this.withs) > 0 {
 		// 去重
-		withs := []string{"\n with recursive _ as (select 1)"}
+		with_header := "\n with recursive "
+		withs := []string{}
 		wmap := map[string]bool{}
 		for _, w := range this.withs {
 			wmap[w] = true
 		}
 		for k := range wmap {
-			kk := tools.StrTmp(fmt.Sprintf("{{ sql_with_%s .ctx }}", k), map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmpWiths).String()
-			withs = append(withs, fmt.Sprintf("%s as (%s)", k, kk))
+			kk := tools.StrTmp(fmt.Sprintf("{{ tmp_%s .ctx }}", k), map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmpWiths).String()
+			withs = append(withs, fmt.Sprintf("__sql_with_%s as (%s)", k, kk))
 		}
 
-		sqlwith = strings.Join(withs, ",")
+		sqlwith = with_header + strings.Join(withs, ",")
 		sqlwith = tools.StrTmp(sqlwith, map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmpWiths).String()
 	}
 	return sqlwith
@@ -159,13 +160,13 @@ func (this *Session) Page2(index, size *int, count *bool, bean interface{}) (int
 	return this.Page(*index, *size, *count, bean)
 }
 
-func (this *Session) Map() ([]map[string][]byte, error) {
+func (this *Session) Map() ([]map[string]interface{}, error) {
 	if this.autoClose {
 		// 由engine直接进入的方法，需要自动关闭session
 		defer this.AutoClose()
 	}
 
-	return this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Query()
+	return this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).QueryInterface()
 }
 
 func (this *Session) Exists() (bool, error) {
