@@ -10,6 +10,9 @@ import (
 
 // NewLoader db可以为nil，只是不能使用LoadXorm与LoadXormSess
 func NewLoader(db *xorm.Engine) ILoader {
+	if db == nil {
+		return &Loader{db: db}
+	}
 	return &Loader{
 		db:        db,
 		dbs:       txorm.NewEngine(db),
@@ -36,7 +39,7 @@ func NewLoader(db *xorm.Engine) ILoader {
 		LoadXormSess
 		LoadXormSessObject
 		LoadXormSlice
- */
+*/
 type ILoaderXorm interface {
 	SetDB(db *xorm.Engine) ILoader
 
@@ -55,7 +58,6 @@ type ILoader interface {
 
 	// LoadObject loader 方法的id，必须保证每个独立的使用方法使用不同的id
 	LoadObject(id string, fetch ObjectFetch) IObject
-
 
 	ILoaderXorm
 }
