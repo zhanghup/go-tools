@@ -18,7 +18,7 @@ func (this *Loader) SqlFormat(sqlstr, field string) string {
 			field = ss[1]
 		}
 
-		sqlstr = fmt.Sprintf("select * from %s where %s in :keys", table, sqlstr)
+		sqlstr = fmt.Sprintf("select %s.* from %s where %s in :keys", table, table, sqlstr)
 	}
 
 	return sqlstr

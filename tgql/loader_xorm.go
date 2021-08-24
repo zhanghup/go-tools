@@ -6,9 +6,16 @@ import (
 	"github.com/zhanghup/go-tools/database/txorm"
 	"reflect"
 	"regexp"
+	"xorm.io/xorm"
 )
 
 type LoadXormFetch func(tempData interface{}) map[string]interface{}
+
+func (this *Loader) SetDB(db *xorm.Engine) ILoader {
+	this.db = db
+	this.dbs = txorm.NewEngine(db)
+	return this
+}
 
 // LoadXorm 为了方便数据唯一，sqlstr可以给一个前缀, 例如 prefix_xxx select * from user => select * from user
 func (this *Loader) LoadXorm(bean interface{}, sqlstr string, fetch LoadXormFetch, param ...interface{}) IObject {
