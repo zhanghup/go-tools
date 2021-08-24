@@ -1,4 +1,4 @@
-package loader
+package tgql
 
 import (
 	"github.com/zhanghup/go-tools"

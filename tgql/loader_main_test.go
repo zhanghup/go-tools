@@ -1,4 +1,4 @@
-package loader_test
+package tgql_test
 
 type Dict struct {
 	Id       string  `json:"id" xorm:"Varchar(128) pk"`

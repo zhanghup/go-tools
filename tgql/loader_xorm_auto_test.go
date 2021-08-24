@@ -1,9 +1,9 @@
-package loader_test
+package tgql_test
 
 import (
 	"fmt"
 	"github.com/zhanghup/go-tools"
-	"github.com/zhanghup/go-tools/tgql/loader"
+	"github.com/zhanghup/go-tools/tgql"
 	"testing"
 	"time"
 )
@@ -12,7 +12,7 @@ import (
 // 测试查询单个map对象并且转换为struct对象
 func TestXormSessionObject(t *testing.T) {
 
-	lod := loader.NewLoader(enginedb)
+	lod := tgql.NewLoader(enginedb)
 	sess := engine.NewSession(true)
 
 	ids := []string{"12d07c3d-8133-48ab-b353-124da316b0d7", "14e7d395-5a6a-45e1-bbad-ceb4e8ff64aa", "4803d264-2b5a-4f70-8c05-be5712a694f3"}
@@ -35,7 +35,7 @@ func TestXormSessionObject(t *testing.T) {
 // 测试查询多个map对象并且转换为[]struct数组
 func TestXormSessionSlice(t *testing.T) {
 
-	lod := loader.NewLoader(enginedb)
+	lod := tgql.NewLoader(enginedb)
 	sess := engine.NewSession(true)
 
 	ids := []string{"12d07c3d-8133-48ab-b353-124da316b0d7", "14e7d395-5a6a-45e1-bbad-ceb4e8ff64aa", "4803d264-2b5a-4f70-8c05-be5712a694f3"}
@@ -58,7 +58,7 @@ func TestXormSessionSlice(t *testing.T) {
 // 测试查询单个map对象并且转换为struct对象
 func TestXormSessionObjectAuto(t *testing.T) {
 
-	lod := loader.NewLoader(enginedb)
+	lod := tgql.NewLoader(enginedb)
 	sess := engine.NewSession(true)
 
 	ids := []string{"12d07c3d-8133-48ab-b353-124da316b0d7", "14e7d395-5a6a-45e1-bbad-ceb4e8ff64aa", "4803d264-2b5a-4f70-8c05-be5712a694f3"}
@@ -81,7 +81,7 @@ func TestXormSessionObjectAuto(t *testing.T) {
 // 测试查询多个map对象并且转换为[]struct数组
 func TestXormSessionSliceAuto(t *testing.T) {
 
-	lod := loader.NewLoader(enginedb)
+	lod := tgql.NewLoader(enginedb)
 	sess := engine.NewSession(true)
 
 	ids := []string{"12d07c3d-8133-48ab-b353-124da316b0d7", "14e7d395-5a6a-45e1-bbad-ceb4e8ff64aa", "4803d264-2b5a-4f70-8c05-be5712a694f3"}

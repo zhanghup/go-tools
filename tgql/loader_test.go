@@ -1,18 +1,18 @@
-package loader_test
+package tgql_test
 
 import (
 	"context"
 	"fmt"
 	"github.com/zhanghup/go-tools"
 	"github.com/zhanghup/go-tools/database/txorm"
-	"github.com/zhanghup/go-tools/tgql/loader"
+	"github.com/zhanghup/go-tools/tgql"
 	"testing"
 	"time"
 	"xorm.io/xorm"
 )
 
 func TestLoader(t *testing.T) {
-	lod := loader.NewLoader(nil)
+	lod := tgql.NewLoader(nil)
 	//for i := 0; i < 10; i++ {
 	//	go func(o int) {
 	//		res := ""
@@ -54,7 +54,7 @@ func TestLoader(t *testing.T) {
 }
 
 func TestObject(t *testing.T) {
-	loder := loader.NewObjectLoader(func(keys []string) (map[string]interface{}, error) {
+	loder := tgql.NewObjectLoader(func(keys []string) (map[string]interface{}, error) {
 		fmt.Println(keys)
 		return nil, nil
 	})
@@ -71,7 +71,7 @@ func TestObject(t *testing.T) {
 }
 
 func TestLoaderXorm(t *testing.T) {
-	lod := loader.NewLoader(enginedb)
+	lod := tgql.NewLoader(enginedb)
 
 	type Account struct {
 		Id   string `json:"id"`

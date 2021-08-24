@@ -7,37 +7,17 @@ import (
 	"strings"
 )
 
-type myfields struct{}
-
-var Field = myfields{}
-
 /*
-query S{
-	querya{
-		a{
-			b{
-				c{
-					d
-					e
-					f
-					g{
-						h
-						i
-						c
-					}
-				}
-			}
-		}
-	}
-}
-*/
-/*
+	Fields
+	query S{ querya{ a{b{
+		c{ d e f g{ h i c } }
+	} } }}
 	root: "a.b.c" // 取a.b.c下面的所有查询的属性，不包括子属性，例如上面的结果为["d","e","f","g"]
 	fields: 针对graphql查询中的字段和传给方法的fields数组做一个并集
 */
-func (this myfields) Fields(ctx context.Context, root string, fields ...string) []string {
+func GraphqlContextFields(ctx context.Context, root string, fields ...string) []string {
 	graphql.GetOperationContext(ctx)
-	flist := this.getNestedPreloads(
+	flist := getNestedPreloads(
 		graphql.GetOperationContext(ctx),
 		graphql.CollectFieldsCtx(ctx, nil),
 		root,
@@ -56,26 +36,26 @@ func (this myfields) Fields(ctx context.Context, root string, fields ...string) 
 
 	return result
 }
-func (this myfields) getNestedPreloads(ctx *graphql.OperationContext, fields []graphql.CollectedField, root string, idx int) (preloads []string) {
+
+func getNestedPreloads(ctx *graphql.OperationContext, fields []graphql.CollectedField, root string, idx int) (preloads []string) {
 	if root == "" {
-		preloads = append(preloads, this.getNestedPreloads2(fields)...)
+		preloads = append(preloads, getNestedPreloads2(fields)...)
 	} else {
 		keys := strings.Split(root, ".")
 		for _, column := range fields {
 			if column.Name == keys[idx] {
 				if len(keys)-1 == idx {
-					preloads = append(preloads, this.getNestedPreloads2(graphql.CollectFields(ctx, column.Selections, nil))...)
+					preloads = append(preloads, getNestedPreloads2(graphql.CollectFields(ctx, column.Selections, nil))...)
 				} else {
-					preloads = append(preloads, this.getNestedPreloads(ctx, graphql.CollectFields(ctx, column.Selections, nil), column.Name, idx+1)...)
+					preloads = append(preloads, getNestedPreloads(ctx, graphql.CollectFields(ctx, column.Selections, nil), column.Name, idx+1)...)
 				}
 			}
 		}
 	}
-
 	return
 }
 
-func (this myfields) getNestedPreloads2(fields []graphql.CollectedField) (preloads []string) {
+func getNestedPreloads2(fields []graphql.CollectedField) (preloads []string) {
 	for _, column := range fields {
 		if len(column.Selections) == 0 {
 			preloads = append(preloads, column.Name)
