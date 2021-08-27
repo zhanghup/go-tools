@@ -65,7 +65,7 @@ func TestXormSessionObjectAuto(t *testing.T) {
 	for i := range []int{0, 1, 2} {
 		go func(ii int) {
 			info := Dict{}
-			ok, err := lod.LoadXormSessObject(sess, `dict.id`, "id").Load(ids[ii], &info)
+			ok, err := lod.LoadXormSessObject(sess, `dict`, "id").Load(ids[ii], &info)
 			if err != nil || !ok {
 				t.Fatal(err)
 			} else {

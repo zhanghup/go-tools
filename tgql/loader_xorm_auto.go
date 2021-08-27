@@ -1,24 +1,23 @@
 package tgql
 
 import (
-	"fmt"
+	"github.com/zhanghup/go-tools"
 	"github.com/zhanghup/go-tools/database/txorm"
 	"regexp"
 	"strings"
 )
 
-var sqlFormatRegexp = regexp.MustCompile(`[a-zA-Z_]+\.[a-zA-Z_]+`)
+var sqlFormatRegexp = regexp.MustCompile(`^[a-zA-Z_]+$`)
 
 func (this *Loader) SqlFormat(sqlstr, field string) string {
 	if strings.Index(sqlstr, "select") == -1 && sqlFormatRegexp.MatchString(sqlstr) {
-		ss := strings.Split(sqlstr, ".")
-		table := ss[0]
 
-		if field == "" {
-			field = ss[1]
-		}
-
-		sqlstr = fmt.Sprintf("select %s.* from %s where %s in :keys", table, table, sqlstr)
+		sqlstr = tools.StrTmp(`
+			select {{ .table }}.* from {{ .table }} where {{ .table }}.{{ .field }} in :keys
+		`, map[string]interface{}{
+			"table": sqlstr,
+			"field": field,
+		}).String()
 	}
 
 	return sqlstr
