@@ -1,39 +1,83 @@
-package txlsx
+package extraction
 
-import "github.com/tealeg/xlsx/v3"
+import (
+	"bytes"
+	"errors"
+	"io"
+)
 
-type Engine struct {
-	excel *xlsx.File
-	ext   *ExcelExt
+type FileType int
+
+const (
+	CSV FileType = iota
+	XLS
+	XLSX
+)
+
+type IExtraction interface {
+	Open(filename string) ([]Sheet, error)
+	OpenIO(read io.Reader) ([]Sheet, error)
 }
 
-func NewEngine() *Engine {
-	result := Engine{
-		ext: &ExcelExt{
-			custom:  map[string]ExcelCustomList{},
-			dictmap: map[string][]ExcelDictItem{},
-		},
-	}
-	return &result
-}
-
-func (this *Engine) SetDicts(dicts []ExcelDictItem) {
-	this.ext.dictmap = map[string][]ExcelDictItem{}
-	for _, o := range dicts {
-		if _, ok := this.ext.dictmap[o.Code]; ok {
-			this.ext.dictmap[o.Code] = append(this.ext.dictmap[o.Code], o)
-		} else {
-			this.ext.dictmap[o.Code] = []ExcelDictItem{o}
+func NewExtraction(filename string, cfg *Config, ty ...FileType) ([]Sheet, error) {
+	if len(ty) > 0 {
+		switch ty[0] {
+		case CSV:
+			return NewEngineCsv(cfg).Open(filename)
+		case XLS:
+			return NewEngineXls(cfg).Open(filename)
+		case XLSX:
+			return NewEngineXlsx(cfg).Open(filename)
 		}
+		return nil, errors.New("引擎不存在")
 	}
+
+	result, err := NewEngineXlsx(cfg).Open(filename)
+	if err == nil {
+		return result, nil
+	}
+	result, err = NewEngineXls(cfg).Open(filename)
+	if err == nil {
+		return result, nil
+	}
+	result, err = NewEngineCsv(cfg).Open(filename)
+	if err == nil {
+		return result, nil
+	}
+
+	return nil, errors.New("数据无法解析")
 }
 
-func (this *Engine) SetCustom(name string, item []ExcelCustomItem) {
-	this.ext.custom[name] = item
-}
+func NewExtractionIO(read io.Reader, cfg *Config, ty ...FileType) ([]Sheet, error) {
+	data, err := io.ReadAll(read)
+	if err != nil {
+		return nil, err
+	}
 
-type Excel struct {
-	origin *xlsx.File
-	Data   map[string]Sheet
-	ext    *ExcelExt
+	if len(ty) > 0 {
+		switch ty[0] {
+		case CSV:
+			return NewEngineCsv(cfg).OpenIO(bytes.NewBuffer(data))
+		case XLS:
+			return NewEngineXls(cfg).OpenIO(bytes.NewBuffer(data))
+		case XLSX:
+			return NewEngineXlsx(cfg).OpenIO(bytes.NewBuffer(data))
+		}
+		return nil, errors.New("引擎不存在")
+	}
+
+	result, err := NewEngineXlsx(cfg).OpenIO(bytes.NewBuffer(data))
+	if err == nil {
+		return result, nil
+	}
+	result, err = NewEngineXls(cfg).OpenIO(bytes.NewBuffer(data))
+	if err == nil {
+		return result, nil
+	}
+	result, err = NewEngineCsv(cfg).OpenIO(bytes.NewBuffer(data))
+	if err == nil {
+		return result, nil
+	}
+
+	return nil, errors.New("数据无法解析")
 }

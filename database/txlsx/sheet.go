@@ -1,139 +1,141 @@
-package txlsx
+package extraction
 
-import (
-	"github.com/tealeg/xlsx/v3"
-	"github.com/zhanghup/go-tools"
-	"github.com/zhanghup/go-tools/tog"
-	"strconv"
-	"time"
-)
+import "hub.ffcode.net/ffcode/framework/utils"
 
 type Sheet struct {
-	Header []string
-	Rows   []Row
-	ext    *ExcelExt
+	Name     string
+	Config   *Config
+	DataList [][]Cell
+
+	headerIdx int
+	columnIdx int
+	dataIdx   *int
+}
+
+func NewSheet(cfg *Config) *Sheet {
+	s := &Sheet{
+		Config: cfg,
+	}
+
+	return s
 }
 
 type Row struct {
 	data map[string]Cell
 }
 
-type Cell struct {
-	info  *xlsx.Cell
-	value string
-	ext   *ExcelExt
-}
-
 func (this Row) Cell(name string) Cell {
-	c, ok := this.data[name]
-	if !ok {
-		return Cell{value: "", ext: &ExcelExt{dictmap: map[string][]ExcelDictItem{}, custom: map[string]ExcelCustomList{}}}
-	}
-	return c
+	return this.data[name]
 }
 
-func (this Cell) String() string {
-	return this.value
+func (this Row) Data() map[string]string {
+	data := map[string]string{}
+
+	for k, v := range this.data {
+		data[k] = v.String()
+	}
+
+	return data
 }
-func (this Cell) PtrString() *string {
-	if len(this.value) == 0 {
+
+func (this *Sheet) SetHeader(i int) *Sheet {
+	this.headerIdx = i
+	return this
+}
+
+func (this *Sheet) SetColumn(i int) *Sheet {
+	this.columnIdx = i
+	return this
+}
+
+func (this *Sheet) SetDataIdx(i int) *Sheet {
+	this.dataIdx = &i
+	return this
+}
+
+func (this *Sheet) Header() []string {
+	if this.headerIdx >= len(this.DataList) {
 		return nil
 	}
-	return &this.value
+
+	result := make([]string, 0)
+	for _, c := range this.DataList[this.headerIdx] {
+		result = append(result, c.Value)
+	}
+
+	return result
 }
 
-func (this Cell) PtrInt() *int {
-	i, err := strconv.Atoi(this.value)
-	if err != nil {
-		tog.Error("Excel数据转换异常,Error: %s", err.Error())
+func (this *Sheet) Column() []string {
+	cells := this.ColumnCells()
+	ls := make([]string, 0)
+
+	for _, o := range cells {
+		ls = append(ls, o.Value)
+	}
+
+	return ls
+}
+
+func (this *Sheet) ColumnCells() []Cell {
+	if this.columnIdx >= len(this.DataList) {
 		return nil
 	}
-	return &i
-}
-
-func (this Cell) Int() int {
-	i := this.PtrInt()
-	if i == nil {
-		return 0
+	typeMap := map[string]CellType{}
+	if this.Config != nil {
+		typeMap = this.Config.typeMap
 	}
-	return *i
-}
 
-func (this Cell) PtrInt64() *int64 {
-	i, err := strconv.ParseInt(this.value, 10, 64)
-	if err != nil {
-		return nil
+	result := make([]Cell, 0)
+	for _, c := range this.DataList[this.columnIdx] {
+		ctype, ok := typeMap[c.Value]
+		if ok {
+			c.Type = ctype
+		}
+		result = append(result, c)
 	}
-	return &i
+
+	return result
 }
 
-func (this Cell) Int64() int64 {
-	i := this.PtrInt64()
-	if i == nil {
-		return 0
+func (this *Sheet) DataMap() []Row {
+	// 属性映射
+	typeMap := map[string]CellType{}
+	if this.Config != nil {
+		typeMap = this.Config.typeMap
 	}
-	return *i
-}
 
-func (this Cell) PtrFloat64() *float64 {
-	v, err := strconv.ParseFloat(this.value, 64)
-	if err != nil {
-		return nil
+	// 数据所在行设定
+	idx := this.dataIdx
+	if idx == nil {
+		idx = utils.PtrOfInt(1)
 	}
-	return &v
-}
 
-func (this Cell) Float64() float64 {
-	i := this.PtrFloat64()
-	if i == nil {
-		return 0
+	// 列定义
+	headers := this.Header()
+
+	result := make([]Row, 0)
+	for i := *idx; i < len(this.DataList); i++ {
+		item := map[string]Cell{}
+
+		for j := 0; j < len(this.DataList[i]); j++ {
+			if j < len(headers) {
+				key := headers[j]
+				cell := this.DataList[i][j]
+				ctype, ok := typeMap[key]
+				if ok {
+					cell.Type = ctype
+					item[key] = cell
+				} else {
+					item[key] = cell
+				}
+			}
+		}
+
+		result = append(result, Row{
+			data: item,
+		})
 	}
-	return *i
-}
 
-func (this Cell) PtrTime(fmt ...string) *int64 {
-	f := "2006-01-02 15:04:05"
-	if len(fmt) > 0 {
-		f = fmt[0]
-	}
-	t, err := time.ParseInLocation(f, this.value, time.Local)
-	if err != nil {
-		return nil
-	}
-	return tools.PtrOfInt64(t.Unix())
-
-}
-
-func (this Cell) Time(fmt ...string) int64 {
-	v := this.PtrTime(fmt...)
-	if v == nil {
-		return 0
-	}
-	return *v
-}
-
-func (this Cell) DictValue(fmt string) string {
-	return this.ext.GetDictValue(fmt, this.value)
-}
-func (this Cell) DictPtrValue(fmt string) *string {
-	return this.ext.GetDictPtrValue(fmt, this.value)
-}
-func (this Cell) DictName(fmt string) string {
-	return this.ext.GetDictName(fmt, this.value)
-}
-func (this Cell) DictPtrName(fmt string) *string {
-	return this.ext.GetDictPtrName(fmt, this.value)
-}
-
-func (this Cell) CustomId(fmt string) string {
-	return this.ext.GetCustomId(fmt, this.value)
-}
-func (this Cell) CustomPtrId(fmt string) *string {
-	return this.ext.GetCustomPtrId(fmt, this.value)
-}
-func (this Cell) CustomName(fmt string) string {
-	return this.ext.GetCustomName(fmt, this.value)
-}
-func (this Cell) CustomPtrName(fmt string) *string {
-	return this.ext.GetCustomPtrName(fmt, this.value)
+	return result
 }
