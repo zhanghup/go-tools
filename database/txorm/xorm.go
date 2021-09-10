@@ -3,6 +3,7 @@ package txorm
 import (
 	"context"
 	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/zhanghup/go-tools/tog"
 	"sync"
 	"xorm.io/xorm"
@@ -38,9 +39,9 @@ func NewXorm(cfg Config) (*xorm.Engine, error) {
 }
 
 type IEngine interface {
-	TemplateFuncWith(name string, fn func(ctx context.Context) string)          // sql_with_{{name}}
-	TemplateFuncCtx(name string, fn func(ctx context.Context) string) 			// ctx_{{name}}
-	TemplateFunc(name string, f interface{})                                    // template func
+	TemplateFuncWith(name string, fn func(ctx context.Context) string) // sql_with_{{name}}
+	TemplateFuncCtx(name string, fn func(ctx context.Context) string)  // ctx_{{name}}
+	TemplateFunc(name string, f interface{})                           // template func
 	TemplateFuncKeys() []string
 	NewSession(autoClose bool, ctx ...context.Context) ISession
 	Session(ctx ...context.Context) ISession
