@@ -14,6 +14,7 @@ type LoadXormFetch func(tempData interface{}) map[string]interface{}
 func (this *Loader) SetDB(db *xorm.Engine) ILoader {
 	this.db = db
 	this.dbs = txorm.NewEngine(db)
+	this.objectMap = tools.CacheCreate(true)
 	return this
 }
 
