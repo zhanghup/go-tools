@@ -27,6 +27,7 @@ type Option struct {
 }
 
 type Logger struct {
+	enable bool
 	option *Option
 	log    *zap.Logger
 }
@@ -34,6 +35,11 @@ type Logger struct {
 type Field struct {
 	Name  string
 	Value interface{}
+}
+
+func (this *Logger) Enable(flag bool) ILogger {
+	this.enable = flag
+	return this
 }
 
 func (this *Logger) fmt(f string, args ...interface{}) string {
@@ -44,18 +50,30 @@ func (this *Logger) fmt(f string, args ...interface{}) string {
 }
 
 func (this *Logger) Info(f string, args ...interface{}) {
+	if !this.enable {
+		return
+	}
 	this.log.Info(this.fmt(f, args...))
 }
 
 func (this *Logger) Error(f string, args ...interface{}) {
+	if !this.enable {
+		return
+	}
 	this.log.Error(this.fmt(f, args...))
 }
 
 func (this *Logger) Warn(f string, args ...interface{}) {
+	if !this.enable {
+		return
+	}
 	this.log.Warn(this.fmt(f, args...))
 }
 
 func (this *Logger) Write(p []byte) (n int, err error) {
+	if !this.enable {
+		return
+	}
 	this.log.Info(string(p))
 	return len(p), nil
 }
@@ -75,15 +93,17 @@ func (this *Logger) init() {
 	}
 
 	encoderConfig := zapcore.EncoderConfig{
-		MessageKey:     "msg",
-		LevelKey:       this.option.LevelKey,
-		TimeKey:        this.option.TimeKey,
-		NameKey:        "logger",
-		CallerKey:      "line",
-		StacktraceKey:  "stacktrace",
-		LineEnding:     this.option.LineEnding,
-		EncodeLevel:    zapcore.CapitalLevelEncoder, // 大写编码器
-		EncodeTime:     func(t time.Time, enc zapcore.PrimitiveArrayEncoder) { enc.AppendString(t.Format("2006-01-02 15:04:05.000")) },
+		MessageKey:    "msg",
+		LevelKey:      this.option.LevelKey,
+		TimeKey:       this.option.TimeKey,
+		NameKey:       "logger",
+		CallerKey:     "line",
+		StacktraceKey: "stacktrace",
+		LineEnding:    this.option.LineEnding,
+		EncodeLevel:   zapcore.CapitalLevelEncoder, // 大写编码器
+		EncodeTime: func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+			enc.AppendString(t.Format("2006-01-02 15:04:05.000"))
+		},
 		EncodeDuration: zapcore.SecondsDurationEncoder, // 一秒同步一次文件
 		EncodeCaller:   this.option.EncodeCaller,
 		EncodeName:     zapcore.FullNameEncoder,
@@ -95,7 +115,7 @@ func (this *Logger) init() {
 	}
 
 	core := zapcore.NewCore(
-		encoder,                                                                         // 编码器配置
+		encoder, // 编码器配置
 		zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(&hook)), // 打印到控制台和文件
 		zap.NewAtomicLevelAt(zap.InfoLevel),                                             // 日志级别
 	)
@@ -110,12 +130,12 @@ func (this *Logger) init() {
 		core,
 		options...,
 	)
-	this.log.With()
-
 }
 
 func NewLogger(opt *Option) ILogger {
-	tog := &Logger{}
+	tog := &Logger{
+		enable: true,
+	}
 	tog.setOption(opt)
 	return tog
 }

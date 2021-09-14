@@ -6,4 +6,5 @@ type ILogger interface {
 	Warn(fmt string, args ...interface{})
 
 	Write(p []byte) (n int, err error)
+	Enable(flag bool) ILogger
 }

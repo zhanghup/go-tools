@@ -2,10 +2,10 @@ package tog
 
 import "github.com/zhanghup/go-tools"
 
-func jsonFormat(o interface{}, flag ...bool) string{
+func jsonFormat(o interface{}, flag ...bool) string {
 	s := tools.JSONString(o, flag...)
-	if len(flag) > 0 && flag[0]{
-		s = "\n" +s
+	if len(flag) > 0 && flag[0] {
+		s = "\n" + s
 	}
 	return s
 }
@@ -15,7 +15,7 @@ func Info(fmt string, args ...interface{}) {
 }
 
 func InfoAsJson(o interface{}, flag ...bool) {
-	Toginfo.Info(jsonFormat(o,flag...))
+	Toginfo.Info(jsonFormat(o, flag...))
 }
 
 func Error(fmt string, args ...interface{}) {
@@ -24,8 +24,8 @@ func Error(fmt string, args ...interface{}) {
 }
 
 func ErrorAsJson(o interface{}, flag ...bool) {
-	Toginfo.Error(jsonFormat(o,flag...))
-	Togerr.Error(jsonFormat(o,flag...))
+	Toginfo.Error(jsonFormat(o, flag...))
+	Togerr.Error(jsonFormat(o, flag...))
 }
 
 func Warn(fmt string, args ...interface{}) {
@@ -33,5 +33,10 @@ func Warn(fmt string, args ...interface{}) {
 }
 
 func WarnAsJson(o interface{}, flag ...bool) {
-	Toginfo.Warn(jsonFormat(o,flag...))
+	Toginfo.Warn(jsonFormat(o, flag...))
+}
+
+func Enable(flag bool) {
+	Toginfo.Enable(flag)
+	Togerr.Enable(flag)
 }
