@@ -44,7 +44,9 @@ func (this *Session) SF(sql string, querys ...interface{}) ISession {
 	// tmp模板
 	sql = tools.StrTmp(sql, query).FuncMap(tools.MapMerge(m1, this.tmps)).String()
 	// context 模板
-	this.sql = tools.StrTmp(sql).FuncMap(this.tmpCtxs).String()
+	this.sql = tools.StrTmp(sql, map[string]interface{}{
+		"ctx": this.context,
+	}).FuncMap(this.tmpCtxs).String()
 
 	this.args = make([]interface{}, 0)
 	this.sf_args()
