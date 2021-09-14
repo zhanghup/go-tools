@@ -27,10 +27,13 @@ func NewGin(cfg Config, fn func(g *gin.Engine) error) error {
 	if err != nil {
 		return err
 	}
-	err = e.Run(":" + cfg.Port)
-	if err != nil {
-		return err
+	if cfg.Port != "" {
+		err = e.Run(":" + cfg.Port)
+		if err != nil {
+			return err
+		}
 	}
+
 	return nil
 }
 

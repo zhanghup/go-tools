@@ -3,10 +3,12 @@ package tgin_test
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/zhanghup/go-tools/tgin"
+	"github.com/zhanghup/go-tools/tog"
 	"testing"
 )
 
 func TestStart(t *testing.T) {
+	tog.Enable(false)
 	tgin.NewGin(tgin.Config{Port: "8888"}, func(g *gin.Engine) error {
 		g.GET("test", func(c *gin.Context) {
 			c.String(200, "123")
