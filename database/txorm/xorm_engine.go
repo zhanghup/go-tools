@@ -44,6 +44,9 @@ func (this *Engine) _newSeesion(autoClose bool, ctx ...context.Context) ISession
 			if !ok {
 				return newSession
 			} else {
+				if oldSession.sess.IsClosed() {
+					return newSession
+				}
 				oldSession.context = c
 				return oldSession
 			}
