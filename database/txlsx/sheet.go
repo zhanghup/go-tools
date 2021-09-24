@@ -1,6 +1,6 @@
 package extraction
 
-import "hub.ffcode.net/ffcode/framework/utils"
+import "github.com/zhanghup/go-tools"
 
 type Sheet struct {
 	Name     string
@@ -108,7 +108,7 @@ func (this *Sheet) DataMap() []Row {
 	// 数据所在行设定
 	idx := this.dataIdx
 	if idx == nil {
-		idx = utils.PtrOfInt(1)
+		idx = tools.PtrOfInt(1)
 	}
 
 	// 列定义
