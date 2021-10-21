@@ -48,11 +48,17 @@ func (this ResponseEntity) Error() string {
 	return fmt.Sprintf("GIN通用异常，Code：%d，Msg：%s", this.Code, this.Msg)
 }
 
+func (this ResponseEntity) SetStatusCode(code int) ResponseEntity {
+	this.StatusCode = code
+	return this
+}
+
 func NewResponseEntity(code int, msg string, response interface{}) ResponseEntity {
 	return ResponseEntity{
-		Code:     code,
-		Msg:      msg,
-		Response: response,
+		StatusCode: 200,
+		Code:       code,
+		Msg:        msg,
+		Response:   response,
 	}
 }
 

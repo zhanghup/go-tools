@@ -1,6 +1,7 @@
 package tgin_test
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/zhanghup/go-tools/tgin"
 	"github.com/zhanghup/go-tools/tog"
@@ -18,4 +19,9 @@ func TestStart(t *testing.T) {
 		})
 		return nil
 	})
+}
+
+func TestErrorInfo(t *testing.T) {
+	o := tgin.NewResponseEntity(200,"",nil).SetStatusCode(401)
+	fmt.Println(o.StatusCode)
 }
