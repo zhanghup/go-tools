@@ -38,9 +38,10 @@ func NewGin(cfg Config, fn func(g *gin.Engine) error) error {
 }
 
 type ResponseEntity struct {
-	Code     int         `json:"code"`
-	Msg      string      `json:"msg"`
-	Response interface{} `json:"response"`
+	StatusCode int         `json:"-"`
+	Code       int         `json:"code"`
+	Msg        string      `json:"msg"`
+	Response   interface{} `json:"response"`
 }
 
 func (this ResponseEntity) Error() string {
@@ -71,7 +72,12 @@ func DoDirective(c *gin.Context, fn func(c *gin.Context) (interface{}, error)) {
 	if err != nil {
 		switch err.(type) {
 		case ResponseEntity:
-			c.JSON(200, err)
+			e := err.(ResponseEntity)
+			c.JSON(e.StatusCode, err)
+			c.Abort()
+		case *ResponseEntity:
+			e := err.(*ResponseEntity)
+			c.JSON(e.StatusCode, err)
 			c.Abort()
 		default:
 			c.JSON(200, NewResponseEntity(200, err.Error(), o))
