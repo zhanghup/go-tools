@@ -52,12 +52,21 @@ func (this *EngineXlsx) OpenIO(read io.Reader) ([]Sheet, error) {
 
 			items := make([]Cell, 0)
 			err := row.ForEachCell(func(c *xlsx.Cell) error {
+				value := c.String()
 				ty := this.Type(c.Type(), c.NumFmt)
+				formatter := this.Formatter(ty, c.NumFmt)
+
+				if c.IsTime() {
+					ty = CellTypeDate
+					cellTime, _ := c.GetTime(false)
+					value = cellTime.Format("2006-01-02 15:04:05")
+					formatter = "2006-01-02 15:04:05"
+				}
 				items = append(items, Cell{
 					Config:    this.Config,
 					Type:      ty,
-					Value:     c.String(),
-					Formatter: this.Formatter(ty, c.NumFmt),
+					Value:     value,
+					Formatter: formatter,
 				})
 				return nil
 			})
