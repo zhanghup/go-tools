@@ -5,11 +5,11 @@ import (
 )
 
 type DiskStat struct {
-	Path        string  `json:"path"`
-	Total       uint64  `json:"total"`
-	Free        uint64  `json:"free"`
-	Used        uint64  `json:"used"`
-	UsedPercent float64 `json:"usedPercent"`
+	Path        string     `json:"path"`
+	Total       SizeNumber `json:"total"`
+	Free        SizeNumber `json:"free"`
+	Used        SizeNumber `json:"used"`
+	UsedPercent float64    `json:"usedPercent"`
 }
 
 type DiskInfo struct {
@@ -62,9 +62,9 @@ func DiskStats(path ...string) (*DiskStat, error) {
 
 	info := &DiskStat{
 		Path:        dk.Path,
-		Total:       dk.Total,
-		Free:        dk.Free,
-		Used:        dk.Used,
+		Total:       SizeNumber(dk.Total),
+		Free:        SizeNumber(dk.Free),
+		Used:        SizeNumber(dk.Used),
 		UsedPercent: dk.UsedPercent,
 	}
 

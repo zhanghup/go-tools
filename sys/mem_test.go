@@ -2,28 +2,18 @@ package sys
 
 import (
 	"fmt"
-	"github.com/shirou/gopsutil/mem"
 	"github.com/zhanghup/go-tools"
 	"testing"
 )
 
 func TestMem(t *testing.T) {
-
-	m, err := mem.VirtualMemory()
+	mem, err := Mem()
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(tools.JSONString(m, true))
-
-	mm, err := mem.SwapMemory()
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(tools.JSONString(mm, true))
-
-	mmm,err := mem.SwapDevices()
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(tools.JSONString(mmm, true))
+	fmt.Println(tools.JSONString(mem))
+	fmt.Println(mem.Total.String())
+	fmt.Println(mem.Used.String())
+	fmt.Println(mem.Free.String())
+	fmt.Println(1 << 10)
 }
