@@ -2,3 +2,4 @@
 *.sum
 *.exe
 logs
+data.db

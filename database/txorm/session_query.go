@@ -8,6 +8,46 @@ import (
 	"strings"
 )
 
+func (this *Session) Order(order ...string) ISession {
+	this.orderby = order
+	return this
+}
+
+func (this *Session) Find(bean interface{}) error {
+	if this.autoClose {
+		// 由engine直接进入的方法，需要自动关闭session
+		defer this.AutoClose()
+	}
+	return this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Find(bean)
+}
+
+func (this *Session) Get(bean interface{}) (bool, error) {
+	if this.autoClose {
+		// 由engine直接进入的方法，需要自动关闭session
+		defer this.AutoClose()
+	}
+	return this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Get(bean)
+
+}
+
+func (this *Session) Map() ([]map[string]interface{}, error) {
+	if this.autoClose {
+		// 由engine直接进入的方法，需要自动关闭session
+		defer this.AutoClose()
+	}
+
+	return this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).QueryInterface()
+}
+
+func (this *Session) Exists() (bool, error) {
+	if this.autoClose {
+		// 由engine直接进入的方法，需要自动关闭session
+		defer this.AutoClose()
+	}
+
+	return this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Exist()
+}
+
 func (this *Session) SF(sql string, querys ...interface{}) ISession {
 	// 重置排序功能
 	this.orderby = []string{}
@@ -100,4 +140,50 @@ func (this *Session) sf_args_item(key string, value reflect.Value) ISession {
 		this.args = append(this.args, value.Interface())
 	}
 	return this
+}
+
+func (this *Session) _sql() string {
+	if len(this.orderby) == 0 {
+		return this.sql
+	}
+	res := regexp.MustCompile(`\(.*\)`).ReplaceAllString(this.sql, "")
+	match := regexp.MustCompile(`order\s+by\s+`).MatchString(res)
+
+	orderBy := make([]string, 0)
+	for _, s := range this.orderby {
+		if regexp.MustCompile(`^-[a-zA-Z0-9_]+`).MatchString(s) {
+			ss := strings.Replace(s, "-", "", 1)
+			orderBy = append(orderBy, ss+" desc")
+		} else if regexp.MustCompile(`[a-zA-Z0-9_]+`).MatchString(s) {
+			orderBy = append(orderBy, s+" asc")
+		} else {
+			orderBy = append(orderBy, s+" ")
+		}
+	}
+	if match {
+		return this.sql + "," + strings.Join(orderBy, ",")
+	} else {
+		return this.sql + " order by " + strings.Join(orderBy, ",")
+	}
+}
+
+func (this *Session) _sql_with() string {
+	sqlwith := ""
+	if len(this.withs) > 0 {
+		// 去重
+		with_header := "\n with recursive "
+		withs := []string{}
+		wmap := map[string]bool{}
+		for _, w := range this.withs {
+			wmap[w] = true
+		}
+		for k := range wmap {
+			kk := tools.StrTmp(fmt.Sprintf("{{ tmp_%s .ctx }}", k), map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmpWiths).String()
+			withs = append(withs, fmt.Sprintf("__sql_with_%s as (%s)", k, kk))
+		}
+
+		sqlwith = with_header + strings.Join(withs, ",")
+		sqlwith = tools.StrTmp(sqlwith, map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmpWiths).String()
+	}
+	return sqlwith
 }

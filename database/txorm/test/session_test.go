@@ -1,0 +1,68 @@
+package test_test
+
+import (
+	"context"
+	"fmt"
+	"github.com/zhanghup/go-tools"
+	"github.com/zhanghup/go-tools/database/txorm"
+	"testing"
+)
+
+func TestSessionNew(t *testing.T) {
+	ctx := context.Background()
+	sess := engine.Session()
+	fmt.Println(sess.Id())
+	ctx = context.WithValue(ctx, txorm.CONTEXT_SESSION, sess)
+	ss := engine.Session(ctx)
+	fmt.Println(ss.Id())
+	ss2 := engine.SessionAuto()
+	fmt.Println(ss2.Id())
+}
+
+func TestSessionInsert(t *testing.T) {
+	err := engine.SessionAuto().Insert(User{
+		Id:   tools.UUID(),
+		Name: "test",
+		Age:  12,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+// TestSessionTx Session中若只是查询，则不开启事务逻辑，若包含操作逻辑则开启
+func TestSessionTx(t *testing.T) {
+	sess := engine.Session()
+
+	t.Run("只查询", func(t *testing.T) {
+		users := make([]User, 0)
+		err := sess.TS(func(sess txorm.ISession) error {
+			err := sess.SF(`select * from user`).Find(&users)
+			if err != nil {
+				return err
+			}
+			return nil
+
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		fmt.Println(tools.JSONString(users))
+	})
+
+	t.Run("包含操作", func(t *testing.T) {
+		users := make([]User, 0)
+		err := sess.TS(func(sess txorm.ISession) error {
+			err := sess.SF(`select * from user`).Find(&users)
+			if err != nil {
+				return err
+			}
+			return nil
+
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		fmt.Println(tools.JSONString(users))
+	})
+}

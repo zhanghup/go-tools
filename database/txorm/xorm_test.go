@@ -4,12 +4,14 @@ import (
 	"context"
 	"github.com/zhanghup/go-tools/database/txorm"
 	"testing"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var engine txorm.IEngine
 
 func TestWithTemplate(t *testing.T) {
-	err := engine.SF(`select * from {{ tmp "users" }} as u where u.id = '44bbb8ef-c72f-4f66-a294-d651be5948f4'
+	err := engine.SessionAuto().SF(`select * from {{ tmp "users" }} as u where u.id = '44bbb8ef-c72f-4f66-a294-d651be5948f4'
 	`).Exec()
 	if err != nil {
 		t.Error(err)
@@ -17,7 +19,7 @@ func TestWithTemplate(t *testing.T) {
 }
 
 func TestSessionContextTemplate(t *testing.T) {
-	err := engine.SF(`select * from {{ tmp "users" }} as u where u.id = '44bbb8ef-c72f-4f66-a294-d651be5948f4' 
+	err := engine.SessionAuto().SF(`select * from {{ tmp "users" }} as u where u.id = '44bbb8ef-c72f-4f66-a294-d651be5948f4' 
 	and u.corp = {{ ctx "corp" }}
 	{{ if .ty }} and u.corp = {{ ctx "corp" }} {{ end }}
 	{{ if .t }} and u.corp = ? {{ end }}

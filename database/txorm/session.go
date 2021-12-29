@@ -6,6 +6,47 @@ import (
 	"xorm.io/xorm"
 )
 
+type ISession interface {
+	Id() string
+	SetId(id string)
+
+	Ctx() context.Context
+	Begin()
+	Rollback() error
+	Commit() error
+	AutoClose() error
+
+	Find(bean interface{}) error
+	Get(bean interface{}) (bool, error)
+
+	Insert(bean ...interface{}) error
+	Update(bean interface{}, condiBean ...interface{}) error
+	Delete(bean interface{}) error
+	TS(fn func(sess ISession) error, commit ...bool) error
+	Exec() error
+	/*
+		示例1：
+			sql = "select * from user where a = ? and b = ?"
+			querys = []interface{}{"a","b"}
+		示例2：
+			sql = "select * from user where a = :a and b = ?"
+			querys = []interface{}{"b",map[string]interface{}{"a":"a"}}
+	*/
+	SF(sql string, querys ...interface{}) ISession
+	Order(order ...string) ISession
+
+	Page(index, size int, count bool, bean interface{}) (int, error)
+	Page2(index, size *int, count *bool, bean interface{}) (int, error)
+	Count() (int64, error)
+	Int() (int, error)
+	Int64() (int64, error)
+	Float64() (float64, error)
+	String() (string, error)
+	Strings() ([]string, error)
+	Exists() (bool, error)
+	Map() ([]map[string]interface{}, error)
+}
+
 type Session struct {
 	id             string
 	context        context.Context
@@ -28,14 +69,6 @@ type Session struct {
 	orderby []string
 }
 
-func (this *Session) S() *xorm.Session {
-	return this.sess
-}
-
-func (this *Session) E() *xorm.Engine {
-	return this._db
-}
-
 func (this *Session) Ctx() context.Context {
 	if this.context == nil {
 		this.context = context.Background()
@@ -43,22 +76,23 @@ func (this *Session) Ctx() context.Context {
 	return context.WithValue(this.context, CONTEXT_SESSION, this)
 }
 
-func (this *Session) Table(table interface{}) ISession {
-	this.sess.Table(table)
-	return this
-}
 
-func (this *Session) Begin() error {
-	this._sync.Lock()
-	defer this._sync.Unlock()
-	if this.beginTranslate {
-		return nil
-	}
+func (this *Session) begin() error {
 	if err := this.sess.Begin(); err != nil {
 		return err
 	}
-	this.beginTranslate = true
 	return nil
+}
+
+func (this *Session) Begin() {
+	this._sync.Lock()
+	defer this._sync.Unlock()
+	if this.beginTranslate {
+		return
+	}
+
+	this.beginTranslate = true
+	return
 }
 
 func (this *Session) Rollback() error {

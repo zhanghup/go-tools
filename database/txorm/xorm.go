@@ -42,11 +42,11 @@ type IEngine interface {
 	TemplateFuncCtx(name string, fn func(ctx context.Context) string)  // ctx_{{name}}
 	TemplateFunc(name string, f interface{})                           // template func
 	TemplateFuncKeys() []string
-	NewSession(autoClose bool, ctx ...context.Context) ISession
+
+	Sync(beans ...interface{}) error
+
+	SessionAuto() ISession
 	Session(ctx ...context.Context) ISession
-	TS(fn func(sess ISession) error) error
-	SF(sql string, querys ...interface{}) ISession
-	Engine() *xorm.Engine
 }
 
 // 单例

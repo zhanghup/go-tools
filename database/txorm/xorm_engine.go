@@ -3,61 +3,38 @@ package txorm
 import (
 	"context"
 	"github.com/zhanghup/go-tools"
-	"xorm.io/xorm"
 )
 
 const CONTEXT_SESSION = "context-session"
 
-func (this *Engine) NewSession(autoClose bool, ctx ...context.Context) ISession {
-	return this._newClearSession(autoClose, ctx...)
+func (this *Engine) SessionAuto() ISession {
+	return this._session(true)
 }
 
 func (this *Engine) Session(ctx ...context.Context) ISession {
-	return this._newSeesion(false, ctx...)
+	return this._session(false, ctx...)
 }
 
-func (this *Engine) TS(fn func(sess ISession) error) error {
-	return this.NewSession(true).TS(fn)
+func (this *Engine) Sync(beans ...interface{}) error {
+	return this.DB.Sync2(beans...)
 }
 
-// Engine直接调用，自动结束session
-func (this *Engine) SF(sql string, querys ...interface{}) ISession {
-	sess := this.NewSession(true)
-	return sess.SF(sql, querys...)
-}
-
-func (this *Engine) Engine() *xorm.Engine {
-	return this.DB
-}
-
-func (this *Engine) _newSeesion(autoClose bool, ctx ...context.Context) ISession {
-	newSession := this._newClearSession(autoClose, ctx...)
+func (this *Engine) _session(autoClose bool, ctx ...context.Context) *Session {
 
 	if len(ctx) > 0 && ctx[0] != nil {
 		c := ctx[0]
 		v := c.Value(CONTEXT_SESSION)
-		newSession.context = c
-		if v == nil {
-			return newSession
-		} else {
+		if v != nil {
 			oldSession, ok := v.(*Session)
-			if !ok {
-				return newSession
-			} else {
-				if oldSession.sess.IsClosed() {
-					return newSession
+			if ok {
+				if !oldSession.sess.IsClosed() {
+					return oldSession
 				}
-				oldSession.context = c
-				return oldSession
 			}
 		}
-	} else {
-		return newSession
 	}
-}
 
-func (this *Engine) _newClearSession(autoClose bool, ctx ...context.Context) *Session {
-	s := &Session{
+	newSession := &Session{
 		id:             tools.UUID(),
 		_db:            this.DB,
 		sess:           this.DB.NewSession(),
@@ -68,7 +45,11 @@ func (this *Engine) _newClearSession(autoClose bool, ctx ...context.Context) *Se
 		beginTranslate: false,
 	}
 	if len(ctx) > 0 {
-		s.context = ctx[0]
+		newSession.context = ctx[0]
+	} else {
+		c := context.Background()
+		c = context.WithValue(c, CONTEXT_SESSION, newSession)
+		newSession.context = c
 	}
-	return s
+	return newSession
 }
