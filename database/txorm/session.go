@@ -112,6 +112,7 @@ func (this *Session) begin(fn func() error) error {
 	}
 
 	// 判断是否需要关闭session
+	this.tableName = ""
 	if this.autoClose {
 		return this.Close()
 	}
@@ -183,6 +184,7 @@ func (this *Session) AutoClose(fn func() error) error {
 	if err != nil {
 		return err
 	}
+	this.tableName = ""
 
 	if this.autoClose {
 		return this.Close()
@@ -207,6 +209,10 @@ func (this *Session) SetId(id string) {
 }
 
 func (this *Session) Table(bean interface{}) ISession {
+	if this.tableName != "" {
+		return this
+	}
+
 	switch bean.(type) {
 	case string:
 		this.tableName = bean.(string)
@@ -214,10 +220,7 @@ func (this *Session) Table(bean interface{}) ISession {
 		this.tableName = *(bean.(*string))
 	default:
 		tab := tools.RftTypeInfo(bean)
-		newTable := this._db.GetTableMapper().Obj2Table(tab.Name)
-		if newTable != "" {
-			this.tableName = this._db.GetTableMapper().Obj2Table(tab.Name)
-		}
+		this.tableName = this._db.GetTableMapper().Obj2Table(tab.Name)
 	}
 
 	return this

@@ -8,7 +8,7 @@ import (
 
 func TestGet(t *testing.T) {
 	user := User{}
-	_, err := engine.SessionAuto().SF("id = ?", "1").Get(&user)
+	_, err := engine.SessionAuto().SF("where id = ?", "1").Get(&user)
 	if err != nil {
 		t.Fatal(err)
 	}
