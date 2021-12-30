@@ -17,7 +17,7 @@ type ISession interface {
 	Commit() error
 	Close() error
 
-	Table(bean interface{}, unsetIfExist ...bool) ISession
+	Table(bean interface{}) ISession
 	Find(bean interface{}) error
 	Get(bean interface{}) (bool, error)
 
@@ -206,14 +206,7 @@ func (this *Session) SetId(id string) {
 	this.id = id
 }
 
-func (this *Session) Table(bean interface{}, unsetIfExist ...bool) ISession {
-	if len(unsetIfExist) > 0 && unsetIfExist[0] && this.tableName != "" {
-		return this
-	}
-	if bean == nil {
-		return this
-	}
-
+func (this *Session) Table(bean interface{}) ISession {
 	switch bean.(type) {
 	case string:
 		this.tableName = bean.(string)
@@ -221,7 +214,10 @@ func (this *Session) Table(bean interface{}, unsetIfExist ...bool) ISession {
 		this.tableName = *(bean.(*string))
 	default:
 		tab := tools.RftTypeInfo(bean)
-		this.tableName = this._db.GetTableMapper().Obj2Table(tab.Name)
+		newTable := this._db.GetTableMapper().Obj2Table(tab.Name)
+		if newTable != "" {
+			this.tableName = this._db.GetTableMapper().Obj2Table(tab.Name)
+		}
 	}
 
 	return this

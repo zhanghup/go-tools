@@ -4,7 +4,7 @@ import "strings"
 
 func (this *Session) Insert(bean ...interface{}) error {
 	return this.begin(func() error {
-		this.Table(bean, true)
+		this.Table(bean)
 		_, err := this.sess.Insert(bean...)
 		return err
 	})
@@ -12,7 +12,7 @@ func (this *Session) Insert(bean ...interface{}) error {
 
 func (this *Session) Update(bean interface{}, condiBean ...interface{}) error {
 	return this.begin(func() error {
-		this.Table(bean, true)
+		this.Table(bean)
 		sqlstr := strings.TrimSpace(this._sql(false))
 		sqlstr = strings.Replace(sqlstr, "where", "", -1)
 		sqlstr = strings.Replace(sqlstr, "WHERE", "", -1)
@@ -22,9 +22,9 @@ func (this *Session) Update(bean interface{}, condiBean ...interface{}) error {
 	})
 }
 
-func (this *Session) Delete(bean ... interface{}) error {
+func (this *Session) Delete(bean ...interface{}) error {
 	return this.begin(func() error {
-		this.Table(bean, true)
+		this.Table(bean)
 		sqlstr := strings.TrimSpace(this._sql(false))
 		sqlstr = strings.Replace(sqlstr, "where", "", -1)
 		sqlstr = strings.Replace(sqlstr, "WHERE", "", -1)

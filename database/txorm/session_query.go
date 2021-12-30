@@ -6,7 +6,7 @@ import (
 )
 
 func (this *Session) SelectSql(bean interface{}, orderFlag bool, columns ...string) string {
-	this.Table(bean, true)
+	this.Table(bean)
 	sqlstr := strings.TrimSpace(this._sql(orderFlag))
 	if strings.Index(sqlstr, "select") == 0 || strings.Index(sqlstr, "SELECT") == 0 {
 		if len(columns) > 0 {
