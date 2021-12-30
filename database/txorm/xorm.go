@@ -16,11 +16,12 @@ type Config struct {
 }
 
 type Engine struct {
-	DB       *xorm.Engine
-	tmps     map[string]interface{}
-	tmpWiths map[string]interface{}
-	tmpCtxs  map[string]interface{}
-	tmpsync  sync.RWMutex
+	DB         *xorm.Engine
+	tmps       map[string]interface{}
+	tmpWiths   map[string]interface{}
+	tmpCtxs    map[string]interface{}
+	tmpsync    sync.RWMutex
+	sqliteSync sync.Mutex
 }
 
 func NewXorm(cfg Config) (*xorm.Engine, error) {

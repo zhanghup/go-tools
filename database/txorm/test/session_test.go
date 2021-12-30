@@ -6,6 +6,7 @@ import (
 	"github.com/zhanghup/go-tools"
 	"github.com/zhanghup/go-tools/database/txorm"
 	"testing"
+	"time"
 )
 
 func TestSessionNew(t *testing.T) {
@@ -57,12 +58,30 @@ func TestSessionTx(t *testing.T) {
 			if err != nil {
 				return err
 			}
-			return nil
 
+			err = sess.Insert(User{Id: tools.UUID(), Name: "test", Age: 12})
+			return err
 		})
 		if err != nil {
 			t.Fatal(err)
 		}
 		fmt.Println(tools.JSONString(users))
 	})
+}
+
+func Benchmark并发插入(b *testing.B) {
+	for i := 0; i < 1000; i++ {
+		go func() {
+			sess := engine.Session()
+			err := sess.TS(func(sess txorm.ISession) error {
+				err := sess.Insert(User{Id: tools.UUID(), Name: "test", Age: 12})
+				return err
+			})
+			if err != nil {
+				b.Fatal(err)
+			}
+		}()
+	}
+
+	time.Sleep(time.Second * 10)
 }

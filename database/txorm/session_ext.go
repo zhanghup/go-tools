@@ -5,95 +5,82 @@ import (
 	"github.com/zhanghup/go-tools"
 )
 
-func (this *Session) Count() (int64, error) {
-	if this.autoClose {
-		// 由engine直接进入的方法，需要自动关闭session
-		defer this.AutoClose()
-	}
+func (this *Session) Count() (total int64, err error) {
+	err = this.AutoClose(func() error {
+		total, err = this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Count()
+		return err
+	})
+	return
 
-	return this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Count()
 }
 
-func (this *Session) Int() (int, error) {
-	if this.autoClose {
-		// 由engine直接进入的方法，需要自动关闭session
-		defer this.AutoClose()
-	}
-
-	n := 0
-	_, err := this.Get(&n)
-	return n, err
+func (this *Session) Int() (n int, err error) {
+	err = this.AutoClose(func() error {
+		_, err = this.Get(&n)
+		return err
+	})
+	return
 }
 
-func (this *Session) Int64() (int64, error) {
-	if this.autoClose {
-		// 由engine直接进入的方法，需要自动关闭session
-		defer this.AutoClose()
-	}
-
-	n := int64(0)
-	_, err := this.Get(&n)
-	return n, err
+func (this *Session) Int64() (n int64, err error) {
+	err = this.AutoClose(func() error {
+		_, err = this.Get(&n)
+		return err
+	})
+	return
 }
 
-func (this *Session) Float64() (float64, error) {
-	if this.autoClose {
-		// 由engine直接进入的方法，需要自动关闭session
-		defer this.AutoClose()
-	}
+func (this *Session) Float64() (f float64, err error) {
+	err = this.AutoClose(func() error {
+		_, err = this.Get(&f)
+		return err
+	})
 
-	n := float64(0)
-	_, err := this.Get(&n)
-	return n, err
+	return
 }
 
-func (this *Session) String() (string, error) {
-	if this.autoClose {
-		// 由engine直接进入的方法，需要自动关闭session
-		defer this.AutoClose()
-	}
-
-	n := ""
-	_, err := this.Get(&n)
-	return n, err
+func (this *Session) String() (v string, err error) {
+	err = this.AutoClose(func() error {
+		_, err = this.Get(&v)
+		return err
+	})
+	return
 }
 
-func (this *Session) Strings() ([]string, error) {
-	if this.autoClose {
-		// 由engine直接进入的方法，需要自动关闭session
-		defer this.AutoClose()
-	}
+func (this *Session) Strings() (v []string, err error) {
+	err = this.AutoClose(func() error {
+		err = this.Find(&v)
+		return err
+	})
+	return
 
-	n := make([]string, 0)
-	err := this.Find(&n)
-	return n, err
 }
 
-func (this *Session) Page(index, size int, count bool, bean interface{}) (int, error) {
-	if this.autoClose {
-		// 由engine直接进入的方法，需要自动关闭session
-		defer this.AutoClose()
-	}
-	if size < 0 {
-		err := this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Find(bean)
-		return 0, err
-	} else if size == 0 {
-		total := 0
-		_, err := this.sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this._sql_with(), this.sql), this.args...).Get(&total)
-		return total, err
-	} else {
-		err := this.sess.SQL(fmt.Sprintf("%s limit ?,?", this._sql_with()+" "+this._sql()), append(this.args, (index-1)*size, size)...).Find(bean)
-		if err != nil {
-			return 0, err
+// Page 分页查询
+// size < 0 查询所有
+// size = 0 只查询所有数据的量，不查询具体数据
+// count = true 分页查询数据并且查询数据总量
+func (this *Session) Page(index, size int, count bool, bean interface{}) (v int, err error) {
+	err = this.AutoClose(func() error {
+		if size < 0 {
+			err = this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Find(bean)
+			return err
+		} else if size == 0 {
+			_, err = this.sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this._sql_with(), this.sql), this.args...).Get(&v)
+			return err
+		} else {
+			err = this.sess.SQL(fmt.Sprintf("%s limit ?,?", this._sql_with()+" "+this._sql()), append(this.args, (index-1)*size, size)...).Find(bean)
+			if err != nil {
+				return err
+			}
+			if count {
+				_, err = this.sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this._sql_with(), this.sql), this.args...).Get(&v)
+				return err
+			}
 		}
-		if count {
-			total := 0
-			_, err := this.sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this._sql_with(), this.sql), this.args...).Get(&total)
-			return total, err
-		}
-	}
-
-	return 0, nil
+		return nil
+	})
+	return
 }
 
 func (this *Session) Page2(index, size *int, count *bool, bean interface{}) (int, error) {

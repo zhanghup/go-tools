@@ -36,6 +36,7 @@ func (this *Engine) _session(autoClose bool, ctx ...context.Context) *Session {
 
 	newSession := &Session{
 		id:             tools.UUID(),
+		_engine:        this,
 		_db:            this.DB,
 		sess:           this.DB.NewSession(),
 		tmps:           this.tmps,

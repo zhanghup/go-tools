@@ -14,38 +14,33 @@ func (this *Session) Order(order ...string) ISession {
 }
 
 func (this *Session) Find(bean interface{}) error {
-	if this.autoClose {
-		// 由engine直接进入的方法，需要自动关闭session
-		defer this.AutoClose()
-	}
-	return this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Find(bean)
+	return this.AutoClose(func() error {
+		return this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Find(bean)
+	})
 }
 
-func (this *Session) Get(bean interface{}) (bool, error) {
-	if this.autoClose {
-		// 由engine直接进入的方法，需要自动关闭session
-		defer this.AutoClose()
-	}
-	return this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Get(bean)
-
+func (this *Session) Get(bean interface{}) (v bool,err error) {
+	err = this.AutoClose(func() error {
+		v,err = this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Get(bean)
+		return err
+	})
+	return
 }
 
-func (this *Session) Map() ([]map[string]interface{}, error) {
-	if this.autoClose {
-		// 由engine直接进入的方法，需要自动关闭session
-		defer this.AutoClose()
-	}
-
-	return this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).QueryInterface()
+func (this *Session) Map() (v []map[string]interface{},err error) {
+	err = this.AutoClose(func() error {
+		v,err = this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).QueryInterface()
+		return err
+	})
+	return
 }
 
-func (this *Session) Exists() (bool, error) {
-	if this.autoClose {
-		// 由engine直接进入的方法，需要自动关闭session
-		defer this.AutoClose()
-	}
-
-	return this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Exist()
+func (this *Session) Exists() (v bool,err error) {
+	err = this.AutoClose(func() error {
+		v,err = this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Exist()
+		return err
+	})
+	return
 }
 
 func (this *Session) SF(sql string, querys ...interface{}) ISession {

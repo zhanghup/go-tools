@@ -5,6 +5,15 @@ import (
 	"time"
 )
 
+func RunWithError(fn func() error) error {
+	defer func() {
+		if r := recover(); r != nil {
+			return
+		}
+	}()
+	return fn()
+}
+
 func Run(fn func(), callback ...func(res interface{})) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -16,6 +25,7 @@ func Run(fn func(), callback ...func(res interface{})) {
 	fn()
 }
 
+// RunWithContext 循环执行任务，直到context关闭
 func RunWithContext(interval time.Duration, ctx context.Context, fn func()) {
 	flag := false
 	go func() {
