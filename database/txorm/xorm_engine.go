@@ -7,8 +7,8 @@ import (
 
 const CONTEXT_SESSION = "context-session"
 
-func (this *Engine) SessionAuto() ISession {
-	return this._session(true)
+func (this *Engine) SessionAuto(ctx ...context.Context) ISession {
+	return this._session(true, ctx...)
 }
 
 func (this *Engine) Session(ctx ...context.Context) ISession {

@@ -46,7 +46,7 @@ type IEngine interface {
 
 	Sync(beans ...interface{}) error
 
-	SessionAuto() ISession
+	SessionAuto(ctx ...context.Context) ISession
 	Session(ctx ...context.Context) ISession
 }
 
