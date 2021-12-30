@@ -11,7 +11,7 @@ import (
 // NewLoader db可以为nil，只是不能使用LoadXorm与LoadXormSess
 func NewLoader(db *xorm.Engine) ILoader {
 	if db == nil {
-		return &Loader{db: db}
+		return &Loader{objectMap: tools.CacheCreate(true)}
 	}
 	return &Loader{
 		db:        db,

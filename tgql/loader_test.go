@@ -13,26 +13,6 @@ import (
 
 func TestLoader(t *testing.T) {
 	lod := tgql.NewLoader(nil)
-	//for i := 0; i < 10; i++ {
-	//	go func(o int) {
-	//		res := ""
-	//		ok, err := lod.LoadObject("1", func(keys []string) (map[string]interface{}, error) {
-	//			fmt.Println("11111111111111111111111111111111111111111111")
-	//			return map[string]interface{}{
-	//				"1": "11111111",
-	//				"2": "222222222222",
-	//				"3": "333333333",
-	//				"4": "4444444444",
-	//				"5": "5555555",
-	//			}, nil
-	//		}).Load(tools.IntToStr(o), &res)
-	//		if !ok || err != nil {
-	//			fmt.Println(ok, err, "---------")
-	//		} else {
-	//			fmt.Println(res)
-	//		}
-	//	}(i)
-	//}
 
 	for i := 0; i < 10; i++ {
 		go func(o int) {
@@ -80,7 +60,7 @@ func TestLoaderXorm(t *testing.T) {
 
 	ids := []string{"44bbb8ef-c72f-4f66-a294-d651be5948f4", "44bbb8ef-c72f-4f66-a294-d651be5948f4", ""}
 
-	sess := engine.NewSession(true)
+	sess := engine.SessionAuto()
 
 	for i := 0; i < 3; i++ {
 		go func(ii int) {
