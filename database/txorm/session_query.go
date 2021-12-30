@@ -2,183 +2,54 @@ package txorm
 
 import (
 	"fmt"
-	"github.com/zhanghup/go-tools"
-	"reflect"
-	"regexp"
 	"strings"
 )
 
-func (this *Session) Order(order ...string) ISession {
-	this.orderby = order
-	return this
+func (this *Session) SelectSql(bean interface{}, orderFlag bool, columns ...string) string {
+	this.Table(bean, true)
+	sqlstr := strings.TrimSpace(this._sql(orderFlag))
+	if strings.Index(sqlstr, "select") == 0 || strings.Index(sqlstr, "SELECT") == 0 {
+		if len(columns) > 0 {
+			column := strings.Join(columns, ",")
+			return fmt.Sprintf("%s select %s from ( %s) _", this._sql_with(), column, sqlstr)
+		}
+
+		return fmt.Sprintf("%s %s", this._sql_with(), sqlstr)
+	}
+
+	column := "*"
+	if len(columns) > 0 {
+		column = strings.Join(columns, ",")
+	}
+	return fmt.Sprintf("%s select %s from %s %s", this._sql_with(), column, this.tableName, sqlstr)
 }
 
 func (this *Session) Find(bean interface{}) error {
 	return this.AutoClose(func() error {
-		return this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Find(bean)
+		return this.sess.SQL(this.SelectSql(bean, true), this.args...).Find(bean)
 	})
 }
 
-func (this *Session) Get(bean interface{}) (v bool,err error) {
+func (this *Session) Get(bean interface{}) (v bool, err error) {
 	err = this.AutoClose(func() error {
-		v,err = this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Get(bean)
+		v, err = this.sess.SQL(this.SelectSql(bean, true)+" limit 1", this.args...).Get(bean)
 		return err
 	})
 	return
 }
 
-func (this *Session) Map() (v []map[string]interface{},err error) {
+func (this *Session) Map() (v []map[string]interface{}, err error) {
 	err = this.AutoClose(func() error {
-		v,err = this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).QueryInterface()
+		v, err = this.sess.SQL(this.SelectSql(nil, true), this.args...).QueryInterface()
 		return err
 	})
 	return
 }
 
-func (this *Session) Exists() (v bool,err error) {
+func (this *Session) Exists() (v bool, err error) {
 	err = this.AutoClose(func() error {
-		v,err = this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Exist()
+		v, err = this.sess.SQL(this.SelectSql(nil, false, "1")+" limit 1", this.args...).Exist()
 		return err
 	})
 	return
-}
-
-func (this *Session) SF(sql string, querys ...interface{}) ISession {
-	// 重置排序功能
-	this.orderby = []string{}
-
-	// sql模板参数格式化
-	query := map[string]interface{}{}
-	for i := range querys {
-		ty := reflect.TypeOf(querys[i])
-		if ty.Kind() == reflect.Map {
-			vl := reflect.ValueOf(querys[i])
-			for _, key := range vl.MapKeys() {
-				v := vl.MapIndex(key)
-				query[key.String()] = v.Interface()
-			}
-		} else {
-			uid := strings.ReplaceAll(tools.UUID(), "-", "_")
-			sql = strings.Replace(sql, "?", ":"+uid, 1)
-			query[uid] = querys[i]
-		}
-	}
-	this.query = query
-
-	// sql模板格式化
-	this.withs = make([]string, 0)
-	m1 := map[string]interface{}{
-		"tmp": func(name string) string {
-			this.withs = append(this.withs, name)
-			return fmt.Sprintf("__sql_with_%s", name)
-		},
-		"ctx": func(name string) string {
-			return fmt.Sprintf("{{ ctx_%s .ctx }}", name)
-		},
-	}
-	// tmp模板
-	sql = tools.StrTmp(sql, query).FuncMap(tools.MapMerge(m1, this.tmps)).String()
-	// context 模板
-	this.sql = tools.StrTmp(sql, map[string]interface{}{
-		"ctx": this.context,
-	}).FuncMap(this.tmpCtxs).String()
-
-	this.args = make([]interface{}, 0)
-	this.sf_args()
-	return this
-}
-
-func (this *Session) sf_args() ISession {
-	r := regexp.MustCompile(`:[0-9a-zA-Z_]+`)
-	ss := r.FindAllString(this.sql, -1)
-	for _, s := range ss {
-		key := s[1:]
-		value := this.query[key]
-		if value == nil {
-			continue
-		}
-		this.sf_args_item(s, reflect.ValueOf(value))
-	}
-	return this
-}
-
-func (this *Session) sf_args_item(key string, value reflect.Value) ISession {
-	ty := value.Type()
-	switch ty.Kind() {
-	case reflect.Ptr:
-		if value.Pointer() == 0 {
-			this.sql = strings.Replace(this.sql, key, "?", 1)
-			this.args = append(this.args, nil)
-		} else {
-			return this.sf_args_item(key, value.Elem())
-		}
-	case reflect.Array, reflect.Slice:
-		ps := []string{}
-		args := []interface{}{}
-		for i := 0; i < value.Len(); i++ {
-			v := value.Index(i)
-			ps = append(ps, "?")
-			args = append(args, v.Interface())
-		}
-		if strings.HasPrefix(key, ":between_") {
-			if len(args) == 2 {
-				this.sql = strings.Replace(this.sql, key, "? and ?", 1)
-				this.args = append(this.args, args...)
-			}
-		} else {
-			this.sql = strings.Replace(this.sql, key, fmt.Sprintf("(%s)", strings.Join(ps, ",")), 1)
-			this.args = append(this.args, args...)
-		}
-
-	default:
-		this.sql = strings.Replace(this.sql, key, "?", 1)
-		this.args = append(this.args, value.Interface())
-	}
-	return this
-}
-
-func (this *Session) _sql() string {
-	if len(this.orderby) == 0 {
-		return this.sql
-	}
-	res := regexp.MustCompile(`\(.*\)`).ReplaceAllString(this.sql, "")
-	match := regexp.MustCompile(`order\s+by\s+`).MatchString(res)
-
-	orderBy := make([]string, 0)
-	for _, s := range this.orderby {
-		if regexp.MustCompile(`^-[a-zA-Z0-9_]+`).MatchString(s) {
-			ss := strings.Replace(s, "-", "", 1)
-			orderBy = append(orderBy, ss+" desc")
-		} else if regexp.MustCompile(`[a-zA-Z0-9_]+`).MatchString(s) {
-			orderBy = append(orderBy, s+" asc")
-		} else {
-			orderBy = append(orderBy, s+" ")
-		}
-	}
-	if match {
-		return this.sql + "," + strings.Join(orderBy, ",")
-	} else {
-		return this.sql + " order by " + strings.Join(orderBy, ",")
-	}
-}
-
-func (this *Session) _sql_with() string {
-	sqlwith := ""
-	if len(this.withs) > 0 {
-		// 去重
-		with_header := "\n with recursive "
-		withs := []string{}
-		wmap := map[string]bool{}
-		for _, w := range this.withs {
-			wmap[w] = true
-		}
-		for k := range wmap {
-			kk := tools.StrTmp(fmt.Sprintf("{{ tmp_%s .ctx }}", k), map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmpWiths).String()
-			withs = append(withs, fmt.Sprintf("__sql_with_%s as (%s)", k, kk))
-		}
-
-		sqlwith = with_header + strings.Join(withs, ",")
-		sqlwith = tools.StrTmp(sqlwith, map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmpWiths).String()
-	}
-	return sqlwith
 }

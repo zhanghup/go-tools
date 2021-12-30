@@ -1,7 +1,10 @@
 package txorm
 
+import "strings"
+
 func (this *Session) Insert(bean ...interface{}) error {
 	return this.begin(func() error {
+		this.Table(bean, true)
 		_, err := this.sess.Insert(bean...)
 		return err
 	})
@@ -9,14 +12,24 @@ func (this *Session) Insert(bean ...interface{}) error {
 
 func (this *Session) Update(bean interface{}, condiBean ...interface{}) error {
 	return this.begin(func() error {
-		_, err := this.sess.Update(bean, condiBean...)
+		this.Table(bean, true)
+		sqlstr := strings.TrimSpace(this._sql(false))
+		sqlstr = strings.Replace(sqlstr, "where", "", -1)
+		sqlstr = strings.Replace(sqlstr, "WHERE", "", -1)
+
+		_, err := this.sess.Table(this.tableName).Where(sqlstr, this.args...).Update(bean, condiBean...)
 		return err
 	})
 }
 
-func (this *Session) Delete(bean interface{}) error {
+func (this *Session) Delete(bean ... interface{}) error {
 	return this.begin(func() error {
-		_, err := this.sess.Delete(bean)
+		this.Table(bean, true)
+		sqlstr := strings.TrimSpace(this._sql(false))
+		sqlstr = strings.Replace(sqlstr, "where", "", -1)
+		sqlstr = strings.Replace(sqlstr, "WHERE", "", -1)
+
+		_, err := this.sess.Table(this.tableName).Where(sqlstr, this.args...).Delete(bean...)
 		return err
 	})
 }
@@ -40,7 +53,7 @@ func (this *Session) TS(fn func(sess ISession) error) error {
 
 func (this *Session) Exec() error {
 	return this.begin(func() error {
-		sqls := []interface{}{this._sql_with() + " " + this._sql()}
+		sqls := []interface{}{this._sql_with() + " " + this._sql(true)}
 		_, err := this.sess.Exec(append(sqls, this.args...)...)
 		return err
 	})

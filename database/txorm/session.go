@@ -2,6 +2,7 @@ package txorm
 
 import (
 	"context"
+	"github.com/zhanghup/go-tools"
 	"sync"
 	"xorm.io/xorm"
 )
@@ -16,12 +17,13 @@ type ISession interface {
 	Commit() error
 	Close() error
 
+	Table(bean interface{}, unsetIfExist ...bool) ISession
 	Find(bean interface{}) error
 	Get(bean interface{}) (bool, error)
 
 	Insert(bean ...interface{}) error
 	Update(bean interface{}, condiBean ...interface{}) error
-	Delete(bean interface{}) error
+	Delete(bean ...interface{}) error
 	TS(fn func(sess ISession) error) error
 	Exec() error
 	/*
@@ -31,6 +33,12 @@ type ISession interface {
 		示例2：
 			sql = "select * from user where a = :a and b = ?"
 			querys = []interface{}{"b",map[string]interface{}{"a":"a"}}
+		示例3：
+			sql = "where a = ?"
+			querys = []interface{}{"b"}
+			bean = models.User
+			>>> select user.* from user where a = ?
+
 	*/
 	SF(sql string, querys ...interface{}) ISession
 	Order(order ...string) ISession
@@ -59,9 +67,11 @@ type Session struct {
 	_db     *xorm.Engine
 	_sync   sync.Mutex
 
+	tableName string
 	sql       string
 	query     map[string]interface{}
 	args      []interface{}
+
 	autoClose bool
 
 	tmps     map[string]interface{}
@@ -194,4 +204,25 @@ func (this *Session) Id() string {
 
 func (this *Session) SetId(id string) {
 	this.id = id
+}
+
+func (this *Session) Table(bean interface{}, unsetIfExist ...bool) ISession {
+	if len(unsetIfExist) > 0 && unsetIfExist[0] && this.tableName != "" {
+		return this
+	}
+	if bean == nil {
+		return this
+	}
+
+	switch bean.(type) {
+	case string:
+		this.tableName = bean.(string)
+	case *string:
+		this.tableName = *(bean.(*string))
+	default:
+		tab := tools.RftTypeInfo(bean)
+		this.tableName = this._db.GetTableMapper().Obj2Table(tab.Name)
+	}
+
+	return this
 }

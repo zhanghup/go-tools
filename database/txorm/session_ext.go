@@ -7,7 +7,7 @@ import (
 
 func (this *Session) Count() (total int64, err error) {
 	err = this.AutoClose(func() error {
-		total, err = this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Count()
+		total, err = this.sess.SQL(this.SelectSql(nil, true, "count(1)"), this.args...).Count()
 		return err
 	})
 	return
@@ -63,18 +63,18 @@ func (this *Session) Strings() (v []string, err error) {
 func (this *Session) Page(index, size int, count bool, bean interface{}) (v int, err error) {
 	err = this.AutoClose(func() error {
 		if size < 0 {
-			err = this.sess.SQL(this._sql_with()+" "+this._sql(), this.args...).Find(bean)
+			err = this.sess.SQL(this.SelectSql(bean, true), this.args...).Find(bean)
 			return err
 		} else if size == 0 {
-			_, err = this.sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this._sql_with(), this.sql), this.args...).Get(&v)
+			_, err = this.sess.SQL(this.SelectSql(bean, false, "count(1)"), this.args...).Get(&v)
 			return err
 		} else {
-			err = this.sess.SQL(fmt.Sprintf("%s limit ?,?", this._sql_with()+" "+this._sql()), append(this.args, (index-1)*size, size)...).Find(bean)
+			err = this.sess.SQL(fmt.Sprintf("%s limit ?,?", this.SelectSql(bean, true)), append(this.args, (index-1)*size, size)...).Find(bean)
 			if err != nil {
 				return err
 			}
 			if count {
-				_, err = this.sess.SQL(fmt.Sprintf("%s select count(1) from (%s) _", this._sql_with(), this.sql), this.args...).Get(&v)
+				_, err = this.sess.SQL(this.SelectSql(bean, false, "count(1)"), this.args...).Get(&v)
 				return err
 			}
 		}
