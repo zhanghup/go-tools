@@ -95,7 +95,7 @@ func (this *Session) begin(fn func() error) error {
 	defer this._sync.Unlock()
 
 	// 判断是否需要开启事务
-	if this.beginTranslate {
+	if this.beginTranslate && !this.openTranslate {
 		this._engine.lock()
 		if err := this.sess.Begin(); err != nil {
 			this._engine.unlock()
