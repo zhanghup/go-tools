@@ -50,6 +50,8 @@ type IEngine interface {
 
 	Sync(beans ...interface{}) error
 
+	// Session ctx若为空： 每次操作完成就会自动关闭session
+	// Session ctx若不为空： 每次操作完成就不会自动关闭session
 	Session(ctx ...context.Context) ISession
 
 	Tables() []Table
