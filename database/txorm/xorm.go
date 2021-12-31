@@ -57,7 +57,7 @@ type IEngine interface {
 	Tables() []Table
 	Table(name string) Table
 	TableColumnExist(table, column string) bool
- DropTables(beans ...interface{}) error
+	DropTables(beans ...interface{}) error
 }
 
 // 单例
@@ -128,10 +128,12 @@ func (this *Engine) _session(ctx ...context.Context) *Session {
 	}
 	if !autoClose {
 		newSession.context = ctx[0]
+		newSession.Begin()
 	} else {
 		c := context.Background()
 		c = context.WithValue(c, CONTEXT_SESSION, newSession)
 		newSession.context = c
 	}
+
 	return newSession
 }
