@@ -61,13 +61,13 @@ func (this *Loader) LoadXormSessSlice(sess txorm.ISession, sqlstr string, field 
 }
 
 func (this *Loader) LoadXormObject(sqlstr string, field string, param ...interface{}) IObject {
-	sess := this.dbs.SessionAuto()
+	sess := this.dbs.Session()
 	sess.SetId("None")
 	return this.LoadXormSessObject(sess, sqlstr, field, param...)
 }
 
 func (this *Loader) LoadXormSlice(sqlstr string, field string, param ...interface{}) IObject {
-	sess := this.dbs.SessionAuto()
+	sess := this.dbs.Session()
 	sess.SetId("None")
 	return this.LoadXormSessSlice(sess, sqlstr, field, param...)
 }
