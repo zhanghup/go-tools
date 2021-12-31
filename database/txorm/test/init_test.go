@@ -14,7 +14,7 @@ var db *xorm.Engine
 
 type User struct {
 	Id   string `json:"id" xorm:"pk"`
-	Name string `json:"name"`
+	Name string `json:"name" xorm:"index"`
 	Age  int    `json:"age"`
 }
 
