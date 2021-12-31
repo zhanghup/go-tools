@@ -84,3 +84,7 @@ func (this *Engine) TableColumnExist(table, column string) bool {
 	}
 	return false
 }
+
+func (this *Engine) DropTables(beans ...interface{}) error {
+	return this.DB.DropTables(beans...)
+}

@@ -57,6 +57,7 @@ type IEngine interface {
 	Tables() []Table
 	Table(name string) Table
 	TableColumnExist(table, column string) bool
+ DropTables(beans ...interface{}) error
 }
 
 // 单例
