@@ -53,8 +53,9 @@ type IEngine interface {
 	SessionAuto(ctx ...context.Context) ISession
 	Session(ctx ...context.Context) ISession
 
-	Tables() ([]Table, error)
-	Table(name string) (Table, error)
+	Tables() []Table
+	Table(name string) Table
+	TableColumnExist(table, column string) bool
 }
 
 // 单例

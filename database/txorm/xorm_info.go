@@ -15,13 +15,13 @@ type Column struct {
 	SQLTypeLength2 int    `json:"sql_type_length2"`
 }
 
-func (this *Engine) Tables() ([]Table, error) {
+func (this *Engine) Tables() []Table {
+	result := make([]Table, 0)
+
 	tabs, err := this.DB.DBMetas()
 	if err != nil {
-		return nil, err
+		return result
 	}
-
-	result := make([]Table, 0)
 
 	for _, o := range tabs {
 
@@ -42,24 +42,20 @@ func (this *Engine) Tables() ([]Table, error) {
 	}
 
 	this.tables = result
-
-	return result, nil
+	return result
 }
 
-func (this *Engine) Table(name string) (Table, error) {
+func (this *Engine) Table(name string) Table {
 	if this.tables == nil || len(this.tables) == 0 {
-		_, err := this.Tables()
-		if err != nil {
-			return Table{}, err
-		}
+		this.Tables()
 	}
 
 	for _, o := range this.tables {
 		if o.Name == name {
-			return o, nil
+			return o
 		}
 	}
-	return Table{}, nil
+	return Table{}
 }
 
 func (this Table) Column(name string) Column {
@@ -69,4 +65,22 @@ func (this Table) Column(name string) Column {
 		}
 	}
 	return Column{}
+}
+
+func (this Table) ColumnExist(name string) bool {
+	for _, o := range this.Columns {
+		if o.Name == name {
+			return true
+		}
+	}
+	return false
+}
+
+func (this *Engine) TableColumnExist(table, column string) bool {
+	for _, tab := range this.Tables() {
+		if tab.Name == table {
+			return tab.ColumnExist(column)
+		}
+	}
+	return false
 }
