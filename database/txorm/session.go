@@ -24,7 +24,7 @@ type ISession interface {
 	Insert(bean ...interface{}) error
 	Update(bean interface{}, condiBean ...interface{}) error
 	Delete(bean ...interface{}) error
-	TS(fn func(sess ISession) error) error
+	TS(fn func(ctx context.Context, sess ISession) error) error
 	Exec() error
 	/*
 		示例1：
@@ -104,6 +104,9 @@ func (this *Session) begin(fn func() error) error {
 		this.openTranslate = true
 
 	}
+
+	// 若开启了事务则不再自动关闭事务
+	this.autoClose = false
 
 	// 执行逻辑
 	err := fn()

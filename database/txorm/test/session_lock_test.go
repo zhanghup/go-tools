@@ -9,7 +9,7 @@ import (
 
 func TestSessionLock1(t *testing.T) {
 	go func() {
-		err := engine.Session(context.Background()).TS(func(sess txorm.ISession) error {
+		err := engine.Session(context.Background()).TS(func(ctx context.Context, sess txorm.ISession) error {
 			err := sess.Table("user").SF("where id = ?", "1").Update(map[string]interface{}{
 				"age": 111,
 			})
@@ -33,7 +33,7 @@ func TestSessionLock1(t *testing.T) {
 	//}
 
 	{
-		err := engine.Session(context.Background()).TS(func(sess txorm.ISession) error {
+		err := engine.Session(context.Background()).TS(func(ctx context.Context, sess txorm.ISession) error {
 			err := sess.Table("user").SF("where id = ?", "1").Update(map[string]interface{}{
 				"age": 111,
 			})
@@ -55,7 +55,7 @@ func TestSessionLock1(t *testing.T) {
 func TestSessionLock2(t *testing.T) {
 
 	{
-		err := engine.Session(context.Background()).TS(func(sess txorm.ISession) error {
+		err := engine.Session().TS(func(ctx context.Context, sess txorm.ISession) error {
 			err := sess.Table("user").SF("where id = ?", "1").Update(map[string]interface{}{
 				"age": 111,
 			})
@@ -63,15 +63,13 @@ func TestSessionLock2(t *testing.T) {
 				return err
 			}
 
-			err = engine.Session(context.Background()).TS(func(sess txorm.ISession) error {
+			err = engine.Session(ctx).TS(func(ctx context.Context, sess txorm.ISession) error {
 				err := sess.Table("user").SF("where id = ?", "1").Update(map[string]interface{}{
 					"age": 111,
 				})
 				if err != nil {
 					return err
 				}
-				time.Sleep(time.Second * 5)
-
 				return nil
 			})
 			if err != nil {
@@ -90,7 +88,7 @@ func TestSessionLock2(t *testing.T) {
 func TestSessionLock3(t *testing.T) {
 
 	{
-		err := engine.Session(context.Background()).TS(func(sess txorm.ISession) error {
+		err := engine.Session().TS(func(ctx context.Context, sess txorm.ISession) error {
 			err := sess.Table("user").SF("where id = ?", "1").Update(map[string]interface{}{
 				"age": 111,
 			})
@@ -98,7 +96,7 @@ func TestSessionLock3(t *testing.T) {
 				return err
 			}
 
-			err = engine.SessionAuto().Table("user").SF("where id = ?", "1").Update(map[string]interface{}{
+			err = engine.Session(ctx).Table("user").SF("where id = ?", "1").Update(map[string]interface{}{
 				"age": 111,
 			})
 			if err != nil {
@@ -117,7 +115,7 @@ func TestSessionLock3(t *testing.T) {
 func TestSessionLock4(t *testing.T) {
 
 	{
-		err := engine.Session(context.Background()).TS(func(sess txorm.ISession) error {
+		err := engine.Session(context.Background()).TS(func(ctx context.Context, sess txorm.ISession) error {
 			err := sess.Table("user").SF("where id = ?", "1").Update(map[string]interface{}{
 				"age": 111,
 			})
@@ -126,7 +124,7 @@ func TestSessionLock4(t *testing.T) {
 			}
 
 			user := User{}
-			_, err = engine.SessionAuto().Table("user").SF("where id = ?", "1").Get(&user)
+			_, err = engine.Session().Table("user").SF("where id = ?", "1").Get(&user)
 			if err != nil {
 				return err
 			}

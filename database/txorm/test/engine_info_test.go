@@ -7,28 +7,13 @@ import (
 )
 
 func TestTables(t *testing.T) {
-	infos, err := engine.Tables()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	fmt.Println(tools.JSONString(infos, true))
+	fmt.Println(tools.JSONString(engine.Tables(), true))
 }
 
 func TestTable(t *testing.T) {
-	info, err := engine.Table("user")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	fmt.Println(tools.JSONString(info, true))
+	fmt.Println(tools.JSONString(engine.Table("user"), true))
 }
 
 func TestColumn(t *testing.T) {
-	info, err := engine.Table("user")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	fmt.Println(tools.JSONString(info.Column("id"), true))
+	fmt.Println(tools.JSONString(engine.Table("user").Column("id"), true))
 }

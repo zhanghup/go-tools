@@ -5,7 +5,7 @@ import (
 )
 
 func TestExists(t *testing.T) {
-	ok, err := engine.SessionAuto().SF("select * from user where 1 = 1").Exists()
+	ok, err := engine.Session().SF("select * from user where 1 = 1").Exists()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -13,7 +13,7 @@ func TestExists(t *testing.T) {
 		t.Fatal("错误")
 	}
 
-	ok, err = engine.SessionAuto().Table("user").SF("where 1 = 1").Exists()
+	ok, err = engine.Session().Table("user").SF("where 1 = 1").Exists()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,7 +31,7 @@ func TestExists(t *testing.T) {
 }
 
 func TestMap(t *testing.T) {
-	v, err := engine.SessionAuto().SF("select * from user where 1 = 1").Map()
+	v, err := engine.Session().SF("select * from user where 1 = 1").Map()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -39,7 +39,7 @@ func TestMap(t *testing.T) {
 		t.Fatal("错误")
 	}
 
-	v, err = engine.SessionAuto().Table("user").SF("where 1 = 1").Map()
+	v, err = engine.Session().Table("user").SF("where 1 = 1").Map()
 	if err != nil {
 		t.Fatal(err)
 	}

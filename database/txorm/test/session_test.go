@@ -16,12 +16,12 @@ func TestSessionNew(t *testing.T) {
 	ctx = context.WithValue(ctx, txorm.CONTEXT_SESSION, sess)
 	ss := engine.Session(ctx)
 	fmt.Println(ss.Id())
-	ss2 := engine.SessionAuto()
+	ss2 := engine.Session()
 	fmt.Println(ss2.Id())
 }
 
 func TestSessionInsert(t *testing.T) {
-	err := engine.SessionAuto().Insert(User{
+	err := engine.Session().Insert(User{
 		Id:   tools.UUID(),
 		Name: "test",
 		Age:  12,
@@ -37,7 +37,7 @@ func TestSessionTx(t *testing.T) {
 
 	t.Run("只查询", func(t *testing.T) {
 		users := make([]User, 0)
-		err := sess.TS(func(sess txorm.ISession) error {
+		err := sess.TS(func(ctx context.Context,sess txorm.ISession) error {
 			err := sess.SF(`select * from user limit 1`).Find(&users)
 			if err != nil {
 				return err
@@ -53,7 +53,7 @@ func TestSessionTx(t *testing.T) {
 
 	t.Run("包含操作", func(t *testing.T) {
 		users := make([]User, 0)
-		err := sess.TS(func(sess txorm.ISession) error {
+		err := sess.TS(func(ctx context.Context,sess txorm.ISession) error {
 			err := sess.SF(`select * from user`).Find(&users)
 			if err != nil {
 				return err
@@ -69,15 +69,11 @@ func TestSessionTx(t *testing.T) {
 	})
 }
 
-func TestWhere操作(t *testing.T) {
-
-}
-
 func Benchmark并发插入(b *testing.B) {
 	for i := 0; i < 1000; i++ {
 		go func() {
 			sess := engine.Session()
-			err := sess.TS(func(sess txorm.ISession) error {
+			err := sess.TS(func(ctx context.Context,sess txorm.ISession) error {
 				err := sess.Insert(User{Id: tools.UUID(), Name: "test", Age: 12})
 				return err
 			})

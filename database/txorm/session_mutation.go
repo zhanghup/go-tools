@@ -1,6 +1,9 @@
 package txorm
 
-import "strings"
+import (
+	"context"
+	"strings"
+)
 
 func (this *Session) Insert(bean ...interface{}) error {
 	return this.begin(func() error {
@@ -34,10 +37,10 @@ func (this *Session) Delete(bean ...interface{}) error {
 	})
 }
 
-func (this *Session) TS(fn func(sess ISession) error) error {
+func (this *Session) TS(fn func(ctx context.Context, sess ISession) error) error {
 	return this.AutoClose(func() error {
 		this.Begin()
-		err := fn(this)
+		err := fn(this.context, this)
 		if err != nil {
 			_ = this.Rollback()
 			return err

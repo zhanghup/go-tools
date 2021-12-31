@@ -50,7 +50,6 @@ type IEngine interface {
 
 	Sync(beans ...interface{}) error
 
-	SessionAuto(ctx ...context.Context) ISession
 	Session(ctx ...context.Context) ISession
 
 	Tables() []Table
@@ -87,21 +86,20 @@ func NewEngine(db *xorm.Engine, flag ...bool) IEngine {
 
 const CONTEXT_SESSION = "context-session"
 
-func (this *Engine) SessionAuto(ctx ...context.Context) ISession {
-	return this._session(true, ctx...)
-}
-
 func (this *Engine) Session(ctx ...context.Context) ISession {
-	return this._session(false, ctx...)
+	return this._session(ctx...)
 }
 
 func (this *Engine) Sync(beans ...interface{}) error {
 	return this.DB.Sync2(beans...)
 }
 
-func (this *Engine) _session(autoClose bool, ctx ...context.Context) *Session {
+func (this *Engine) _session(ctx ...context.Context) *Session {
 
-	if len(ctx) > 0 && ctx[0] != nil {
+	autoClose := len(ctx) == 0 || ctx[0] == nil
+
+	// 判断是否有context中已经存在的Session
+	if !autoClose {
 		c := ctx[0]
 		v := c.Value(CONTEXT_SESSION)
 		if v != nil {
@@ -122,10 +120,10 @@ func (this *Engine) _session(autoClose bool, ctx ...context.Context) *Session {
 		tmps:           this.tmps,
 		tmpCtxs:        this.tmpCtxs,
 		tmpWiths:       this.tmpWiths,
-		autoClose:      autoClose,
+		autoClose:      len(ctx) == 0 || ctx[0] == nil,
 		beginTranslate: false,
 	}
-	if len(ctx) > 0 {
+	if !autoClose {
 		newSession.context = ctx[0]
 	} else {
 		c := context.Background()
