@@ -44,9 +44,9 @@ func (this *Logger) Enable(flag bool) ILogger {
 
 func (this *Logger) fmt(f string, args ...interface{}) string {
 	if len(args) == 0 {
-		return f
+		return f + "\n"
 	}
-	return fmt.Sprintf(f, args...)
+	return fmt.Sprintf(f + "\n", args...)
 }
 
 func (this *Logger) Info(f string, args ...interface{}) {

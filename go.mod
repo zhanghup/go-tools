@@ -17,7 +17,7 @@ require (
 	golang.org/x/text v0.3.6
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/yaml.v2 v2.2.8
-	xorm.io/xorm v1.2.2
+	xorm.io/xorm v1.2.5
 )
 
 require (

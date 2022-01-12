@@ -4,7 +4,6 @@ import (
 	"context"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/zhanghup/go-tools"
-	"github.com/zhanghup/go-tools/tog"
 	"sync"
 	"xorm.io/xorm"
 	"xorm.io/xorm/log"
@@ -35,7 +34,7 @@ func NewXorm(cfg Config) (*xorm.Engine, error) {
 	}
 	if cfg.Debug {
 		engine.Logger().SetLevel(log.LOG_INFO)
-		engine.SetLogger(log.NewSimpleLogger(tog.Toginfo))
+		//engine.SetLogger(log.NewSimpleLogger(tog.Toginfo))
 		engine.ShowSQL(true)
 	}
 

@@ -4,26 +4,36 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/zhanghup/go-tools/tog"
+	"strings"
 )
 
 type Config struct {
-	Mode string `yaml:"mode"` // [debug,release,test]
-	Port string `yaml:"port"`
+	Mode    string `yaml:"mode"` // [debug,release,test]
+	Port    string `yaml:"port"`
+	Trusted string `yaml:"trusted"`
 }
 
 func NewGin(cfg Config, fn func(g *gin.Engine) error) error {
 	gin.SetMode(cfg.Mode)
-	e := gin.New()
-
 	gin.DefaultWriter = tog.Toginfo
 
+	trusted := []string{"0.0.0.0"}
+	if cfg.Trusted != "" {
+		trusted = strings.Split(cfg.Trusted, ",")
+	}
+
+	e := gin.New()
+	err := e.SetTrustedProxies(trusted)
+	if err != nil {
+		return err
+	}
 	e.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
 		return fmt.Sprintf("[GIN]\t%s | %s\t |\t %d |\t \"%s\"", param.ClientIP, param.Method, param.StatusCode, param.Path)
 	}))
 
 	e.Use(gin.Recovery())
 
-	err := fn(e)
+	err = fn(e)
 	if err != nil {
 		return err
 	}

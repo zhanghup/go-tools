@@ -21,15 +21,15 @@ func init() {
 		ShowLine:   true,
 		Compress:   true,
 		Type:       "console",
-		LineEnding: zapcore.DefaultLineEnding,
+		LineEnding: "",
 		EncodeCaller: func(c zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
 			strs := []string{}
 			for i := 7; i < 8; i++ {
 				_, str, l, ok := runtime.Caller(i)
 				if ok {
-					ss := strings.Split(str,"/")
-					if len(ss) > 1{
-						str = strings.Join(ss[len(ss) - 1:],"/")
+					ss := strings.Split(str, "/")
+					if len(ss) > 1 {
+						str = strings.Join(ss[len(ss)-1:], "/")
 					}
 					strs = append(strs, fmt.Sprintf("%s:%d", str, l))
 				} else {
@@ -50,7 +50,7 @@ func init() {
 		ShowLine:   true,
 		Compress:   true,
 		Type:       "console",
-		LineEnding: zapcore.DefaultLineEnding,
+		LineEnding: "",
 		EncodeCaller: func(c zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
 			strs := []string{}
 			for i := 7; i < 100; i++ {
