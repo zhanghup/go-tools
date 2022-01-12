@@ -38,7 +38,7 @@ func TestSessionTx(t *testing.T) {
 	t.Run("只查询", func(t *testing.T) {
 		users := make([]User, 0)
 		err := sess.TS(func(ctx context.Context,sess txorm.ISession) error {
-			err := sess.SF(`select * from user limit 1`).Find(&users)
+			err := sess.SF(`limit 1`).Find(&users)
 			if err != nil {
 				return err
 			}
@@ -54,7 +54,7 @@ func TestSessionTx(t *testing.T) {
 	t.Run("包含操作", func(t *testing.T) {
 		users := make([]User, 0)
 		err := sess.TS(func(ctx context.Context,sess txorm.ISession) error {
-			err := sess.SF(`select * from user`).Find(&users)
+			err := sess.Find(&users)
 			if err != nil {
 				return err
 			}

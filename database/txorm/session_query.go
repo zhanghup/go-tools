@@ -21,7 +21,18 @@ func (this *Session) SelectSql(bean interface{}, orderFlag bool, columns ...stri
 	if len(columns) > 0 {
 		column = strings.Join(columns, ",")
 	}
-	return fmt.Sprintf("%s select %s from %s %s", this._sql_with(), column, this.tableName, sqlstr)
+
+	switch {
+	case strings.Index(sqlstr, "limit") == 0,
+		strings.Index(sqlstr, "where") == 0,
+		strings.Index(sqlstr, "group") == 0,
+		strings.Index(sqlstr, "order") == 0,
+		sqlstr == "":
+		return fmt.Sprintf("%s select %s from %s %s", this._sql_with(), column, this.tableName, sqlstr)
+	default:
+		return fmt.Sprintf("%s select %s from %s where %s", this._sql_with(), column, this.tableName, sqlstr)
+	}
+
 }
 
 func (this *Session) Find(bean interface{}) error {

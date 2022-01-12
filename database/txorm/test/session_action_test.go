@@ -8,7 +8,7 @@ import (
 
 func TestGet(t *testing.T) {
 	user := User{}
-	_, err := engine.Session().SF("where id = ?", "1").Get(&user)
+	_, err := engine.Session().SF(" id = ?", "1").Get(&user)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -26,7 +26,7 @@ func TestFind(t *testing.T) {
 
 func TestCount(t *testing.T) {
 	t.Run("where", func(t *testing.T) {
-		n, err := engine.Session().Table("user").SF("where id = ?", "1").Count()
+		n, err := engine.Session().Table("user").SF(" id = ?", "1").Count()
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -122,7 +122,7 @@ func TestPage(t *testing.T) {
 	})
 	t.Run("Page Size < 0 with select2", func(t *testing.T) {
 		users := make([]User, 0)
-		_, err := engine.Session().SF("where 1 = 1").Page(1, -1, true, &users)
+		_, err := engine.Session().SF(" 1 = 1").Page(1, -1, true, &users)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -132,7 +132,7 @@ func TestPage(t *testing.T) {
 	})
 	t.Run("Page Size < 0 with select3", func(t *testing.T) {
 		users := make([]User, 0)
-		_, err := engine.Session().SF("where id = ?", "1").Page(1, -1, true, &users)
+		_, err := engine.Session().SF(" id = ?", "1").Page(1, -1, true, &users)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -142,7 +142,7 @@ func TestPage(t *testing.T) {
 	})
 	t.Run("Page Size < 0 with select4", func(t *testing.T) {
 		users := make([]User, 0)
-		_, err := engine.Session().SF("where id = :id", map[string]interface{}{"id": "1"}).Page(1, -1, true, &users)
+		_, err := engine.Session().SF(" id = :id", map[string]interface{}{"id": "1"}).Page(1, -1, true, &users)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -173,7 +173,7 @@ func TestPage(t *testing.T) {
 	})
 	t.Run("Page Size = 0 with select2", func(t *testing.T) {
 		users := make([]User, 0)
-		n, err := engine.Session().SF("where 1 = 1").Page(1, 0, true, &users)
+		n, err := engine.Session().SF(" 1 = 1").Page(1, 0, true, &users)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -183,7 +183,7 @@ func TestPage(t *testing.T) {
 	})
 	t.Run("Page Size = 0 with select3", func(t *testing.T) {
 		users := make([]User, 0)
-		n, err := engine.Session().SF("where id = ?", "1").Page(1, 0, true, &users)
+		n, err := engine.Session().SF(" id = ?", "1").Page(1, 0, true, &users)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -193,7 +193,7 @@ func TestPage(t *testing.T) {
 	})
 	t.Run("Page Size = 0 with select4", func(t *testing.T) {
 		users := make([]User, 0)
-		n, err := engine.Session().SF("where id = :id", map[string]interface{}{"id": "1"}).Page(1, 0, true, &users)
+		n, err := engine.Session().SF(" id = :id", map[string]interface{}{"id": "1"}).Page(1, 0, true, &users)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -234,7 +234,7 @@ func TestPage(t *testing.T) {
 	})
 	t.Run("Page Size > 0 with select2", func(t *testing.T) {
 		users := make([]User, 0)
-		n, err := engine.Session().SF("where 1 = 1").Page(1, 4, true, &users)
+		n, err := engine.Session().SF(" 1 = 1").Page(1, 4, true, &users)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -244,7 +244,7 @@ func TestPage(t *testing.T) {
 	})
 	t.Run("Page Size > 0 with select3", func(t *testing.T) {
 		users := make([]User, 0)
-		n, err := engine.Session().SF("where id = ?", "1").Page(1, 4, true, &users)
+		n, err := engine.Session().SF(" id = ?", "1").Page(1, 4, true, &users)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -254,7 +254,7 @@ func TestPage(t *testing.T) {
 	})
 	t.Run("Page Size > 0 with select4", func(t *testing.T) {
 		users := make([]User, 0)
-		n, err := engine.Session().SF("where id = :id", map[string]interface{}{"id": "1"}).Page(1, 4, true, &users)
+		n, err := engine.Session().SF(" id = :id", map[string]interface{}{"id": "1"}).Page(1, 4, true, &users)
 		if err != nil {
 			t.Fatal(err)
 		}

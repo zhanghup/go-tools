@@ -15,7 +15,7 @@ func TestInsert(t *testing.T) {
 	})
 
 	t.Run("Update", func(t *testing.T) {
-		err := engine.Session().Table("user").SF("where id = ?", "11").Update(map[string]interface{}{
+		err := engine.Session().Table("user").SF("id = ?", "11").Update(map[string]interface{}{
 			"name": "112",
 		})
 		if err != nil {
@@ -24,7 +24,7 @@ func TestInsert(t *testing.T) {
 	})
 
 	t.Run("Delete", func(t *testing.T) {
-		err := engine.Session().Table("user").SF("where id = ?", "11").Delete()
+		err := engine.Session().Table("user").SF("id = ?", "11").Delete()
 		if err != nil {
 			t.Fatal(err)
 		}

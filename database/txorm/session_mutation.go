@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 )
-
 func (this *Session) Insert(bean ...interface{}) error {
 	return this.begin(func() error {
 		this.Table(bean)
@@ -17,9 +16,6 @@ func (this *Session) Update(bean interface{}, condiBean ...interface{}) error {
 	return this.begin(func() error {
 		this.Table(bean)
 		sqlstr := strings.TrimSpace(this._sql(false))
-		sqlstr = strings.Replace(sqlstr, "where", "", -1)
-		sqlstr = strings.Replace(sqlstr, "WHERE", "", -1)
-
 		_, err := this.sess.Table(this.tableName).Where(sqlstr, this.args...).Update(bean, condiBean...)
 		return err
 	})
@@ -29,8 +25,6 @@ func (this *Session) Delete(bean ...interface{}) error {
 	return this.begin(func() error {
 		this.Table(bean)
 		sqlstr := strings.TrimSpace(this._sql(false))
-		sqlstr = strings.Replace(sqlstr, "where", "", -1)
-		sqlstr = strings.Replace(sqlstr, "WHERE", "", -1)
 
 		_, err := this.sess.Table(this.tableName).Where(sqlstr, this.args...).Delete(bean...)
 		return err
