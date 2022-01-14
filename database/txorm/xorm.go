@@ -86,7 +86,7 @@ func NewEngine(db *xorm.Engine, flag ...bool) IEngine {
 	return newengine
 }
 
-const CONTEXT_SESSION = "context-session"
+const CONTEXT_SESSION = "context-xorm-session"
 
 func (this *Engine) Session(ctx ...context.Context) ISession {
 	return this._session(ctx...)
