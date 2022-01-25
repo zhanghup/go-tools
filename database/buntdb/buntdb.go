@@ -1,29 +1,32 @@
 package buntdb
 
 import (
-	"context"
 	"github.com/tidwall/buntdb"
 )
 
 type IEngine interface {
 	Close() error
+
+	Indexes() ([]string, error)
+	IndexCreate(name, pattern string, indexes ...string) error
+	IndexRectCreate(name, pattern string) error
+	IndexJsonCreate(name, pattern string, indexes ...string) error
+	IndexDrop(name string) error
+
 	Ts(fn func(sess ISession) error) error
-	Sess(ctx ...context.Context) ISession
-
-	CreateStringIndex(name, pattern string, desc ...bool) error
-	CreateBinaryIndex(name, pattern string, desc ...bool) error
-	CreateIntIndex(name, pattern string, desc ...bool) error
-	CreateUintIndex(name, pattern string, desc ...bool) error
-	CreateFloatIndex(name, pattern string, desc ...bool) error
-}
-
-type Option struct {
-	Path string `json:"path" yaml:"path"` // :memory: 表示只使用内存暂存数据
 }
 
 type Engine struct {
 	opt Option
 	db  *buntdb.DB
+}
+
+func (this *Engine) Close() error {
+	return this.db.Close()
+}
+
+type Option struct {
+	Path string `json:"path" yaml:"path"` // :memory: 表示只使用内存暂存数据
 }
 
 func NewEngine(opt Option) (IEngine, error) {
@@ -38,8 +41,4 @@ func NewEngine(opt Option) (IEngine, error) {
 	}
 
 	return e, nil
-}
-
-func (this *Engine) Close() error {
-	return this.db.Close()
 }
