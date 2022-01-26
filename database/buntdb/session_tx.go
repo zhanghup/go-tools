@@ -50,6 +50,14 @@ func (this *Session) DeleteAll() (err error) {
 	return this.tx.DeleteAll()
 }
 
+func (this *Session) Delete(key string) (val string, err error) {
+	err = this.TxWriteable()
+	if err != nil {
+		return
+	}
+	return this.tx.Delete(key)
+}
+
 func (this *Session) Commit() (err error) {
 	if this.writeAble {
 		return this.tx.Commit()
@@ -62,8 +70,4 @@ func (this *Session) Rollback() (err error) {
 		return this.tx.Rollback()
 	}
 	return nil
-}
-
-func (this *Session) Delete(key string) (val string, err error) {
-	return this.tx.Delete(key)
 }
