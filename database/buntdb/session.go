@@ -9,6 +9,8 @@ type ISession interface {
 	IQuery
 
 	Set(string, string, ...time.Duration) (string, bool, error)
+	SetJson(key string, value interface{}, ttl ...time.Duration) (previousValue string, replaced bool, err error)
+
 	Delete(string) (string, error)
 	DeleteAll() error
 }

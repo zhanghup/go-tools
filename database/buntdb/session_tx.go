@@ -2,6 +2,7 @@ package buntdb
 
 import (
 	"github.com/tidwall/buntdb"
+	"github.com/zhanghup/go-tools"
 	"time"
 )
 
@@ -34,6 +35,11 @@ func (this *Session) Set(key, value string, ttl ...time.Duration) (previousValue
 		return
 	}
 	return this.tx.Set(key, value, opt)
+}
+
+func (this *Session) SetJson(key string, value interface{}, ttl ...time.Duration) (previousValue string, replaced bool, err error) {
+	v := tools.JSONString(value)
+	return this.Set(key, v, ttl...)
 }
 
 func (this *Session) DeleteAll() (err error) {
