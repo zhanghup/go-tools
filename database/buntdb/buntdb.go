@@ -39,10 +39,8 @@ func NewEngine(opt Option) (IEngine, error) {
 		return nil, err
 	}
 
-	tx, err := db.Begin(false)
-
 	e := &Engine{
-		Query: &Query{tx: tx},
+		Query: NewQuery(db),
 		db:    db,
 		opt:   opt,
 	}

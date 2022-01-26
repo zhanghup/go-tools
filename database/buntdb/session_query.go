@@ -19,7 +19,34 @@ type IQuery interface {
 }
 
 type Query struct {
+	db *buntdb.DB
 	tx *buntdb.Tx
+}
+
+/*
+	NewQuery 若tx不存在，将会在查询的时候自动创建tx
+*/
+func NewQuery(db *buntdb.DB, tx ...*buntdb.Tx) *Query {
+	q := Query{db: db}
+	if len(tx) > 0 {
+		q.tx = tx[0]
+	}
+
+	return &q
+}
+
+func (this *Query) Tx() (*buntdb.Tx, func(), error) {
+	if this.tx != nil {
+		return this.tx, nil, nil
+	}
+	tx, err := this.db.Begin(false)
+	if err != nil {
+		return nil, nil, err
+	}
+	return tx, func() {
+		_ = tx.Rollback()
+	}, nil
+
 }
 
 func (this *Query) PageJson(index, size int, result interface{}) func(key, value string) (bool, error) {
@@ -97,48 +124,55 @@ var (
 func (this *Query) List(index string, query ListParam, fn func(key, value string) bool) (err error) {
 	queryString := strings.TrimSpace(query.Query)
 	orderType := query.Order
+	tx, rollback, err := this.Tx()
+	if err != nil {
+		return err
+	}
+	if rollback != nil {
+		defer rollback()
+	}
 
 	if len(queryString) > 0 {
 		switch {
 		case queryRegexpKey.MatchString(queryString):
 			queryString = strings.Replace(queryString, "key:", "", 1)
 			if orderType == "desc" {
-				return this.tx.DescendKeys(queryString, fn)
+				return tx.DescendKeys(queryString, fn)
 			}
-			return this.tx.AscendKeys(queryString, fn)
+			return tx.AscendKeys(queryString, fn)
 		case queryRegexpBt.MatchString(queryString):
 			queryStrings := strings.Split(strings.Replace(queryString, "bt:", "", 1), ",")
 			if len(queryStrings) == 2 {
 				if orderType == "desc" {
-					return this.tx.DescendRange(index, queryStrings[0], queryStrings[1], fn)
+					return tx.DescendRange(index, queryStrings[0], queryStrings[1], fn)
 				}
-				return this.tx.AscendRange(index, queryStrings[0], queryStrings[1], fn)
+				return tx.AscendRange(index, queryStrings[0], queryStrings[1], fn)
 			} else {
 				return errors.New("query格式错误")
 			}
 		case queryRegexpLt.MatchString(queryString):
 			queryString = strings.Replace(queryString, "lt:", "", 1)
 			if orderType == "desc" {
-				return this.tx.DescendLessOrEqual(index, queryString, fn)
+				return tx.DescendLessOrEqual(index, queryString, fn)
 			}
-			return this.tx.AscendLessThan(index, queryString, fn)
+			return tx.AscendLessThan(index, queryString, fn)
 		case queryRegexpGt.MatchString(queryString):
 			queryString = strings.Replace(queryString, "gt:", "", 1)
 			if orderType == "desc" {
-				return this.tx.DescendGreaterThan(index, queryString, fn)
+				return tx.DescendGreaterThan(index, queryString, fn)
 			}
-			return this.tx.AscendGreaterOrEqual(index, queryString, fn)
+			return tx.AscendGreaterOrEqual(index, queryString, fn)
 		default:
 			if orderType == "desc" {
-				return this.tx.DescendEqual(index, queryString, fn)
+				return tx.DescendEqual(index, queryString, fn)
 			}
-			return this.tx.AscendEqual(index, queryString, fn)
+			return tx.AscendEqual(index, queryString, fn)
 		}
 	} else {
 		if orderType == "desc" {
-			return this.tx.Descend(index, fn)
+			return tx.Descend(index, fn)
 		}
-		return this.tx.Ascend(index, fn)
+		return tx.Ascend(index, fn)
 	}
 }
 
@@ -190,7 +224,15 @@ func (this *Query) ListJson(index string, query ListJsonParam, result interface{
 }
 
 func (this *Query) Get(key string, ignoreExpired ...bool) (val string, err error) {
-	val, err = this.tx.Get(key, ignoreExpired...)
+	tx, rollback, err := this.Tx()
+	if err != nil {
+		return "", err
+	}
+	if rollback != nil {
+		defer rollback()
+	}
+
+	val, err = tx.Get(key, ignoreExpired...)
 	if err == buntdb.ErrNotFound {
 		return "", ErrNotFound
 	}

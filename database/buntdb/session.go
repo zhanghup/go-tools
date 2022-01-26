@@ -27,5 +27,5 @@ func NewSession(db *buntdb.DB) (ISession, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Session{Query: &Query{tx: tx}, db: db, tx: tx}, nil
+	return &Session{Query: NewQuery(db, tx), db: db, tx: tx}, nil
 }
