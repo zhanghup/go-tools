@@ -1,7 +1,7 @@
 package buntdb
 
 func (this *Engine) Ts(fn func(sess ISession) error) error {
-	tx, err := NewSessionTx(this.db)
+	tx, err := NewSession(this.db)
 	if err != nil {
 		return err
 	}

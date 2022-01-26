@@ -5,6 +5,8 @@ import (
 )
 
 type IEngine interface {
+	IQuery
+
 	Close() error
 
 	Indexes() ([]string, error)
@@ -17,6 +19,8 @@ type IEngine interface {
 }
 
 type Engine struct {
+	*Query
+
 	opt Option
 	db  *buntdb.DB
 }
@@ -35,9 +39,12 @@ func NewEngine(opt Option) (IEngine, error) {
 		return nil, err
 	}
 
+	tx, err := db.Begin(false)
+
 	e := &Engine{
-		db:  db,
-		opt: opt,
+		Query: &Query{tx: tx},
+		db:    db,
+		opt:   opt,
 	}
 
 	return e, nil

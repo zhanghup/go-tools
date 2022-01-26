@@ -12,6 +12,7 @@ import (
 
 type IQuery interface {
 	Get(string, ...bool) (string, error)
+	GetJson(string, interface{}, ...bool) error
 
 	List(string, ListParam, func(string, string) bool) error
 	ListJson(string, ListJsonParam, interface{}) error
@@ -189,5 +190,21 @@ func (this *Query) ListJson(index string, query ListJsonParam, result interface{
 }
 
 func (this *Query) Get(key string, ignoreExpired ...bool) (val string, err error) {
-	return this.tx.Get(key, ignoreExpired...)
+	val, err = this.tx.Get(key, ignoreExpired...)
+	if err == buntdb.ErrNotFound {
+		return "", ErrNotFound
+	}
+	return
+}
+
+func (this *Query) GetJson(key string, result interface{}, ignoreExpired ...bool) error {
+	val, err := this.Get(key, ignoreExpired...)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal([]byte(val), result)
+	if err != nil {
+		return err
+	}
+	return nil
 }

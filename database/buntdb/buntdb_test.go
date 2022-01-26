@@ -24,6 +24,7 @@ func TestBuntdb(t *testing.T) {
 		panic(err)
 	}
 
+
 	err = e.Ts(func(sess ISession) error {
 		for i := 0; i < 1000; i++ {
 			_, _, _ = sess.Set(fmt.Sprintf("key:%dA", i+1000), fmt.Sprintf(`{"age":%d,"type":"%d"}`, i+1000, i%10))

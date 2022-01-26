@@ -14,16 +14,16 @@ type ISession interface {
 }
 
 type Session struct {
-	Query
+	*Query
 	db        *buntdb.DB
 	tx        *buntdb.Tx
 	writeAble bool
 }
 
-func NewSessionTx(db *buntdb.DB) (ISession, error) {
+func NewSession(db *buntdb.DB) (ISession, error) {
 	tx, err := db.Begin(false)
 	if err != nil {
 		return nil, err
 	}
-	return &Session{Query: Query{tx: tx}, db: db, tx: tx}, nil
+	return &Session{Query: &Query{tx: tx}, db: db, tx: tx}, nil
 }
