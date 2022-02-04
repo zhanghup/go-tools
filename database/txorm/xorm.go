@@ -108,6 +108,7 @@ func (this *Engine) _session(ctx ...context.Context) *Session {
 			oldSession, ok := v.(*Session)
 			if ok {
 				if !oldSession.sess.IsClosed() {
+					oldSession.context = ctx[0]
 					return oldSession
 				}
 			}
