@@ -239,6 +239,7 @@ func (this *Session) Lock() {
 	if this._sessSyncFlag {
 		return
 	}
+	this._sessSyncFlag = true
 	this._sessSync.Lock()
 }
 
@@ -247,5 +248,6 @@ func (this *Session) Unlock() {
 	if !this._sessSyncFlag {
 		return
 	}
+	this._sessSyncFlag = false
 	this._sessSync.Unlock()
 }
