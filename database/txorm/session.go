@@ -10,8 +10,8 @@ import (
 type ISession interface {
 	Id() string
 	SetId(id string)
-
 	Ctx() context.Context
+
 	Begin()
 	Rollback() error
 	Commit() error
@@ -62,10 +62,12 @@ type Session struct {
 	openTranslate  bool // 是否包含有事务类操作，然后主动开启了事务
 
 	// xorm session
-	sess    *xorm.Session
-	_engine *Engine
-	_db     *xorm.Engine
-	_sync   sync.Mutex
+	sess          *xorm.Session
+	_engine       *Engine
+	_db           *xorm.Engine
+	_sync         sync.Mutex
+	_sessSync     sync.Mutex
+	_sessSyncFlag bool
 
 	tableName string
 	sql       string
@@ -93,6 +95,7 @@ func (this *Session) Ctx() context.Context {
 func (this *Session) begin(fn func() error) error {
 	this._sync.Lock()
 	defer this._sync.Unlock()
+	defer this.Unlock()
 
 	// 判断是否需要开启事务
 	if this.beginTranslate && !this.openTranslate {
@@ -183,6 +186,8 @@ func (this *Session) Commit() error {
 }
 
 func (this *Session) AutoClose(fn func() error) error {
+	defer this.Unlock()
+
 	err := fn()
 	if err != nil {
 		return err
@@ -227,4 +232,20 @@ func (this *Session) Table(bean interface{}) ISession {
 	}
 
 	return this
+}
+
+// Lock 防止并发执行sql
+func (this *Session) Lock() {
+	if this._sessSyncFlag {
+		return
+	}
+	this._sessSync.Lock()
+}
+
+// Unlock 防止并发执行sql
+func (this *Session) Unlock() {
+	if !this._sessSyncFlag {
+		return
+	}
+	this._sessSync.Unlock()
 }

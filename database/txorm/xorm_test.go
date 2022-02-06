@@ -4,8 +4,7 @@ import (
 	"context"
 	"github.com/zhanghup/go-tools/database/txorm"
 	"testing"
-
-	_ "github.com/mattn/go-sqlite3"
+	//_ "github.com/mattn/go-sqlite3"
 )
 
 var engine txorm.IEngine
@@ -34,7 +33,7 @@ func TestSessionContextTemplate(t *testing.T) {
 
 func init() {
 	e, err := txorm.NewXorm(txorm.Config{
-		Uri:    "root:123@tcp(127.0.0.1)/nt?charset=utf8",
+		Uri:    "root:Zhang3611.@tcp(192.168.31.150:23306)/test2?charset=utf8",
 		Driver: "mysql",
 		Debug:  true,
 	})
