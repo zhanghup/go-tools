@@ -95,8 +95,6 @@ func (this *Session) Ctx() context.Context {
 func (this *Session) begin(fn func() error) error {
 	this._sync.Lock()
 	defer this._sync.Unlock()
-	defer this.Unlock()
-
 	// 判断是否需要开启事务
 	if this.beginTranslate && !this.openTranslate {
 		this._engine.lock()
@@ -186,8 +184,6 @@ func (this *Session) Commit() error {
 }
 
 func (this *Session) AutoClose(fn func() error) error {
-	defer this.Unlock()
-
 	err := fn()
 	if err != nil {
 		return err
@@ -234,20 +230,20 @@ func (this *Session) Table(bean interface{}) ISession {
 	return this
 }
 
-// Lock 防止并发执行sql
-func (this *Session) Lock() {
-	if this._sessSyncFlag {
-		return
-	}
-	this._sessSyncFlag = true
-	this._sessSync.Lock()
-}
-
-// Unlock 防止并发执行sql
-func (this *Session) Unlock() {
-	if !this._sessSyncFlag {
-		return
-	}
-	this._sessSyncFlag = false
-	this._sessSync.Unlock()
-}
+//// Lock 防止并发执行sql
+//func (this *Session) Lock() {
+//	if this._sessSyncFlag {
+//		return
+//	}
+//	this._sessSyncFlag = true
+//	this._sessSync.Lock()
+//}
+//
+//// Unlock 防止并发执行sql
+//func (this *Session) Unlock() {
+//	if !this._sessSyncFlag {
+//		return
+//	}
+//	this._sessSyncFlag = false
+//	this._sessSync.Unlock()
+//}

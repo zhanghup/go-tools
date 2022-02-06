@@ -9,15 +9,11 @@ import (
 )
 
 func (this *Session) Order(order ...string) ISession {
-	this.Lock()
-
 	this.orderby = order
 	return this
 }
 
 func (this *Session) SF(sql string, querys ...interface{}) ISession {
-	this.Lock()
-
 	sql = strings.TrimSpace(sql)
 
 	// 重置排序功能

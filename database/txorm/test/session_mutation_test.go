@@ -6,7 +6,10 @@ import (
 )
 
 func TestInsert(t *testing.T) {
-	user := User{"11", "11", 11}
+	user := User{
+		Id:   "111",
+		Name: "111",
+	}
 
 	tog.Error("涛涛涛涛涛涛涛涛涛涛他")
 

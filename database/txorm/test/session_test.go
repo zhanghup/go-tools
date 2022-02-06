@@ -24,7 +24,6 @@ func TestSessionInsert(t *testing.T) {
 	err := engine.Session().Insert(User{
 		Id:   tools.UUID(),
 		Name: "test",
-		Age:  12,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -37,7 +36,7 @@ func TestSessionTx(t *testing.T) {
 
 	t.Run("只查询", func(t *testing.T) {
 		users := make([]User, 0)
-		err := sess.TS(func(ctx context.Context,sess txorm.ISession) error {
+		err := sess.TS(func(ctx context.Context, sess txorm.ISession) error {
 			err := sess.SF(`limit 1`).Find(&users)
 			if err != nil {
 				return err
@@ -53,13 +52,13 @@ func TestSessionTx(t *testing.T) {
 
 	t.Run("包含操作", func(t *testing.T) {
 		users := make([]User, 0)
-		err := sess.TS(func(ctx context.Context,sess txorm.ISession) error {
+		err := sess.TS(func(ctx context.Context, sess txorm.ISession) error {
 			err := sess.Find(&users)
 			if err != nil {
 				return err
 			}
 
-			err = sess.Insert(User{Id: tools.UUID(), Name: "test", Age: 12})
+			err = sess.Insert(User{Id: tools.UUID(), Name: "test"})
 			return err
 		})
 		if err != nil {
@@ -73,14 +72,30 @@ func Benchmark并发插入(b *testing.B) {
 	for i := 0; i < 1000; i++ {
 		go func() {
 			sess := engine.Session()
-			err := sess.TS(func(ctx context.Context,sess txorm.ISession) error {
-				err := sess.Insert(User{Id: tools.UUID(), Name: "test", Age: 12})
+			err := sess.TS(func(ctx context.Context, sess txorm.ISession) error {
+				err := sess.Insert(User{Id: tools.UUID(), Name: "test"})
 				return err
 			})
 			if err != nil {
 				b.Fatal(err)
 			}
 		}()
+	}
+
+	time.Sleep(time.Second * 10)
+}
+
+func Benchmark并发查询(b *testing.B) {
+	for i := 0; i < 100; i++ {
+		sess := engine.Session()
+		go func(n int) {
+			nn := tools.IntToStr(n)
+			user := make([]User, 0)
+			err := sess.SF("select * from user v" + nn).Order("v" + nn + ".name").Find(&user)
+			if err != nil {
+				panic(err)
+			}
+		}(i)
 	}
 
 	time.Sleep(time.Second * 10)
