@@ -49,9 +49,8 @@ type IEngine interface {
 
 	Sync(beans ...interface{}) error
 
-	// Session ctx若为空： 每次操作完成就会自动关闭session
-	// Session ctx若不为空： 每次操作完成就不会自动关闭session
-	Session(ctx ...context.Context) ISession
+	// Session
+	Session(autoClose bool, ctx ...context.Context) ISession
 
 	Tables() []Table
 	Table(name string) Table
@@ -88,20 +87,18 @@ func NewEngine(db *xorm.Engine, flag ...bool) IEngine {
 
 const CONTEXT_SESSION = "context-xorm-session"
 
-func (this *Engine) Session(ctx ...context.Context) ISession {
-	return this._session(ctx...)
+func (this *Engine) Session(autoClose bool, ctx ...context.Context) ISession {
+	return this._session(autoClose, ctx...)
 }
 
 func (this *Engine) Sync(beans ...interface{}) error {
 	return this.DB.Sync2(beans...)
 }
 
-func (this *Engine) _session(ctx ...context.Context) *Session {
-
-	autoClose := len(ctx) == 0 || ctx[0] == nil
+func (this *Engine) _session(autoClose bool, ctx ...context.Context) *Session {
 
 	// 判断是否有context中已经存在的Session
-	if !autoClose {
+	if !autoClose && len(ctx) > 0 {
 		c := ctx[0]
 		v := c.Value(CONTEXT_SESSION)
 		if v != nil {
@@ -123,16 +120,18 @@ func (this *Engine) _session(ctx ...context.Context) *Session {
 		tmps:           this.tmps,
 		tmpCtxs:        this.tmpCtxs,
 		tmpWiths:       this.tmpWiths,
-		autoClose:      len(ctx) == 0 || ctx[0] == nil,
+		autoClose:      autoClose,
 		beginTranslate: false,
 	}
+	c := context.Background()
+	if len(ctx) > 0 {
+		c = ctx[0]
+	}
+	c = context.WithValue(c, CONTEXT_SESSION, newSession)
+	newSession.context = c
+
 	if !autoClose {
-		newSession.context = ctx[0]
 		newSession.Begin()
-	} else {
-		c := context.Background()
-		c = context.WithValue(c, CONTEXT_SESSION, newSession)
-		newSession.context = c
 	}
 
 	return newSession
