@@ -11,17 +11,19 @@ import (
 
 func TestSessionNew(t *testing.T) {
 	ctx := context.Background()
-	sess := engine.Session()
+	sess := engine.Session(true)
 	fmt.Println(sess.Id())
 	ctx = context.WithValue(ctx, txorm.CONTEXT_SESSION, sess)
-	ss := engine.Session(ctx)
+	ss := engine.Session(true, ctx)
 	fmt.Println(ss.Id())
-	ss2 := engine.Session()
+	ss3 := engine.Session(false, ctx)
+	fmt.Println(ss3.Id())
+	ss2 := engine.Session(true)
 	fmt.Println(ss2.Id())
 }
 
 func TestSessionInsert(t *testing.T) {
-	err := engine.Session().Insert(User{
+	err := engine.Session(true).Insert(User{
 		Id:   tools.UUID(),
 		Name: "test",
 	})
@@ -32,7 +34,7 @@ func TestSessionInsert(t *testing.T) {
 
 // TestSessionTx Session中若只是查询，则不开启事务逻辑，若包含操作逻辑则开启
 func TestSessionTx(t *testing.T) {
-	sess := engine.Session()
+	sess := engine.Session(true)
 
 	t.Run("只查询", func(t *testing.T) {
 		users := make([]User, 0)
@@ -69,9 +71,9 @@ func TestSessionTx(t *testing.T) {
 }
 
 func Benchmark并发插入(b *testing.B) {
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 100; i++ {
 		go func() {
-			sess := engine.Session()
+			sess := engine.Session(false)
 			err := sess.TS(func(ctx context.Context, sess txorm.ISession) error {
 				err := sess.Insert(User{Id: tools.UUID(), Name: "test"})
 				return err
@@ -79,6 +81,7 @@ func Benchmark并发插入(b *testing.B) {
 			if err != nil {
 				b.Fatal(err)
 			}
+			sess.Close()
 		}()
 	}
 
@@ -87,7 +90,7 @@ func Benchmark并发插入(b *testing.B) {
 
 func Benchmark并发查询(b *testing.B) {
 	for i := 0; i < 100; i++ {
-		sess := engine.Session()
+		sess := engine.Session(false)
 		go func(n int) {
 			nn := tools.IntToStr(n)
 			user := make([]User, 0)

@@ -14,14 +14,14 @@ func TestInsert(t *testing.T) {
 	tog.Error("涛涛涛涛涛涛涛涛涛涛他")
 
 	t.Run("Insert", func(t *testing.T) {
-		err := engine.Session().Insert(user)
+		err := engine.Session(true).Insert(user)
 		if err != nil {
 			t.Fatal(err)
 		}
 	})
 
 	t.Run("Update", func(t *testing.T) {
-		err := engine.Session().Table("user").SF("id = ?", "11").Update(map[string]interface{}{
+		err := engine.Session(true).Table("user").SF("id = ?", "11").Update(map[string]interface{}{
 			"name": "112",
 		})
 		if err != nil {
@@ -30,7 +30,7 @@ func TestInsert(t *testing.T) {
 	})
 
 	t.Run("Delete", func(t *testing.T) {
-		err := engine.Session().Table("user").SF("id = ?", "11").Delete()
+		err := engine.Session(true).Table("user").SF("id = ?", "11").Delete()
 		if err != nil {
 			t.Fatal(err)
 		}
