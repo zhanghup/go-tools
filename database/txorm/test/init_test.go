@@ -68,14 +68,14 @@ func init() {
 		tog.Error(err.Error())
 		return
 	}
-	err = engine.Session(true).SF("delete from user").Exec()
+	err = engine.Sess().SF("delete from user").Exec()
 	if err != nil {
 		tog.Error(err.Error())
 		return
 	}
 
 	for i := 0; i < 10; i++ {
-		err := engine.Session(true).Insert(User{
+		err := engine.Sess().Insert(User{
 			Id:   tools.IntToStr(i),
 			Name: tools.IntToStr(i),
 		})

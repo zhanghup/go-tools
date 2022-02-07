@@ -49,8 +49,8 @@ type IEngine interface {
 
 	Sync(beans ...interface{}) error
 
-	// Session
-	Session(autoClose bool, ctx ...context.Context) ISession
+	Sess(ctx ...context.Context) ISession
+	TS(ctx context.Context, fn func(ctx context.Context, sess ISession) error) error
 
 	Tables() []Table
 	Table(name string) Table
@@ -87,52 +87,26 @@ func NewEngine(db *xorm.Engine, flag ...bool) IEngine {
 
 const CONTEXT_SESSION = "context-xorm-session"
 
-func (this *Engine) Session(autoClose bool, ctx ...context.Context) ISession {
-	return this._session(autoClose, ctx...)
-}
-
-func (this *Engine) Sync(beans ...interface{}) error {
-	return this.DB.Sync2(beans...)
-}
-
-func (this *Engine) _session(autoClose bool, ctx ...context.Context) *Session {
-
-	// 判断是否有context中已经存在的Session
-	if !autoClose && len(ctx) > 0 {
-		c := ctx[0]
-		v := c.Value(CONTEXT_SESSION)
-		if v != nil {
-			oldSession, ok := v.(*Session)
-			if ok {
-				if !oldSession.sess.IsClosed() {
-					oldSession.context = ctx[0]
-					return oldSession
-				}
-			}
-		}
-	}
-
+func (this *Engine) Sess(ctx ...context.Context) ISession {
+	sess := this.DB.Where("")
 	newSession := &Session{
-		id:             tools.UUID(),
-		_engine:        this,
-		_db:            this.DB,
-		sess:           this.DB.NewSession(),
-		tmps:           this.tmps,
-		tmpCtxs:        this.tmpCtxs,
-		tmpWiths:       this.tmpWiths,
-		autoClose:      autoClose,
-		beginTranslate: false,
+		id:        tools.UUID(),
+		_engine:   this,
+		_db:       this.DB,
+		sess:      sess,
+		tmps:      this.tmps,
+		tmpCtxs:   this.tmpCtxs,
+		tmpWiths:  this.tmpWiths,
+		autoClose: true,
 	}
 	c := context.Background()
 	if len(ctx) > 0 {
 		c = ctx[0]
 	}
-	c = context.WithValue(c, CONTEXT_SESSION, newSession)
 	newSession.context = c
-
-	if !autoClose {
-		newSession.Begin()
-	}
-
 	return newSession
+}
+
+func (this *Engine) Sync(beans ...interface{}) error {
+	return this.DB.Sync2(beans...)
 }
