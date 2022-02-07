@@ -53,6 +53,8 @@ func init() {
 		return
 	}
 	db = e
+	e.SetMaxIdleConns(100)
+	e.SetMaxOpenConns(100)
 	engine = txorm.NewEngine(e)
 
 	engine.TemplateFuncWith("users", func(ctx context.Context) string {

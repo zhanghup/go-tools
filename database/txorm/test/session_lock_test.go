@@ -132,29 +132,28 @@ func TestSessionLock3(t *testing.T) {
 
 }
 
-//
-//func TestSessionLock4(t *testing.T) {
-//
-//	{
-//		err := engine.Session(true, context.Background()).TS(func(ctx context.Context, sess txorm.ISession) error {
-//			err := sess.Table("user").SF("id = ?", "1").Update(map[string]interface{}{
-//				"age": 111,
-//			})
-//			if err != nil {
-//				return err
-//			}
-//
-//			user := User{}
-//			_, err = engine.Session(true).Table("user").SF("id = ?", "1").Get(&user)
-//			if err != nil {
-//				return err
-//			}
-//
-//			return nil
-//		})
-//		if err != nil {
-//			t.Fatal(err)
-//		}
-//	}
-//
-//}
+func TestSessionLock4(t *testing.T) {
+
+	{
+		err := engine.TS(context.Background(), func(ctx context.Context, sess txorm.ISession) error {
+			err := sess.Table("user").SF("id = ?", "1").Update(map[string]interface{}{
+				"id": 111,
+			})
+			if err != nil {
+				return err
+			}
+
+			user := User{}
+			_, err = engine.Sess().Table("user").SF("id = ?", "1").Get(&user)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+}
