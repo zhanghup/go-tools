@@ -60,7 +60,7 @@ func TestLoaderXorm(t *testing.T) {
 
 	ids := []string{"44bbb8ef-c72f-4f66-a294-d651be5948f4", "44bbb8ef-c72f-4f66-a294-d651be5948f4", ""}
 
-	sess := engine.Session()
+	sess := engine.Session(true)
 
 	for i := 0; i < 3; i++ {
 		go func(ii int) {
