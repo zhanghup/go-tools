@@ -13,7 +13,7 @@ import (
 func TestXormSessionObject(t *testing.T) {
 
 	lod := tgql.NewLoader(enginedb)
-	sess := engine.Session(true)
+	sess := engine.Sess()
 
 	ids := []string{"12d07c3d-8133-48ab-b353-124da316b0d7", "14e7d395-5a6a-45e1-bbad-ceb4e8ff64aa", "4803d264-2b5a-4f70-8c05-be5712a694f3"}
 	for i := range []int{0, 1, 2} {
@@ -36,7 +36,7 @@ func TestXormSessionObject(t *testing.T) {
 func TestXormSessionSlice(t *testing.T) {
 
 	lod := tgql.NewLoader(enginedb)
-	sess := engine.Session(true)
+	sess := engine.Sess()
 
 	ids := []string{"12d07c3d-8133-48ab-b353-124da316b0d7", "14e7d395-5a6a-45e1-bbad-ceb4e8ff64aa", "4803d264-2b5a-4f70-8c05-be5712a694f3"}
 	for i := range []int{0, 1, 2} {
@@ -59,7 +59,7 @@ func TestXormSessionSlice(t *testing.T) {
 func TestXormSessionObjectAuto(t *testing.T) {
 
 	lod := tgql.NewLoader(enginedb)
-	sess := engine.Session(true)
+	sess := engine.Sess()
 
 	ids := []string{"12d07c3d-8133-48ab-b353-124da316b0d7", "14e7d395-5a6a-45e1-bbad-ceb4e8ff64aa", "4803d264-2b5a-4f70-8c05-be5712a694f3"}
 	for i := range []int{0, 1, 2} {
@@ -82,7 +82,7 @@ func TestXormSessionObjectAuto(t *testing.T) {
 func TestXormSessionSliceAuto(t *testing.T) {
 
 	lod := tgql.NewLoader(enginedb)
-	sess := engine.Session(true)
+	sess := engine.Sess()
 
 	ids := []string{"12d07c3d-8133-48ab-b353-124da316b0d7", "14e7d395-5a6a-45e1-bbad-ceb4e8ff64aa", "4803d264-2b5a-4f70-8c05-be5712a694f3"}
 	for i := range []int{0, 1, 2} {

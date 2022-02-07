@@ -20,7 +20,7 @@ func (this *Loader) SetDB(db *xorm.Engine) ILoader {
 
 // LoadXorm 为了方便数据唯一，sqlstr可以给一个前缀, 例如 prefix_xxx select * from user => select * from user
 func (this *Loader) LoadXorm(bean interface{}, sqlstr string, fetch LoadXormFetch, param ...interface{}) IObject {
-	sess := this.dbs.Session(true)
+	sess := this.dbs.Sess()
 	sess.SetId("None")
 	return this.LoadXormSess(sess, bean, sqlstr, fetch, param...)
 }
