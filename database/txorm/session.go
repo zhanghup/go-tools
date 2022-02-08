@@ -9,6 +9,7 @@ import (
 type ISession interface {
 	Id() string
 	SetId(id string)
+	IsNew() bool
 	Ctx() context.Context
 
 	Table(bean interface{}) ISession
@@ -51,6 +52,7 @@ type ISession interface {
 type Session struct {
 	id      string
 	context context.Context
+	isNew   bool
 
 	// xorm session
 	sess    *xorm.Session
@@ -72,6 +74,9 @@ type Session struct {
 	orderby []string
 }
 
+func (this *Session) IsNew() bool {
+	return this.isNew
+}
 func (this *Session) Ctx() context.Context {
 	if this.context == nil {
 		this.context = context.Background()

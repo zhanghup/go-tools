@@ -88,12 +88,10 @@ func NewEngine(db *xorm.Engine, flag ...bool) IEngine {
 const CONTEXT_SESSION = "context-xorm-session"
 
 func (this *Engine) New(ctx ...context.Context) ISession {
-	_, sess := this.session(true, true, ctx...)
-	return sess
+	return this.session(true, true, ctx...)
 }
 func (this *Engine) Sess(ctx ...context.Context) ISession {
-	_, sess := this.session(true, false, ctx...)
-	return sess
+	return this.session(true, false, ctx...)
 }
 
 func (this *Engine) Sync(beans ...interface{}) error {
@@ -105,14 +103,15 @@ func (this *Engine) Sync(beans ...interface{}) error {
 	@autoClose: 是否自动关闭session
 	@autoNew: 是否直接创建一个新的session，若false则在context中寻找一个旧的session，没有找到再创建一个新的
 */
-func (this *Engine) session(autoClose, new bool, ctx ...context.Context) (bool, *Session) {
+func (this *Engine) session(autoClose, new bool, ctx ...context.Context) *Session {
 
-	if !new && len(ctx) > 0 {
+	if !new && len(ctx) > 0 && ctx[0] != nil {
 		v := ctx[0].Value(CONTEXT_SESSION)
 		if v != nil {
 			sessOld, ok := v.(*Session)
 			if ok && !sessOld.sess.IsClosed() {
-				return false, sessOld
+				sessOld.isNew = false
+				return sessOld
 			}
 		}
 	}
@@ -126,11 +125,14 @@ func (this *Engine) session(autoClose, new bool, ctx ...context.Context) (bool, 
 		tmpCtxs:   this.tmpCtxs,
 		tmpWiths:  this.tmpWiths,
 		autoClose: autoClose,
+		isNew:     true,
 	}
 	c := context.Background()
-	if len(ctx) > 0 {
+	if len(ctx) > 0 && ctx[0] != nil {
 		c = context.WithValue(ctx[0], CONTEXT_SESSION, newSession)
+	} else {
+		c = context.WithValue(c, CONTEXT_SESSION, newSession)
 	}
 	newSession.context = c
-	return true, newSession
+	return newSession
 }

@@ -6,7 +6,8 @@ import (
 
 func (this *Engine) TS(ctx context.Context, fn func(ctx context.Context, sess ISession) error) error {
 
-	commit, sess := this.session(false, false, ctx)
+	sess := this.session(false, false, ctx)
+	commit := sess.isNew
 	if commit {
 		_ = sess.sess.Begin()
 	}

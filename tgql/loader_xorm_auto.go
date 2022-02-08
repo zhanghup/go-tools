@@ -1,8 +1,8 @@
 package tgql
 
 import (
+	"context"
 	"github.com/zhanghup/go-tools"
-	"github.com/zhanghup/go-tools/database/txorm"
 	"regexp"
 	"strings"
 )
@@ -23,9 +23,8 @@ func (this *Loader) SqlFormat(sqlstr, field string) string {
 	return sqlstr
 }
 
-func (this *Loader) LoadXormSessObject(sess txorm.ISession, sqlstr string, field string, param ...interface{}) IObject {
-
-	return this.LoadXormSess(sess, []map[string]interface{}{}, this.SqlFormat(sqlstr, field), func(tempData interface{}) map[string]interface{} {
+func (this *Loader) LoadXormCtxObject(ctx context.Context, sqlstr string, field string, param ...interface{}) IObject {
+	return this.LoadXormCtx(ctx, []map[string]interface{}{}, this.SqlFormat(sqlstr, field), func(tempData interface{}) map[string]interface{} {
 		data := tempData.([]map[string]interface{})
 		result := map[string]interface{}{}
 		for i, o := range data {
@@ -39,9 +38,9 @@ func (this *Loader) LoadXormSessObject(sess txorm.ISession, sqlstr string, field
 	}, param...)
 }
 
-func (this *Loader) LoadXormSessSlice(sess txorm.ISession, sqlstr string, field string, param ...interface{}) IObject {
+func (this *Loader) LoadXormCtxSlice(ctx context.Context, sqlstr string, field string, param ...interface{}) IObject {
 
-	return this.LoadXormSess(sess, []map[string]interface{}{}, this.SqlFormat(sqlstr, field), func(tempData interface{}) map[string]interface{} {
+	return this.LoadXormCtx(ctx, []map[string]interface{}{}, this.SqlFormat(sqlstr, field), func(tempData interface{}) map[string]interface{} {
 		data := tempData.([]map[string]interface{})
 		tmp := map[string][]map[string]interface{}{}
 		for i, o := range data {
@@ -58,16 +57,4 @@ func (this *Loader) LoadXormSessSlice(sess txorm.ISession, sqlstr string, field 
 		}
 		return result
 	}, param...)
-}
-
-func (this *Loader) LoadXormObject(sqlstr string, field string, param ...interface{}) IObject {
-	sess := this.dbs.Sess()
-	sess.SetId("None")
-	return this.LoadXormSessObject(sess, sqlstr, field, param...)
-}
-
-func (this *Loader) LoadXormSlice(sqlstr string, field string, param ...interface{}) IObject {
-	sess := this.dbs.Sess()
-	sess.SetId("None")
-	return this.LoadXormSessSlice(sess, sqlstr, field, param...)
 }

@@ -1,6 +1,7 @@
 package tgql
 
 import (
+	"context"
 	"github.com/zhanghup/go-tools"
 	"github.com/zhanghup/go-tools/database/txorm"
 	"sync"
@@ -43,15 +44,10 @@ func NewLoader(db *xorm.Engine) ILoader {
 type ILoaderXorm interface {
 	SetDB(db *xorm.Engine) ILoader
 
-	LoadXorm(bean interface{}, sqlstr string, fetch LoadXormFetch, param ...interface{}) IObject
+	LoadXormCtx(ctx context.Context, bean interface{}, sqlstr string, fetch LoadXormFetch, param ...interface{}) IObject
 
-	LoadXormObject(sqlstr string, field string, param ...interface{}) IObject
-
-	LoadXormSlice(sqlstr string, field string, param ...interface{}) IObject
-	LoadXormSess(sess txorm.ISession, bean interface{}, sqlstr string, fetch LoadXormFetch, param ...interface{}) IObject
-
-	LoadXormSessObject(sess txorm.ISession, sqlstr string, field string, param ...interface{}) IObject
-	LoadXormSessSlice(sess txorm.ISession, sqlstr string, field string, param ...interface{}) IObject
+	LoadXormCtxObject(ctx context.Context, sqlstr string, field string, param ...interface{}) IObject
+	LoadXormCtxSlice(ctx context.Context, sqlstr string, field string, param ...interface{}) IObject
 }
 
 type ILoader interface {
