@@ -47,8 +47,7 @@ type IEngine interface {
 	TemplateFunc(name string, f interface{})                           // template func
 	TemplateFuncKeys() []string
 
-	Sync(beans ...interface{}) error
-
+	New(ctx ...context.Context) ISession
 	Sess(ctx ...context.Context) ISession
 	TS(ctx context.Context, fn func(ctx context.Context, sess ISession) error) error
 
@@ -56,6 +55,7 @@ type IEngine interface {
 	Table(name string) Table
 	TableColumnExist(table, column string) bool
 	DropTables(beans ...interface{}) error
+	Sync(beans ...interface{}) error
 }
 
 // 单例
@@ -87,26 +87,50 @@ func NewEngine(db *xorm.Engine, flag ...bool) IEngine {
 
 const CONTEXT_SESSION = "context-xorm-session"
 
+func (this *Engine) New(ctx ...context.Context) ISession {
+	_, sess := this.session(true, true, ctx...)
+	return sess
+}
 func (this *Engine) Sess(ctx ...context.Context) ISession {
-	sess := this.DB.Where("")
-	newSession := &Session{
-		id:        tools.UUID(),
-		_engine:   this,
-		_db:       this.DB,
-		sess:      sess,
-		tmps:      this.tmps,
-		tmpCtxs:   this.tmpCtxs,
-		tmpWiths:  this.tmpWiths,
-		autoClose: true,
-	}
-	c := context.Background()
-	if len(ctx) > 0 {
-		c = ctx[0]
-	}
-	newSession.context = c
-	return newSession
+	_, sess := this.session(true, false, ctx...)
+	return sess
 }
 
 func (this *Engine) Sync(beans ...interface{}) error {
 	return this.DB.Sync2(beans...)
+}
+
+/*
+	session
+	@autoClose: 是否自动关闭session
+	@autoNew: 是否直接创建一个新的session，若false则在context中寻找一个旧的session，没有找到再创建一个新的
+*/
+func (this *Engine) session(autoClose, new bool, ctx ...context.Context) (bool, *Session) {
+
+	if !new && len(ctx) > 0 {
+		v := ctx[0].Value(CONTEXT_SESSION)
+		if v != nil {
+			sessOld, ok := v.(*Session)
+			if ok && !sessOld.sess.IsClosed() {
+				return false, sessOld
+			}
+		}
+	}
+
+	newSession := &Session{
+		id:        tools.UUID(),
+		_engine:   this,
+		_db:       this.DB,
+		sess:      this.DB.NewSession(),
+		tmps:      this.tmps,
+		tmpCtxs:   this.tmpCtxs,
+		tmpWiths:  this.tmpWiths,
+		autoClose: autoClose,
+	}
+	c := context.Background()
+	if len(ctx) > 0 {
+		c = context.WithValue(ctx[0], CONTEXT_SESSION, newSession)
+	}
+	newSession.context = c
+	return true, newSession
 }

@@ -2,7 +2,6 @@ package test_test
 
 import (
 	"context"
-	"errors"
 	"github.com/zhanghup/go-tools/database/txorm"
 	"testing"
 	"time"
@@ -73,7 +72,7 @@ func TestSessionLock2(t *testing.T) {
 				if err != nil {
 					return err
 				}
-				return errors.New("121")
+				return nil
 			})
 
 			if err != nil {
