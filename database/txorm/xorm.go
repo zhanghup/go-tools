@@ -51,9 +51,9 @@ type IEngine interface {
 	Sess(ctx ...context.Context) ISession
 	TS(ctx context.Context, fn func(ctx context.Context, sess ISession) error) error
 
-	Tables() []Table
-	Table(name string) Table
-	TableColumnExist(table, column string) bool
+	//Tables() []Table
+	//Table(name string) Table
+	//TableColumnExist(table, column string) bool
 	DropTables(beans ...interface{}) error
 	Sync(beans ...interface{}) error
 }
