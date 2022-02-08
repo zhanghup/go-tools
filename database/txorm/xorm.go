@@ -62,8 +62,6 @@ type IEngine interface {
 var newengine *Engine
 
 func NewEngine(db *xorm.Engine, flag ...bool) IEngine {
-	db.DBMetas()
-
 	if newengine != nil && (len(flag) == 0 || !flag[0]) {
 		return newengine
 	}
