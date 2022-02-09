@@ -29,6 +29,38 @@ func StrFmt(format string, args ...interface{}) string {
 	return fmt.Sprintf(format, params...)
 }
 
+// StrEqual 比较两个字符串数组是否相同
+// flag: 是否顺序也必须相同
+func StrEqual(source []string, dist []string, flag ...bool) bool {
+	if len(source) != len(dist) {
+		return false
+	}
+
+	if len(flag) > 0 && flag[0] {
+		for i := range source {
+			if source[i] != dist[i] {
+				return false
+			}
+		}
+
+		return true
+	}
+
+	smap := map[string]struct{}{}
+	for _, s := range source {
+		smap[s] = struct{}{}
+	}
+
+	for _, s := range dist {
+		_, ok := smap[s]
+		if !ok {
+			return false
+		}
+	}
+
+	return true
+}
+
 // UUID 就是一个36位的UUID
 func UUID() string {
 	id := uuid.NewV4()
@@ -66,7 +98,7 @@ func JSONString(obj interface{}, format ...bool) string {
 	return string(datas)
 }
 
-// 判断字符串是否包含在数组中
+// StrContains 判断字符串是否包含在数组中
 func StrContains(src []string, tag string) bool {
 	for _, s := range src {
 		if s == tag {
@@ -76,7 +108,7 @@ func StrContains(src []string, tag string) bool {
 	return false
 }
 
-// 取固定长度的随机字符串
+// StrOfRand 取固定长度的随机字符串
 // flag 自否可包含特殊字符
 func StrOfRand(l int, flag ...bool) string {
 	r := rand.New(rand.NewSource(time.Now().Unix()))
