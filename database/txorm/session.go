@@ -3,19 +3,14 @@ package txorm
 import (
 	"context"
 	"github.com/zhanghup/go-tools"
-	"sync"
 	"xorm.io/xorm"
 )
 
 type ISession interface {
 	Id() string
 	SetId(id string)
-
+	IsNew() bool
 	Ctx() context.Context
-	Begin()
-	Rollback() error
-	Commit() error
-	Close() error
 
 	Table(bean interface{}) ISession
 	Find(bean interface{}) error
@@ -24,7 +19,6 @@ type ISession interface {
 	Insert(bean ...interface{}) error
 	Update(bean interface{}, condiBean ...interface{}) error
 	Delete(bean ...interface{}) error
-	TS(fn func(ctx context.Context, sess ISession) error) error
 	Exec() error
 	/*
 		示例1：
@@ -56,16 +50,14 @@ type ISession interface {
 }
 
 type Session struct {
-	id             string
-	context        context.Context
-	beginTranslate bool // 配置是否需要开启事务
-	openTranslate  bool // 是否包含有事务类操作，然后主动开启了事务
+	id      string
+	context context.Context
+	isNew   bool
 
 	// xorm session
 	sess    *xorm.Session
 	_engine *Engine
 	_db     *xorm.Engine
-	_sync   sync.Mutex
 
 	tableName string
 	sql       string
@@ -82,104 +74,14 @@ type Session struct {
 	orderby []string
 }
 
+func (this *Session) IsNew() bool {
+	return this.isNew
+}
 func (this *Session) Ctx() context.Context {
 	if this.context == nil {
 		this.context = context.Background()
 	}
 	return context.WithValue(this.context, CONTEXT_SESSION, this)
-}
-
-// begin 当事务总包含有操作雷逻辑的时候，自动开启事务（前提是需要开启）
-func (this *Session) begin(fn func() error) error {
-	this._sync.Lock()
-	defer this._sync.Unlock()
-
-	// 判断是否需要开启事务
-	if this.beginTranslate && !this.openTranslate {
-		this._engine.lock()
-		if err := this.sess.Begin(); err != nil {
-			this._engine.unlock()
-			return err
-		}
-		this.openTranslate = true
-
-	}
-
-	// 若开启了事务则不再自动关闭事务
-	this.autoClose = false
-
-	// 执行逻辑
-	err := fn()
-	if err != nil {
-		return err
-	}
-
-	// 判断是否需要关闭session
-	this.tableName = ""
-	if this.autoClose {
-		return this.Close()
-	}
-	return nil
-}
-
-func (this *Session) Begin() {
-	// 防止并发开启事务
-	this._sync.Lock()
-	defer this._sync.Unlock()
-
-	// 若当前已经开启事务，则无需再次开启
-	if this.beginTranslate {
-		return
-	}
-
-	// 准备使用事务，但此时并未开启，需要等到真的有事务的时候再开启
-	this.beginTranslate = true
-	return
-}
-
-func (this *Session) Rollback() error {
-	// 若事务并没有开启，跳出
-	if !this.beginTranslate {
-		return nil
-	}
-	// 若没有执行任何事务操作，代表本次事务中没有需要开启事务的操作，跳出
-	if !this.openTranslate {
-		return nil
-	}
-
-	// 还原操作
-	if err := this.sess.Rollback(); err != nil {
-		return err
-	}
-
-	// 关闭事务开启状态
-	this._engine.unlock()
-	this.beginTranslate = false
-	this.openTranslate = false
-	return nil
-}
-
-func (this *Session) Commit() error {
-	// 若事务并没有开启，跳出
-	if !this.beginTranslate {
-		return nil
-	}
-	// 若没有执行任何事务操作，代表本次事务中没有需要开启事务的操作，跳出
-	if !this.openTranslate {
-		return nil
-	}
-
-	// 提交事务
-	if err := this.sess.Commit(); err != nil {
-		return err
-	}
-
-	// 关闭事务开启状态
-	this._engine.unlock()
-	this.beginTranslate = false
-	this.openTranslate = false
-	return nil
-
 }
 
 func (this *Session) AutoClose(fn func() error) error {

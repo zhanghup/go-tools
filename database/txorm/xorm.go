@@ -47,24 +47,21 @@ type IEngine interface {
 	TemplateFunc(name string, f interface{})                           // template func
 	TemplateFuncKeys() []string
 
-	Sync(beans ...interface{}) error
+	New(ctx ...context.Context) ISession
+	Sess(ctx ...context.Context) ISession
+	TS(ctx context.Context, fn func(ctx context.Context, sess ISession) error) error
 
-	// Session ctx若为空： 每次操作完成就会自动关闭session
-	// Session ctx若不为空： 每次操作完成就不会自动关闭session
-	Session(ctx ...context.Context) ISession
-
-	Tables() []Table
-	Table(name string) Table
-	TableColumnExist(table, column string) bool
+	//Tables() []Table
+	//Table(name string) Table
+	//TableColumnExist(table, column string) bool
 	DropTables(beans ...interface{}) error
+	Sync(beans ...interface{}) error
 }
 
 // 单例
 var newengine *Engine
 
 func NewEngine(db *xorm.Engine, flag ...bool) IEngine {
-	db.DBMetas()
-
 	if newengine != nil && (len(flag) == 0 || !flag[0]) {
 		return newengine
 	}
@@ -88,51 +85,52 @@ func NewEngine(db *xorm.Engine, flag ...bool) IEngine {
 
 const CONTEXT_SESSION = "context-xorm-session"
 
-func (this *Engine) Session(ctx ...context.Context) ISession {
-	return this._session(ctx...)
+func (this *Engine) New(ctx ...context.Context) ISession {
+	return this.session(true, true, ctx...)
+}
+func (this *Engine) Sess(ctx ...context.Context) ISession {
+	return this.session(true, false, ctx...)
 }
 
 func (this *Engine) Sync(beans ...interface{}) error {
 	return this.DB.Sync2(beans...)
 }
 
-func (this *Engine) _session(ctx ...context.Context) *Session {
+/*
+	session
+	@autoClose: 是否自动关闭session
+	@autoNew: 是否直接创建一个新的session，若false则在context中寻找一个旧的session，没有找到再创建一个新的
+*/
+func (this *Engine) session(autoClose, new bool, ctx ...context.Context) *Session {
 
-	autoClose := len(ctx) == 0 || ctx[0] == nil
-
-	// 判断是否有context中已经存在的Session
-	if !autoClose {
-		c := ctx[0]
-		v := c.Value(CONTEXT_SESSION)
+	if !new && len(ctx) > 0 && ctx[0] != nil {
+		v := ctx[0].Value(CONTEXT_SESSION)
 		if v != nil {
-			oldSession, ok := v.(*Session)
-			if ok {
-				if !oldSession.sess.IsClosed() {
-					return oldSession
-				}
+			sessOld, ok := v.(*Session)
+			if ok && !sessOld.sess.IsClosed() {
+				sessOld.isNew = false
+				return sessOld
 			}
 		}
 	}
 
 	newSession := &Session{
-		id:             tools.UUID(),
-		_engine:        this,
-		_db:            this.DB,
-		sess:           this.DB.NewSession(),
-		tmps:           this.tmps,
-		tmpCtxs:        this.tmpCtxs,
-		tmpWiths:       this.tmpWiths,
-		autoClose:      len(ctx) == 0 || ctx[0] == nil,
-		beginTranslate: false,
+		id:        tools.UUID(),
+		_engine:   this,
+		_db:       this.DB,
+		sess:      this.DB.NewSession(),
+		tmps:      this.tmps,
+		tmpCtxs:   this.tmpCtxs,
+		tmpWiths:  this.tmpWiths,
+		autoClose: autoClose,
+		isNew:     true,
 	}
-	if !autoClose {
-		newSession.context = ctx[0]
-		newSession.Begin()
+	c := context.Background()
+	if len(ctx) > 0 && ctx[0] != nil {
+		c = context.WithValue(ctx[0], CONTEXT_SESSION, newSession)
 	} else {
-		c := context.Background()
 		c = context.WithValue(c, CONTEXT_SESSION, newSession)
-		newSession.context = c
 	}
-
+	newSession.context = c
 	return newSession
 }

@@ -1,6 +1,7 @@
 package tgql
 
 import (
+	"context"
 	"fmt"
 	"github.com/zhanghup/go-tools"
 	"github.com/zhanghup/go-tools/database/txorm"
@@ -18,16 +19,13 @@ func (this *Loader) SetDB(db *xorm.Engine) ILoader {
 	return this
 }
 
-// LoadXorm 为了方便数据唯一，sqlstr可以给一个前缀, 例如 prefix_xxx select * from user => select * from user
-func (this *Loader) LoadXorm(bean interface{}, sqlstr string, fetch LoadXormFetch, param ...interface{}) IObject {
-	sess := this.dbs.Session()
-	sess.SetId("None")
-	return this.LoadXormSess(sess, bean, sqlstr, fetch, param...)
-}
-
-// LoadXormSess 为了方便数据唯一，sqlstr可以给一个前缀, 例如 prefix_xxx select * from user => select * from user
-func (this *Loader) LoadXormSess(sess txorm.ISession, bean interface{}, sqlstr string, fetch LoadXormFetch, param ...interface{}) IObject {
+// LoadXormCtx 为了方便数据唯一，sqlstr可以给一个前缀, 例如 prefix_xxx select * from user => select * from user
+func (this *Loader) LoadXormCtx(ctx context.Context, bean interface{}, sqlstr string, fetch LoadXormFetch, param ...interface{}) IObject {
 	info := tools.RftTypeInfo(bean)
+	sess := this.dbs.Sess(ctx)
+	if sess.IsNew() {
+		sess.SetId("None")
+	}
 
 	key := fmt.Sprintf("sessId: %s, sql: %s, param: %s, bean.pkg: %s,bean.name: %s", sess.Id(), sqlstr, tools.JSONString(param), info.PkgPath, info.FullName)
 	if info.Name == "" {

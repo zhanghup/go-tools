@@ -4,14 +4,13 @@ import (
 	"context"
 	"github.com/zhanghup/go-tools/database/txorm"
 	"testing"
-
-	_ "github.com/mattn/go-sqlite3"
+	//_ "github.com/mattn/go-sqlite3"
 )
 
 var engine txorm.IEngine
 
 func TestWithTemplate(t *testing.T) {
-	err := engine.Session().SF(`select * from {{ tmp "users" }} as u where u.id = '44bbb8ef-c72f-4f66-a294-d651be5948f4'
+	err := engine.Sess().SF(`select * from {{ tmp "users" }} as u where u.id = '44bbb8ef-c72f-4f66-a294-d651be5948f4'
 	`).Exec()
 	if err != nil {
 		t.Error(err)
@@ -19,7 +18,7 @@ func TestWithTemplate(t *testing.T) {
 }
 
 func TestSessionContextTemplate(t *testing.T) {
-	err := engine.Session().SF(`select * from {{ tmp "users" }} as u where u.id = '44bbb8ef-c72f-4f66-a294-d651be5948f4' 
+	err := engine.Sess().SF(`select * from {{ tmp "users" }} as u where u.id = '44bbb8ef-c72f-4f66-a294-d651be5948f4' 
 	and u.corp = {{ ctx "corp" }}
 	{{ if .ty }} and u.corp = {{ ctx "corp" }} {{ end }}
 	{{ if .t }} and u.corp = ? {{ end }}
@@ -34,7 +33,7 @@ func TestSessionContextTemplate(t *testing.T) {
 
 func init() {
 	e, err := txorm.NewXorm(txorm.Config{
-		Uri:    "root:123@tcp(127.0.0.1)/nt?charset=utf8",
+		Uri:    "root:Zhang3611.@tcp(192.168.31.150:23306)/test2?charset=utf8",
 		Driver: "mysql",
 		Debug:  true,
 	})

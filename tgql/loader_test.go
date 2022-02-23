@@ -60,12 +60,11 @@ func TestLoaderXorm(t *testing.T) {
 
 	ids := []string{"44bbb8ef-c72f-4f66-a294-d651be5948f4", "44bbb8ef-c72f-4f66-a294-d651be5948f4", ""}
 
-	sess := engine.Session()
-
 	for i := 0; i < 3; i++ {
 		go func(ii int) {
+			fmt.Println(ii)
 			oo := Account{}
-			ok, err := lod.LoadXormSess(sess, make([]Account, 0), `
+			ok, err := lod.LoadXormCtx(nil, make([]Account, 0), `
 				select * from account where id in :keys and corp =  {{ ctx "corp"}}
 				`, func(tempData interface{}) map[string]interface{} {
 				data := tempData.([]Account)
@@ -91,7 +90,7 @@ var engine txorm.IEngine
 
 func init() {
 	e, err := txorm.NewXorm(txorm.Config{
-		Uri:    "root:123@tcp(127.0.0.1)/nt?charset=utf8",
+		Uri:    "root:Zhang3611.@tcp(192.168.31.150:23306)/test2?charset=utf8",
 		Driver: "mysql",
 		Debug:  true,
 	})
@@ -109,7 +108,7 @@ func init() {
 	})
 
 	engine.TemplateFuncCtx("corp", func(ctx context.Context) string {
-		return "'ceaaeb6d-9f47-4ecb-ab4b-3247091229b7'"
+		return "'0000'"
 	})
 
 	engine.TemplateFuncWith("users", func(ctx context.Context) string {
