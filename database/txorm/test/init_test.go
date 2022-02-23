@@ -13,9 +13,12 @@ var engine txorm.IEngine
 var db *xorm.Engine
 
 type User struct {
-	Id   string `json:"id" xorm:"pk"`
-	Name string `json:"name" xorm:"index"`
-	Age  int    `json:"age"`
+	Id   string  `json:"id" xorm:"pk"`
+	Name string  `json:"name" xorm:"index"`
+	Age  int     `json:"age"`
+	Kind *int    `json:"kind"`
+	Send *int    `json:"send"`
+	Kd   *string `json:"kd"`
 }
 
 func init() {
@@ -55,6 +58,7 @@ func init() {
 			Id:   tools.IntToStr(i),
 			Name: tools.IntToStr(i),
 			Age:  i,
+			Kind: &i,
 		})
 	}
 }
