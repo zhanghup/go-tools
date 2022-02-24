@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-var sqlFormatRegexp = regexp.MustCompile(`^[a-zA-Z_]+$`)
+var sqlFormatRegexp = regexp.MustCompile(`^[0-9a-zA-Z_]+$`)
 
 func (this *Loader) SqlFormat(sqlstr, field string) string {
 	if strings.Index(sqlstr, "select") == -1 && sqlFormatRegexp.MatchString(sqlstr) {
