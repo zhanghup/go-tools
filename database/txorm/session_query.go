@@ -53,7 +53,7 @@ func (this *Session) Map() (v []map[string]interface{}, err error) {
 	err = this.AutoClose(func() error {
 		rows, err := this.sess.DB().Query(this.SelectSql(nil, true), this.args...)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		for rows.Next() {
