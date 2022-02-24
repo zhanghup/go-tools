@@ -49,33 +49,33 @@ func (this *Session) Get(bean interface{}) (v bool, err error) {
 	return
 }
 
-func (this *Session) Map() (v []map[string]interface{}, err error) {
-	err = this.AutoClose(func() error {
-		rows, err := this.sess.DB().Query(this.SelectSql(nil, true), this.args...)
-		if err != nil {
-			return err
-		}
-
-		for rows.Next() {
-			vv := map[string]interface{}{}
-			if err = rows.ScanMap(&vv); err != nil {
-				return err
-			} else {
-				v = append(v, vv)
-			}
-		}
-		return nil
-	})
-	return
-}
-
 //func (this *Session) Map() (v []map[string]interface{}, err error) {
 //	err = this.AutoClose(func() error {
-//		v, err = this.sess.SQL(this.SelectSql(nil, true), this.args...).QueryInterface()
-//		return err
+//		rows, err := this.sess.DB().Query(this.SelectSql(nil, true), this.args...)
+//		if err != nil {
+//			return err
+//		}
+//
+//		for rows.Next() {
+//			vv := map[string]interface{}{}
+//			if err = rows.ScanMap(&vv); err != nil {
+//				return err
+//			} else {
+//				v = append(v, vv)
+//			}
+//		}
+//		return nil
 //	})
 //	return
 //}
+
+func (this *Session) Map() (v []map[string]interface{}, err error) {
+	err = this.AutoClose(func() error {
+		v, err = this.sess.SQL(this.SelectSql(nil, true), this.args...).QueryInterface()
+		return err
+	})
+	return
+}
 
 func (this *Session) Exists() (v bool, err error) {
 	err = this.AutoClose(func() error {

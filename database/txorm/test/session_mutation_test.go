@@ -6,14 +6,7 @@ import (
 )
 
 func TestInsert(t *testing.T) {
-<<<<<<< HEAD
 	user := User{"11", "11", 11, nil, nil, nil}
-=======
-	user := User{
-		Id:   "111",
-		Name: "111",
-	}
->>>>>>> c64ebceac3813b7f2621365310fb7b47ecc4b4b8
 
 	tog.Error("涛涛涛涛涛涛涛涛涛涛他")
 
