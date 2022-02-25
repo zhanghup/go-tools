@@ -39,8 +39,8 @@ type User struct {
 
 func init() {
 	e, err := txorm.NewXorm(txorm.Config{
-		//Uri:    "root:Zhang3611.@tcp(192.168.31.150:23306)/test2?charset=utf8",
-		Uri:    "root:123@tcp(127.0.0.1)/test2?charset=utf8",
+		Uri: "root:Zhang3611.@tcp(192.168.31.150:23306)/test2?charset=utf8",
+		//Uri:    "root:123@tcp(127.0.0.1)/test2?charset=utf8",
 		Driver: "mysql",
 		Debug:  true,
 	})
@@ -79,6 +79,22 @@ func init() {
 		t := time.Now()
 		if i%2 == 0 {
 			u.Time = &t
+		}
+		if i%3 == 0 {
+			u.Int64 = time.Now().Unix()
+			u.Bool = true
+			vv := make([]byte, 10, 16)
+			vv[0] = 49
+			vv[1] = 54
+			vv[2] = 52
+			vv[3] = 53
+			vv[4] = 56
+			vv[5] = 48
+			vv[6] = 50
+			vv[7] = 51
+			vv[8] = 48
+			vv[9] = 48
+			u.Bytes = vv
 		}
 		err := engine.Sess().Insert(u)
 		if err != nil {
