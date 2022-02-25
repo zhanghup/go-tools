@@ -81,7 +81,7 @@ func (this *Session) Map() (v []map[string]interface{}, err error) {
 								return err
 							}
 						case "BOOL", "TINYINT":
-							vi[o.Name()] = newValue == "1"
+							vi[o.Name()] = tools.StrToInt8(newValue)
 						case "BLOB":
 							vi[o.Name()] = colValue
 						case "FLOAT":
