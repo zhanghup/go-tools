@@ -72,9 +72,11 @@ func (this *Session) Map() (v []map[string]interface{}, err error) {
 
 				for _, o := range types {
 					if colValue, ok := vv[o.Name()]; ok && colValue != nil {
+						newValue := string(colValue)
+
 						switch o.DatabaseTypeName() {
 						case "DateTime", "DATETIME":
-							vi[o.Name()], err = time.ParseInLocation("2006-01-02 15:04:05", string(colValue), time.Local)
+							vi[o.Name()], err = time.ParseInLocation("2006-01-02 15:04:05", newValue, time.Local)
 							if err != nil {
 								return err
 							}
@@ -83,13 +85,13 @@ func (this *Session) Map() (v []map[string]interface{}, err error) {
 						case "Blob", "BLOB":
 							vi[o.Name()] = colValue
 						case "Float", "FLOAT":
-							vi[o.Name()] = tools.BytesToFloat32(colValue)
+							vi[o.Name()] = tools.StrToFloat32(newValue)
 						case "Double", "DOUBLE":
-							vi[o.Name()] = tools.BytesToFloat64(colValue)
+							vi[o.Name()] = tools.StrToFloat64(newValue)
 						case "BigInt", "BIGINT":
-							vi[o.Name()] = tools.BytesToInt64(colValue)
+							vi[o.Name()] = tools.StrToInt64(newValue)
 						case "Int", "INT":
-							vi[o.Name()] = int(tools.BytesToInt64(colValue))
+							vi[o.Name()] = tools.StrToInt(newValue)
 						default:
 							vi[o.Name()] = string(colValue)
 						}
