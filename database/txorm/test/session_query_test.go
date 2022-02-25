@@ -1,6 +1,8 @@
 package test_test
 
 import (
+	"fmt"
+	"github.com/zhanghup/go-tools"
 	"testing"
 )
 
@@ -38,6 +40,7 @@ func TestMap(t *testing.T) {
 	if len(v) != 10 {
 		t.Fatal("错误")
 	}
+	fmt.Println(tools.JSONString(v))
 
 	v, err = engine.Sess().Table("user").SF("1 = 1").Map()
 	if err != nil {

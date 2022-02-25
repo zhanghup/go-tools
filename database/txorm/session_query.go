@@ -2,7 +2,9 @@ package txorm
 
 import (
 	"fmt"
+	"github.com/zhanghup/go-tools"
 	"strings"
+	"time"
 )
 
 func (this *Session) SelectSql(bean interface{}, orderFlag bool, columns ...string) string {
@@ -49,33 +51,68 @@ func (this *Session) Get(bean interface{}) (v bool, err error) {
 	return
 }
 
-//func (this *Session) Map() (v []map[string]interface{}, err error) {
-//	err = this.AutoClose(func() error {
-//		rows, err := this.sess.DB().Query(this.SelectSql(nil, true), this.args...)
-//		if err != nil {
-//			return err
-//		}
-//
-//		for rows.Next() {
-//			vv := map[string]interface{}{}
-//			if err = rows.ScanMap(&vv); err != nil {
-//				return err
-//			} else {
-//				v = append(v, vv)
-//			}
-//		}
-//		return nil
-//	})
-//	return
-//}
-
 func (this *Session) Map() (v []map[string]interface{}, err error) {
 	err = this.AutoClose(func() error {
-		v, err = this.sess.SQL(this.SelectSql(nil, true), this.args...).QueryInterface()
-		return err
+		rows, err := this.sess.DB().Query(this.SelectSql(nil, true), this.args...)
+		if err != nil {
+			return err
+		}
+
+		types, err := rows.ColumnTypes()
+		if err != nil {
+			return err
+		}
+
+		for rows.Next() {
+			vv := map[string][]byte{}
+			if err = rows.ScanMap(&vv); err != nil {
+				return err
+			} else {
+				vi := map[string]interface{}{}
+
+				for _, o := range types {
+					if colValue, ok := vv[o.Name()]; ok && colValue != nil {
+						switch o.DatabaseTypeName() {
+						case "DateTime", "DATETIME":
+							vi[o.Name()], err = time.ParseInLocation("2006-01-02 15:04:05", string(colValue), time.Local)
+							if err != nil {
+								return err
+							}
+						case "Bool", "BOOL":
+							vi[o.Name()] = colValue[0] == 0
+						case "Blob", "BLOB":
+							vi[o.Name()] = colValue
+						case "Float", "FLOAT":
+							vi[o.Name()] = tools.BytesToFloat32(colValue)
+						case "Double", "DOUBLE":
+							vi[o.Name()] = tools.BytesToFloat64(colValue)
+						case "BigInt", "BIGINT":
+							vi[o.Name()] = tools.BytesToInt64(colValue)
+						case "Int", "INT":
+							vi[o.Name()] = tools.BytesToInt(colValue)
+						default:
+							vi[o.Name()] = string(colValue)
+						}
+					} else {
+						vi[o.Name()] = nil
+					}
+
+				}
+				v = append(v, vi)
+			}
+		}
+		return nil
 	})
 	return
 }
+
+//func (this *Session) Map() (v []map[string]interface{}, err error) {
+//	err = this.AutoClose(func() error {
+//		v, err = this.sess.SQL(this.SelectSql(nil, true), this.args...).QueryInterface()
+//		return err
+//	})
+//	return
+//}
 
 func (this *Session) Exists() (v bool, err error) {
 	err = this.AutoClose(func() error {
