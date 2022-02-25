@@ -89,7 +89,7 @@ func (this *Session) Map() (v []map[string]interface{}, err error) {
 						case "BigInt", "BIGINT":
 							vi[o.Name()] = tools.BytesToInt64(colValue)
 						case "Int", "INT":
-							vi[o.Name()] = tools.BytesToInt(colValue)
+							vi[o.Name()] = int(tools.BytesToInt64(colValue))
 						default:
 							vi[o.Name()] = string(colValue)
 						}
