@@ -108,6 +108,41 @@ func (this *Session) Map() (v []map[string]interface{}, err error) {
 	return
 }
 
+func (this *Session) MapString() (v []map[string]string, err error) {
+	err = this.AutoClose(func() error {
+		rows, err := this.sess.DB().Query(this.SelectSql(nil, true), this.args...)
+		if err != nil {
+			return err
+		}
+
+		types, err := rows.ColumnTypes()
+		if err != nil {
+			return err
+		}
+
+		for rows.Next() {
+			vv := map[string][]byte{}
+			if err = rows.ScanMap(&vv); err != nil {
+				return err
+			} else {
+				vi := map[string]string{}
+
+				for _, o := range types {
+					if colValue, ok := vv[o.Name()]; ok && colValue != nil {
+						vi[o.Name()] = string(colValue)
+					} else {
+						vi[o.Name()] = ""
+					}
+
+				}
+				v = append(v, vi)
+			}
+		}
+		return nil
+	})
+	return
+}
+
 //func (this *Session) Map() (v []map[string]interface{}, err error) {
 //	err = this.AutoClose(func() error {
 //		v, err = this.sess.SQL(this.SelectSql(nil, true), this.args...).QueryInterface()

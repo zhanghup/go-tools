@@ -46,7 +46,9 @@ type ISession interface {
 	String() (string, error)
 	Strings() ([]string, error)
 	Exists() (bool, error)
+
 	Map() ([]map[string]interface{}, error)
+	MapString() (v []map[string]string, err error)
 }
 
 type Session struct {
