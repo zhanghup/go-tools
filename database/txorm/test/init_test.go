@@ -2,6 +2,7 @@ package test_test
 
 import (
 	"context"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/zhanghup/go-tools"
 	"github.com/zhanghup/go-tools/database/txorm"
 	"github.com/zhanghup/go-tools/tog"
@@ -20,8 +21,7 @@ type User struct {
 	Send *int    `json:"send"`
 	Kd   *string `json:"kd"`
 
-	Bool     bool       `json:"bool"`
-	Bool2    *bool      `json:"bool2"`
+	//Bool2    *bool      `json:"bool2"`
 	Byte     byte       `json:"byte"`
 	Byte2    *byte      `json:"byte2"`
 	Bytes    []byte     `json:"bytes"`
@@ -39,9 +39,11 @@ type User struct {
 
 func init() {
 	e, err := txorm.NewXorm(txorm.Config{
-		Uri: "root:Zhang3611.@tcp(192.168.31.150:23306)/test2?charset=utf8",
-		//Uri:    "root:123@tcp(127.0.0.1)/test2?charset=utf8",
+		//Uri: "root:Zhang3611.@tcp(192.168.31.150:23306)/test2?charset=utf8",
+		Uri:    "root:123@tcp(127.0.0.1)/test2?charset=utf8",
 		Driver: "mysql",
+		//Uri:    "./data.db",
+		//Driver: "sqlite3",
 		Debug:  true,
 	})
 	if err != nil {
@@ -82,7 +84,7 @@ func init() {
 		}
 		if i%3 == 0 {
 			u.Int64 = time.Now().Unix()
-			u.Bool = true
+			//u.Bool = true
 			vv := make([]byte, 10, 16)
 			vv[0] = 49
 			vv[1] = 54
