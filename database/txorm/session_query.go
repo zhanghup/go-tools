@@ -94,7 +94,7 @@ func (this *Session) Map() (v []map[string]interface{}, err error) {
 							vi[o.Name()] = colValue
 						case "FLOAT":
 							vi[o.Name()] = tools.StrToFloat32(newValue)
-						case "DOUBLE,REAL":
+						case "DOUBLE", "REAL":
 							vi[o.Name()] = tools.StrToFloat64(newValue)
 						case "BIGINT":
 							vi[o.Name()] = tools.StrToInt64(newValue)
