@@ -2,7 +2,10 @@ package txorm
 
 import (
 	"fmt"
+	"github.com/zhanghup/go-tools"
 	"strings"
+	"time"
+	"xorm.io/xorm/core"
 )
 
 func (this *Session) SelectSql(bean interface{}, orderFlag bool, columns ...string) string {
@@ -51,67 +54,73 @@ func (this *Session) Get(bean interface{}) (v bool, err error) {
 
 func (this *Session) Map() (v []map[string]interface{}, err error) {
 	err = this.AutoClose(func() error {
-		v, err = this.sess.SQL(this.SelectSql(nil, true), this.args...).QueryInterface()
-		return err
-		//rows, err := this.sess.DB().Query()
-		//if err != nil {
-		//	return err
-		//}
-		//
-		//types, err := rows.ColumnTypes()
-		//if err != nil {
-		//	return err
-		//}
-		//
-		//for rows.Next() {
-		//	vv := map[string][]byte{}
-		//	if err = rows.ScanMap(&vv); err != nil {
-		//		return err
-		//	} else {
-		//		vi := map[string]interface{}{}
-		//
-		//		for _, o := range types {
-		//			if colValue, ok := vv[o.Name()]; ok && colValue != nil {
-		//				newValue := string(colValue)
-		//
-		//				switch o.DatabaseTypeName() {
-		//				case "DATETIME":
-		//					if this._db.DriverName() == "sqlite3" {
-		//						vi[o.Name()], err = time.ParseInLocation("2006-01-02T15:04:05Z", newValue, time.Local)
-		//						if err != nil {
-		//							return err
-		//						}
-		//					} else {
-		//						vi[o.Name()], err = time.ParseInLocation("2006-01-02 15:04:05", newValue, time.Local)
-		//						if err != nil {
-		//							return err
-		//						}
-		//					}
-		//
-		//				case "BOOL", "TINYINT":
-		//					vi[o.Name()] = tools.StrToInt8(newValue)
-		//				case "BLOB":
-		//					vi[o.Name()] = colValue
-		//				case "FLOAT":
-		//					vi[o.Name()] = tools.StrToFloat32(newValue)
-		//				case "DOUBLE", "REAL":
-		//					vi[o.Name()] = tools.StrToFloat64(newValue)
-		//				case "BIGINT":
-		//					vi[o.Name()] = tools.StrToInt64(newValue)
-		//				case "INT", "INTEGER":
-		//					vi[o.Name()] = tools.StrToInt(newValue)
-		//				default:
-		//					vi[o.Name()] = string(colValue)
-		//				}
-		//			} else {
-		//				vi[o.Name()] = nil
-		//			}
-		//
-		//		}
-		//		v = append(v, vi)
-		//	}
-		//}
-		//return nil
+		//v, err = this.sess.SQL(this.SelectSql(nil, true), this.args...).QueryInterface()
+		//return err
+		var rows *core.Rows
+		if this.autoClose {
+			rows, err = this.sess.DB().Query(this.SelectSql(nil, true), this.args...)
+		} else {
+			rows, err = this.sess.Tx().Query(this.SelectSql(nil, true), this.args...)
+		}
+
+		if err != nil {
+			return err
+		}
+
+		types, err := rows.ColumnTypes()
+		if err != nil {
+			return err
+		}
+
+		for rows.Next() {
+			vv := map[string][]byte{}
+			if err = rows.ScanMap(&vv); err != nil {
+				return err
+			} else {
+				vi := map[string]interface{}{}
+
+				for _, o := range types {
+					if colValue, ok := vv[o.Name()]; ok && colValue != nil {
+						newValue := string(colValue)
+
+						switch o.DatabaseTypeName() {
+						case "DATETIME":
+							if this._db.DriverName() == "sqlite3" {
+								vi[o.Name()], err = time.ParseInLocation("2006-01-02T15:04:05Z", newValue, time.Local)
+								if err != nil {
+									return err
+								}
+							} else {
+								vi[o.Name()], err = time.ParseInLocation("2006-01-02 15:04:05", newValue, time.Local)
+								if err != nil {
+									return err
+								}
+							}
+
+						case "BOOL", "TINYINT":
+							vi[o.Name()] = tools.StrToInt8(newValue)
+						case "BLOB":
+							vi[o.Name()] = colValue
+						case "FLOAT":
+							vi[o.Name()] = tools.StrToFloat32(newValue)
+						case "DOUBLE", "REAL":
+							vi[o.Name()] = tools.StrToFloat64(newValue)
+						case "BIGINT":
+							vi[o.Name()] = tools.StrToInt64(newValue)
+						case "INT", "INTEGER":
+							vi[o.Name()] = tools.StrToInt(newValue)
+						default:
+							vi[o.Name()] = string(colValue)
+						}
+					} else {
+						vi[o.Name()] = nil
+					}
+
+				}
+				v = append(v, vi)
+			}
+		}
+		return nil
 	})
 	return
 }
