@@ -127,7 +127,13 @@ func (this *Session) Map() (v []map[string]interface{}, err error) {
 
 func (this *Session) MapString() (v []map[string]string, err error) {
 	err = this.AutoClose(func() error {
-		rows, err := this.sess.DB().Query(this.SelectSql(nil, true), this.args...)
+		var rows *core.Rows
+		if this.autoClose {
+			rows, err = this.sess.DB().Query(this.SelectSql(nil, true), this.args...)
+		} else {
+			rows, err = this.sess.Tx().Query(this.SelectSql(nil, true), this.args...)
+		}
+
 		if err != nil {
 			return err
 		}
