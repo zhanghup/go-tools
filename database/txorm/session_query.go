@@ -74,21 +74,19 @@ func (this *Session) Map() (v []map[string]interface{}, err error) {
 					if colValue, ok := vv[o.Name()]; ok && colValue != nil {
 						newValue := string(colValue)
 
-						fmt.Println(o.Name(), o.DatabaseTypeName(), newValue)
 						switch o.DatabaseTypeName() {
 						case "DATETIME":
-							if this._db.DriverName() == "sqlite3"{
+							if this._db.DriverName() == "sqlite3" {
 								vi[o.Name()], err = time.ParseInLocation("2006-01-02T15:04:05Z", newValue, time.Local)
 								if err != nil {
 									return err
 								}
-							}else{
+							} else {
 								vi[o.Name()], err = time.ParseInLocation("2006-01-02 15:04:05", newValue, time.Local)
 								if err != nil {
 									return err
 								}
 							}
-
 
 						case "BOOL", "TINYINT":
 							vi[o.Name()] = tools.StrToInt8(newValue)
@@ -96,7 +94,7 @@ func (this *Session) Map() (v []map[string]interface{}, err error) {
 							vi[o.Name()] = colValue
 						case "FLOAT":
 							vi[o.Name()] = tools.StrToFloat32(newValue)
-						case "DOUBLE":
+						case "DOUBLE,REAL":
 							vi[o.Name()] = tools.StrToFloat64(newValue)
 						case "BIGINT":
 							vi[o.Name()] = tools.StrToInt64(newValue)
