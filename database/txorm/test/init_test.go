@@ -40,11 +40,11 @@ type User struct {
 func init() {
 	e, err := txorm.NewXorm(txorm.Config{
 		//Uri: "root:Zhang3611.@tcp(192.168.31.150:23306)/test2?charset=utf8",
-		//Uri:    "root:123@tcp(127.0.0.1)/test2?charset=utf8",
-		//Driver: "mysql",
-		Uri:    "./data.db",
-		Driver: "sqlite3",
-		Debug:  true,
+		Uri:    "root:123@tcp(127.0.0.1)/test2?charset=utf8",
+		Driver: "mysql",
+		//Uri:    "./data.db",
+		//Driver: "sqlite3",
+		Debug: true,
 	})
 	if err != nil {
 		tog.Error(err.Error())

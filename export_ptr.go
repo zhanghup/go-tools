@@ -16,6 +16,10 @@ func PtrCheck(i interface{}) error {
 	return errors.New("数据类型异常，必须为指针类型")
 }
 
+func Ptr[T any](v T) *T {
+	return &v
+}
+
 func PtrOfUUID() *string {
 	return PtrOfString(UUID())
 }

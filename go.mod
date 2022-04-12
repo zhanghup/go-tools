@@ -1,6 +1,6 @@
 module github.com/zhanghup/go-tools
 
-go 1.17
+go 1.18
 
 require (
 	github.com/99designs/gqlgen v0.14.0
