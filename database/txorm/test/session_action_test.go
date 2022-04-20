@@ -142,7 +142,7 @@ func TestPage(t *testing.T) {
 	})
 	t.Run("Page Size < 0 with select4", func(t *testing.T) {
 		users := make([]User, 0)
-		_, err := engine.Sess().SF(" id = :id", map[string]interface{}{"id": "1"}).Page(1, -1, true, &users)
+		_, err := engine.Sess().SF(" id = :id", map[string]any{"id": "1"}).Page(1, -1, true, &users)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -193,7 +193,7 @@ func TestPage(t *testing.T) {
 	})
 	t.Run("Page Size = 0 with select4", func(t *testing.T) {
 		users := make([]User, 0)
-		n, err := engine.Sess().SF(" id = :id", map[string]interface{}{"id": "1"}).Page(1, 0, true, &users)
+		n, err := engine.Sess().SF(" id = :id", map[string]any{"id": "1"}).Page(1, 0, true, &users)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -254,7 +254,7 @@ func TestPage(t *testing.T) {
 	})
 	t.Run("Page Size > 0 with select4", func(t *testing.T) {
 		users := make([]User, 0)
-		n, err := engine.Sess().SF(" id = :id", map[string]interface{}{"id": "1"}).Page(1, 4, true, &users)
+		n, err := engine.Sess().SF(" id = :id", map[string]any{"id": "1"}).Page(1, 4, true, &users)
 		if err != nil {
 			t.Fatal(err)
 		}

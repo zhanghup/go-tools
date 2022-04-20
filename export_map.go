@@ -1,7 +1,7 @@
 package tools
 
-func MapMerge(m1 map[string]interface{}, m2 map[string]interface{}) map[string]interface{} {
-	result := map[string]interface{}{}
+func MapMerge(m1 map[string]any, m2 map[string]any) map[string]any {
+	result := map[string]any{}
 
 	if m1 != nil {
 		for k, v := range m1 {

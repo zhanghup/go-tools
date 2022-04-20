@@ -2,7 +2,7 @@ package tog
 
 import "github.com/zhanghup/go-tools"
 
-func jsonFormat(o interface{}, flag ...bool) string {
+func jsonFormat(o any, flag ...bool) string {
 	s := tools.JSONString(o, flag...)
 	if len(flag) > 0 && flag[0] {
 		s = "\n" + s
@@ -10,29 +10,29 @@ func jsonFormat(o interface{}, flag ...bool) string {
 	return s
 }
 
-func Info(fmt string, args ...interface{}) {
+func Info(fmt string, args ...any) {
 	Toginfo.Info(fmt, args...)
 }
 
-func InfoAsJson(o interface{}, flag ...bool) {
+func InfoAsJson(o any, flag ...bool) {
 	Toginfo.Info(jsonFormat(o, flag...))
 }
 
-func Error(fmt string, args ...interface{}) {
+func Error(fmt string, args ...any) {
 	Toginfo.Error(fmt, args...)
 	Togerr.Error(fmt, args...)
 }
 
-func ErrorAsJson(o interface{}, flag ...bool) {
+func ErrorAsJson(o any, flag ...bool) {
 	Toginfo.Error(jsonFormat(o, flag...))
 	Togerr.Error(jsonFormat(o, flag...))
 }
 
-func Warn(fmt string, args ...interface{}) {
+func Warn(fmt string, args ...any) {
 	Toginfo.Warn(fmt, args...)
 }
 
-func WarnAsJson(o interface{}, flag ...bool) {
+func WarnAsJson(o any, flag ...bool) {
 	Toginfo.Warn(jsonFormat(o, flag...))
 }
 

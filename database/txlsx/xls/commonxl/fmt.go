@@ -7,22 +7,22 @@ import (
 )
 
 // FmtFunc will format a value according to the designated style.
-type FmtFunc func(*Formatter, interface{}) string
+type FmtFunc func(*Formatter, any) string
 
 func staticFmtFunc(s string) FmtFunc {
-	return func(x *Formatter, v interface{}) string {
+	return func(x *Formatter, v any) string {
 		return s
 	}
 }
 
 func surround(pre string, ff FmtFunc, post string) FmtFunc {
-	return func(x *Formatter, v interface{}) string {
+	return func(x *Formatter, v any) string {
 		return pre + ff(x, v) + post
 	}
 }
 
 func addNegParens(ff FmtFunc) FmtFunc {
-	return func(x *Formatter, v interface{}) string {
+	return func(x *Formatter, v any) string {
 		s1 := ff(x, v)
 		if s1[0] == '-' {
 			return "(" + s1[1:] + ")"
@@ -32,7 +32,7 @@ func addNegParens(ff FmtFunc) FmtFunc {
 }
 
 func addCommas(ff FmtFunc) FmtFunc {
-	return func(x *Formatter, v interface{}) string {
+	return func(x *Formatter, v any) string {
 		s1 := ff(x, v)
 		isNeg := false
 		if s1[0] == '-' {
@@ -54,7 +54,7 @@ func addCommas(ff FmtFunc) FmtFunc {
 	}
 }
 
-func identFunc(x *Formatter, v interface{}) string {
+func identFunc(x *Formatter, v any) string {
 	switch x := v.(type) {
 	case bool:
 		if x {
@@ -85,7 +85,7 @@ func identFunc(x *Formatter, v interface{}) string {
 
 func sprintfFunc(fs string, mul int) FmtFunc {
 	wantInt64 := strings.Contains(fs, "%d")
-	return func(x *Formatter, v interface{}) string {
+	return func(x *Formatter, v any) string {
 		switch val := v.(type) {
 		case int, uint, int64, uint64, int32, uint32, uint16, int16:
 			return fmt.Sprintf(fs, v)
@@ -102,12 +102,12 @@ func sprintfFunc(fs string, mul int) FmtFunc {
 	}
 }
 
-func convertToInt64(v interface{}) (int64, bool) {
+func convertToInt64(v any) (int64, bool) {
 	x, ok := convertToFloat64(v)
 	return int64(x), ok
 }
 
-func convertToFloat64(v interface{}) (float64, bool) {
+func convertToFloat64(v any) (float64, bool) {
 	switch val := v.(type) {
 	case float64:
 		return val, true
@@ -148,7 +148,7 @@ func convertToFloat64(v interface{}) (float64, bool) {
 
 // replaces a zero with a dash
 func zeroDashFunc(ff FmtFunc) FmtFunc {
-	return func(x *Formatter, v interface{}) string {
+	return func(x *Formatter, v any) string {
 		fval, ok := convertToFloat64(v)
 		if !ok {
 			// strings etc returned as-is
@@ -162,7 +162,7 @@ func zeroDashFunc(ff FmtFunc) FmtFunc {
 }
 
 func fracFmtFunc(n int) FmtFunc {
-	return func(x *Formatter, v interface{}) string {
+	return func(x *Formatter, v any) string {
 		f, ok := convertToFloat64(v)
 		if !ok {
 			return "MUST BE numeric TO FORMAT CORRECTLY"
@@ -196,7 +196,7 @@ func switchFmtFunc(pos FmtFunc, others ...FmtFunc) FmtFunc {
 			}
 		}
 	}
-	return func(x *Formatter, v interface{}) string {
+	return func(x *Formatter, v any) string {
 		val, ok := convertToFloat64(v)
 		if !ok {
 			return stringFF(x, v)

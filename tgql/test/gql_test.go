@@ -11,7 +11,7 @@ import (
 func TestName(t *testing.T) {
 
 	c := client.New(handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}})))
-	res := map[string]interface{}{}
+	res := map[string]any{}
 	c.MustPost(`
 	query Todo{
 	todos{

@@ -45,7 +45,7 @@ func (x *Formatter) ConvertToDate(val float64) time.Time {
 }
 
 func timeFmtFunc(f string) FmtFunc {
-	return func(x *Formatter, v interface{}) string {
+	return func(x *Formatter, v any) string {
 		t, ok := v.(time.Time)
 		if !ok {
 			fval, ok := convertToFloat64(v)
@@ -62,7 +62,7 @@ func timeFmtFunc(f string) FmtFunc {
 // same as above but replaces "AM" and "PM" with chinese translations.
 // TODO: implement others
 func cnTimeFmtFunc(f string) FmtFunc {
-	return func(x *Formatter, v interface{}) string {
+	return func(x *Formatter, v any) string {
 		t, ok := v.(time.Time)
 		if !ok {
 			fval, ok := convertToFloat64(v)

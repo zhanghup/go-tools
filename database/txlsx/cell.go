@@ -26,7 +26,7 @@ const (
 	TimeFormat = "2006-01-02 15:04:05"
 )
 
-func (this Cell) Interface() interface{} {
+func (this Cell) Interface() any {
 	switch this.Type {
 	case CellTypeString:
 		return this.PtrString()

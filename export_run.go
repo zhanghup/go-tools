@@ -14,7 +14,7 @@ func RunWithError(fn func() error) error {
 	return fn()
 }
 
-func Run(fn func(), callback ...func(res interface{})) {
+func Run(fn func(), callback ...func(res any)) {
 	defer func() {
 		if r := recover(); r != nil {
 			if len(callback) > 0 {

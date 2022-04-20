@@ -46,7 +46,7 @@ func (s *Sheet) Resize(rows, cols int) {
 }
 
 // Put the value at the cell location given.
-func (s *Sheet) Put(row, col int, value interface{}, fmtNum uint16) {
+func (s *Sheet) Put(row, col int, value any, fmtNum uint16) {
 	//log.Println(row, col, value, fmtNum)
 	if row >= s.NumRows || col >= s.NumCols {
 		// per the spec, this is an invalid Excel file
@@ -71,7 +71,7 @@ func (s *Sheet) Put(row, col int, value interface{}, fmtNum uint16) {
 
 // Set changes the value in an existing cell location.
 // NB Currently only used for populating string results for formulas.
-func (s *Sheet) Set(row, col int, value interface{}) {
+func (s *Sheet) Set(row, col int, value any) {
 	if row > s.NumRows || col > s.NumCols {
 		log.Println("grate: cell out of bounds")
 		return
@@ -147,7 +147,7 @@ func (s *Sheet) Formats() []string {
 // Arguments must be pointers to one of 5 supported types:
 //     bool, int64, float64, string, or time.Time
 // If invalid, returns ErrInvalidScanType
-func (s *Sheet) Scan(args ...interface{}) error {
+func (s *Sheet) Scan(args ...any) error {
 	row := s.Rows[s.CurRow-1]
 
 	for i, a := range args {

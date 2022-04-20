@@ -13,4 +13,3 @@ func (this *Engine) Ts(fn func(sess ISession) error) error {
 	}
 	return ttx.Commit()
 }
-

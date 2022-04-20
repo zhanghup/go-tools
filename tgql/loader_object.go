@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type ObjectFetch func(keys []string) (map[string]interface{}, error)
+type ObjectFetch func(keys []string) (map[string]any, error)
 
 func NewObjectLoader(fetch ObjectFetch) IObject {
 	return &Object{
@@ -18,7 +18,7 @@ func NewObjectLoader(fetch ObjectFetch) IObject {
 }
 
 type IObject interface {
-	Load(key string, ru interface{}) (bool, error)
+	Load(key string, ru any) (bool, error)
 }
 
 // Object 批量缓存请求列表
@@ -40,13 +40,13 @@ func (this *Object) MaxBatch(t int) {
 
 type objectLoaderBatch struct {
 	keys    []string
-	data    map[string]interface{}
+	data    map[string]any
 	error   error
 	closing bool
 	done    chan struct{}
 }
 
-func (l *Object) Load(key string, ru interface{}) (bool, error) {
+func (l *Object) Load(key string, ru any) (bool, error) {
 	res, err := l.LoadThunk(key)()
 	if err != nil {
 		return false, err
@@ -59,7 +59,7 @@ func (l *Object) Load(key string, ru interface{}) (bool, error) {
 	}
 
 	switch res.(type) {
-	case map[string]interface{}, []map[string]interface{}:
+	case map[string]any, []map[string]any:
 		bs, err := json.Marshal(res)
 		if err != nil {
 			return false, err
@@ -80,7 +80,7 @@ func (l *Object) Load(key string, ru interface{}) (bool, error) {
 	}
 }
 
-func (l *Object) LoadThunk(key string) func() (interface{}, error) {
+func (l *Object) LoadThunk(key string) func() (any, error) {
 
 	l.mu.Lock()
 	if l.batch == nil {
@@ -90,7 +90,7 @@ func (l *Object) LoadThunk(key string) func() (interface{}, error) {
 	batch.keyIndex(l, key)
 	l.mu.Unlock()
 
-	return func() (interface{}, error) {
+	return func() (any, error) {
 		<-batch.done
 
 		return batch.data[key], batch.error

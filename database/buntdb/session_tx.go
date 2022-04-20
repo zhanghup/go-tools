@@ -37,7 +37,7 @@ func (this *Session) Set(key, value string, ttl ...time.Duration) (previousValue
 	return this.tx.Set(key, value, opt)
 }
 
-func (this *Session) SetJson(key string, value interface{}, ttl ...time.Duration) (previousValue string, replaced bool, err error) {
+func (this *Session) SetJson(key string, value any, ttl ...time.Duration) (previousValue string, replaced bool, err error) {
 	v := tools.JSONString(value)
 	return this.Set(key, v, ttl...)
 }

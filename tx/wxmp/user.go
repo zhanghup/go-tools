@@ -17,7 +17,7 @@ type ViewCode2Session struct {
 }
 
 func (this *Engine) Code2Session(code string) (*ViewCode2Session, error) {
-	query := map[string]interface{}{
+	query := map[string]any{
 		"appid":     this.opt.Appid,
 		"appsecret": this.opt.Appsecret,
 		"code":      code,
@@ -79,7 +79,7 @@ type ViewUserMobile struct {
 	} `json:"watermark"`
 }
 
-func (this *Engine) UserMobileDecrypt(ssk, encryptedData, iv string) (*ViewUserMobile,error){
+func (this *Engine) UserMobileDecrypt(ssk, encryptedData, iv string) (*ViewUserMobile, error) {
 	resdata, err := this.DecryptUserData(ssk, encryptedData, iv)
 	if err != nil {
 		return nil, this.error(err)

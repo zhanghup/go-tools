@@ -9,7 +9,7 @@ type myrft struct{}
 var Rft = myrft{}
 
 // 去除指针，获取真实的类型
-func (this myrft) RealValue(o interface{}) interface{} {
+func (this myrft) RealValue(o any) any {
 	v := this.realValue(reflect.ValueOf(o))
 	return v.Interface()
 }
@@ -21,7 +21,7 @@ func (this myrft) realValue(o reflect.Value) reflect.Value {
 	return o
 }
 
-func (this myrft) DeepSet(o interface{}, fn func(t reflect.Type, v reflect.Value, tf reflect.StructField) bool) {
+func (this myrft) DeepSet(o any, fn func(t reflect.Type, v reflect.Value, tf reflect.StructField) bool) {
 	ty := reflect.TypeOf(o)
 	vl := reflect.ValueOf(o)
 	if ty.Kind() != reflect.Ptr {
@@ -74,7 +74,7 @@ func (this myrft) deepSet(ty reflect.Type, vl reflect.Value, tf reflect.StructFi
 
 }
 
-func (this myrft) DeepGet(o interface{}, fn func(t reflect.Type, v reflect.Value, tf reflect.StructField) bool) {
+func (this myrft) DeepGet(o any, fn func(t reflect.Type, v reflect.Value, tf reflect.StructField) bool) {
 	ty := reflect.TypeOf(o)
 	vl := reflect.ValueOf(o)
 	if ty.Kind() == reflect.Ptr {

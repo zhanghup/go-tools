@@ -17,8 +17,8 @@ func TestLoader(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		go func(o int) {
 			var res []string
-			lod.LoadObject("2", func(keys []string) (map[string]interface{}, error) {
-				return map[string]interface{}{
+			lod.LoadObject("2", func(keys []string) (map[string]any, error) {
+				return map[string]any{
 					"1": []string{"11111111"},
 					"2": []string{"222222222222"},
 					"3": []string{"333333333"},
@@ -34,7 +34,7 @@ func TestLoader(t *testing.T) {
 }
 
 func TestObject(t *testing.T) {
-	loder := tgql.NewObjectLoader(func(keys []string) (map[string]interface{}, error) {
+	loder := tgql.NewObjectLoader(func(keys []string) (map[string]any, error) {
 		fmt.Println(keys)
 		return nil, nil
 	})
@@ -66,9 +66,9 @@ func TestLoaderXorm(t *testing.T) {
 			oo := Account{}
 			ok, err := lod.LoadXormCtx(nil, make([]Account, 0), `
 				select * from account where id in :keys and corp =  {{ ctx "corp"}}
-				`, func(tempData interface{}) map[string]interface{} {
+				`, func(tempData any) map[string]any {
 				data := tempData.([]Account)
-				result := map[string]interface{}{}
+				result := map[string]any{}
 				for i, o := range data {
 					result[o.Id] = data[i]
 				}

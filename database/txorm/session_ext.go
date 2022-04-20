@@ -60,7 +60,7 @@ func (this *Session) Strings() (v []string, err error) {
 // size < 0 查询所有
 // size = 0 只查询所有数据的量，不查询具体数据
 // count = true 分页查询数据并且查询数据总量
-func (this *Session) Page(index, size int, count bool, bean interface{}) (v int, err error) {
+func (this *Session) Page(index, size int, count bool, bean any) (v int, err error) {
 	err = this.AutoClose(func() error {
 		if size < 0 {
 			err = this.sess.SQL(this.SelectSql(bean, true), this.args...).Find(bean)
@@ -83,7 +83,7 @@ func (this *Session) Page(index, size int, count bool, bean interface{}) (v int,
 	return
 }
 
-func (this *Session) Page2(index, size *int, count *bool, bean interface{}) (int, error) {
+func (this *Session) Page2(index, size *int, count *bool, bean any) (int, error) {
 	if index == nil {
 		index = tools.PtrOfInt(1)
 	}

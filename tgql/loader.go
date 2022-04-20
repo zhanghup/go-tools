@@ -12,12 +12,12 @@ import (
 // NewLoader db可以为nil，只是不能使用LoadXorm与LoadXormSess
 func NewLoader(db *xorm.Engine) ILoader {
 	if db == nil {
-		return &Loader{objectMap: tools.CacheCreate(true)}
+		return &Loader{objectMap: tools.NewCache[IObject](true)}
 	}
 	return &Loader{
 		db:        db,
 		dbs:       txorm.NewEngine(db),
-		objectMap: tools.CacheCreate(true),
+		objectMap: tools.NewCache[IObject](true),
 	}
 }
 
@@ -44,10 +44,10 @@ func NewLoader(db *xorm.Engine) ILoader {
 type ILoaderXorm interface {
 	SetDB(db *xorm.Engine) ILoader
 
-	LoadXormCtx(ctx context.Context, bean interface{}, sqlstr string, fetch LoadXormFetch, param ...interface{}) IObject
+	LoadXormCtx(ctx context.Context, bean any, sqlstr string, fetch LoadXormFetch, param ...any) IObject
 
-	LoadXormCtxObject(ctx context.Context, sqlstr string, field string, param ...interface{}) IObject
-	LoadXormCtxSlice(ctx context.Context, sqlstr string, field string, param ...interface{}) IObject
+	LoadXormCtxObject(ctx context.Context, sqlstr string, field string, param ...any) IObject
+	LoadXormCtxSlice(ctx context.Context, sqlstr string, field string, param ...any) IObject
 }
 
 type ILoader interface {
@@ -63,15 +63,15 @@ type Loader struct {
 	dbs txorm.IEngine
 
 	objectSync sync.Mutex
-	objectMap  tools.ICache
+	objectMap  tools.ICache[IObject]
 }
 
 func (this *Loader) LoadObject(id string, fetch ObjectFetch) IObject {
 	this.objectSync.Lock()
 	defer this.objectSync.Unlock()
 
-	obj := this.objectMap.Get(id)
-	if obj != nil {
+	obj, ok := this.objectMap.Get(id)
+	if ok {
 		return obj.(IObject)
 	}
 

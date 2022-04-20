@@ -212,7 +212,7 @@ func (x *Formatter) Get(fmtID uint16) (FmtFunc, bool) {
 
 // Apply the specified number format to the value.
 // Returns false when fmtID is unknown.
-func (x *Formatter) Apply(fmtID uint16, val interface{}) (string, bool) {
+func (x *Formatter) Apply(fmtID uint16, val any) (string, bool) {
 	ff, ok := goFormatters[fmtID]
 	if !ok {
 		fs, ok2 := x.customCodes[fmtID]

@@ -48,10 +48,10 @@ func NewGin(cfg Config, fn func(g *gin.Engine) error) error {
 }
 
 type ResponseEntity struct {
-	StatusCode int         `json:"-"`
-	Code       int         `json:"code"`
-	Msg        string      `json:"msg"`
-	Response   interface{} `json:"response"`
+	StatusCode int    `json:"-"`
+	Code       int    `json:"code"`
+	Msg        string `json:"msg"`
+	Response   any    `json:"response"`
 }
 
 func (this ResponseEntity) Error() string {
@@ -63,7 +63,7 @@ func (this ResponseEntity) SetStatusCode(code int) ResponseEntity {
 	return this
 }
 
-func NewResponseEntity(code int, msg string, response interface{}) ResponseEntity {
+func NewResponseEntity(code int, msg string, response any) ResponseEntity {
 	return ResponseEntity{
 		StatusCode: 200,
 		Code:       code,
@@ -72,10 +72,10 @@ func NewResponseEntity(code int, msg string, response interface{}) ResponseEntit
 	}
 }
 
-func Do(c *gin.Context, fn func(c *gin.Context) (interface{}, error)) {
+func Do(c *gin.Context, fn func(c *gin.Context) (any, error)) {
 	o, err := fn(c)
 	if err != nil {
-		DoDirective(c, func(c *gin.Context) (interface{}, error) {
+		DoDirective(c, func(c *gin.Context) (any, error) {
 			return o, err
 		})
 	} else {
@@ -83,7 +83,7 @@ func Do(c *gin.Context, fn func(c *gin.Context) (interface{}, error)) {
 	}
 }
 
-func DoDirective(c *gin.Context, fn func(c *gin.Context) (interface{}, error)) {
+func DoDirective(c *gin.Context, fn func(c *gin.Context) (any, error)) {
 	o, err := fn(c)
 	if err != nil {
 		switch err.(type) {

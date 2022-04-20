@@ -157,7 +157,7 @@ func (b *WorkBook) parseSheet(s *boundSheet, ss int) (*commonxl.Sheet, error) {
 				ixfe := int(binary.LittleEndian.Uint16(r.Data[off:]))
 				value := RKNumber(binary.LittleEndian.Uint32(r.Data[off:]))
 
-				var rval interface{}
+				var rval any
 				if value.IsInteger() {
 					rval = value.Int()
 				} else {
@@ -191,7 +191,7 @@ func (b *WorkBook) parseSheet(s *boundSheet, ss int) (*commonxl.Sheet, error) {
 			ixfe := int(binary.LittleEndian.Uint16(r.Data[4:]))
 			value := RKNumber(binary.LittleEndian.Uint32(r.Data[6:]))
 
-			var rval interface{}
+			var rval any
 			if value.IsInteger() {
 				rval = value.Int()
 			} else {

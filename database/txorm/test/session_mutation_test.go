@@ -18,7 +18,7 @@ func TestInsert(t *testing.T) {
 	})
 
 	t.Run("Update", func(t *testing.T) {
-		err := engine.Sess().Table("user").SF("id = ?", "11").Update(map[string]interface{}{
+		err := engine.Sess().Table("user").SF("id = ?", "11").Update(map[string]any{
 			"name": "112",
 		})
 		if err != nil {

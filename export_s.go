@@ -17,12 +17,12 @@ import (
 
 var strfmtregex = regexp.MustCompile("{{.*?}}")
 
-func StrFmt(format string, args ...interface{}) string {
+func StrFmt(format string, args ...any) string {
 	if strfmtregex.MatchString(format) && len(args) > 0 && reflect.TypeOf(args[0]).Kind() == reflect.Map {
 		return StrTmp(format, args...).String()
 	}
 
-	params := make([]interface{}, 0)
+	params := make([]any, 0)
 	for _, p := range args {
 		params = append(params, Rft.RealValue(p))
 	}
@@ -74,7 +74,7 @@ func UUID_() string {
 }
 
 // JSONString 以json格式输出struct对象,format判断时间将json格式化
-func JSONString(obj interface{}, format ...bool) string {
+func JSONString(obj any, format ...bool) string {
 	if obj == nil {
 		return ""
 	}

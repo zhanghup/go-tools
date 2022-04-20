@@ -111,7 +111,7 @@ func (this *Engine) PayPublicKeyRefresh() error {
 	return nil
 }
 
-func (this *Engine) PayHeader(method, path string, param map[string]interface{}) map[string]string {
+func (this *Engine) PayHeader(method, path string, param map[string]any) map[string]string {
 	p := ""
 	if param != nil {
 		p = tools.JSONString(param)
@@ -130,13 +130,13 @@ func (this *Engine) PayHeader(method, path string, param map[string]interface{})
 }
 
 func (this *Engine) Pay(charge *PayOption) (*PayRes, error) {
-	var m = map[string]interface{}{
+	var m = map[string]any{
 		"appid":        this.opt.Appid,
 		"mchid":        this.opt.Mchid,
 		"out_trade_no": charge.OutTradeNo,
 		"description":  charge.Description,
 		"notify_url":   charge.NotifyUrl,
-		"payer": map[string]interface{}{
+		"payer": map[string]any{
 			"openid": charge.Openid,
 		},
 	}
@@ -149,7 +149,7 @@ func (this *Engine) Pay(charge *PayOption) (*PayRes, error) {
 	if charge.GoodsTag != nil {
 		m["goods_tag"] = *charge.GoodsTag
 	}
-	amount := map[string]interface{}{
+	amount := map[string]any{
 		"total": charge.TotalPrice,
 	}
 	if charge.Currency != nil {
@@ -188,7 +188,7 @@ func (this *Engine) Pay(charge *PayOption) (*PayRes, error) {
 }
 
 func (this *Engine) PayCancel(out_trade_no string) error {
-	m := map[string]interface{}{"mchid": this.opt.Mchid}
+	m := map[string]any{"mchid": this.opt.Mchid}
 	path := "/v3/pay/transactions/out-trade-no/" + out_trade_no + "/close"
 	_, err := resty.New().
 		R().
@@ -268,7 +268,7 @@ func (this *Engine) PayDecrypt(data []byte) (*PayCallbackOption, error) {
 }
 
 func (this *Engine) PaySign(method, url, t, nonce_str, body string) string {
-	content := tools.StrFmt("{{.method}}\n{{.url}}\n{{.t}}\n{{.rand}}\n{{.body}}\n", map[string]interface{}{
+	content := tools.StrFmt("{{.method}}\n{{.url}}\n{{.t}}\n{{.rand}}\n{{.body}}\n", map[string]any{
 		"method": method,
 		"url":    url,
 		"t":      t,

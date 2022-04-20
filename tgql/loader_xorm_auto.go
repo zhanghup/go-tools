@@ -14,7 +14,7 @@ func (this *Loader) SqlFormat(sqlstr, field string) string {
 
 		sqlstr = tools.StrTmp(`
 			select {{ .table }}.* from {{ .table }} where {{ .table }}.{{ .field }} in :keys
-		`, map[string]interface{}{
+		`, map[string]any{
 			"table": sqlstr,
 			"field": field,
 		}).String()
@@ -23,10 +23,10 @@ func (this *Loader) SqlFormat(sqlstr, field string) string {
 	return sqlstr
 }
 
-func (this *Loader) LoadXormCtxObject(ctx context.Context, sqlstr string, field string, param ...interface{}) IObject {
-	return this.LoadXormCtx(ctx, []map[string]interface{}{}, this.SqlFormat(sqlstr, field), func(tempData interface{}) map[string]interface{} {
-		data := tempData.([]map[string]interface{})
-		result := map[string]interface{}{}
+func (this *Loader) LoadXormCtxObject(ctx context.Context, sqlstr string, field string, param ...any) IObject {
+	return this.LoadXormCtx(ctx, []map[string]any{}, this.SqlFormat(sqlstr, field), func(tempData any) map[string]any {
+		data := tempData.([]map[string]any)
+		result := map[string]any{}
 		for i, o := range data {
 			key, ok := o[field].(string)
 			if !ok {
@@ -38,11 +38,11 @@ func (this *Loader) LoadXormCtxObject(ctx context.Context, sqlstr string, field 
 	}, param...)
 }
 
-func (this *Loader) LoadXormCtxSlice(ctx context.Context, sqlstr string, field string, param ...interface{}) IObject {
+func (this *Loader) LoadXormCtxSlice(ctx context.Context, sqlstr string, field string, param ...any) IObject {
 
-	return this.LoadXormCtx(ctx, []map[string]interface{}{}, this.SqlFormat(sqlstr, field), func(tempData interface{}) map[string]interface{} {
-		data := tempData.([]map[string]interface{})
-		tmp := map[string][]map[string]interface{}{}
+	return this.LoadXormCtx(ctx, []map[string]any{}, this.SqlFormat(sqlstr, field), func(tempData any) map[string]any {
+		data := tempData.([]map[string]any)
+		tmp := map[string][]map[string]any{}
 		for i, o := range data {
 			key, ok := o[field].(string)
 			if !ok {
@@ -51,7 +51,7 @@ func (this *Loader) LoadXormCtxSlice(ctx context.Context, sqlstr string, field s
 			tmp[key] = append(tmp[key], data[i])
 		}
 
-		result := map[string]interface{}{}
+		result := map[string]any{}
 		for k, v := range tmp {
 			result[k] = v
 		}

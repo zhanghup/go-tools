@@ -8,7 +8,7 @@ import (
 
 func TestTs(t *testing.T) {
 	err := engine.TS(context.Background(), func(ctx context.Context, sess txorm.ISession) error {
-		err := sess.Table("user").SF("id = ?", "1").Update(map[string]interface{}{
+		err := sess.Table("user").SF("id = ?", "1").Update(map[string]any{
 			"id": "111",
 		})
 		if err != nil {
@@ -16,7 +16,7 @@ func TestTs(t *testing.T) {
 		}
 
 		err = engine.TS(ctx, func(ctx context.Context, sess txorm.ISession) error {
-			err := sess.Table("user").SF("id = ?", "1").Update(map[string]interface{}{
+			err := sess.Table("user").SF("id = ?", "1").Update(map[string]any{
 				"id": "111",
 			})
 			if err != nil {
@@ -33,14 +33,14 @@ func TestTs(t *testing.T) {
 }
 
 func TestNewSession(t *testing.T) {
-	err := engine.New().Table("user").SF("id = ?", "1").Update(map[string]interface{}{
+	err := engine.New().Table("user").SF("id = ?", "1").Update(map[string]any{
 		"id": "111",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = engine.Sess().Table("user").SF("id = ?", "1").Update(map[string]interface{}{
+	err = engine.Sess().Table("user").SF("id = ?", "1").Update(map[string]any{
 		"id": "111",
 	})
 	if err != nil {
@@ -48,14 +48,14 @@ func TestNewSession(t *testing.T) {
 	}
 
 	err = engine.TS(context.Background(), func(ctx context.Context, sess txorm.ISession) error {
-		err := sess.Table("user").SF("id = ?", "1").Update(map[string]interface{}{
+		err := sess.Table("user").SF("id = ?", "1").Update(map[string]any{
 			"id": "111",
 		})
 		if err != nil {
 			return err
 		}
 
-		err = engine.Sess(ctx).Table("user").SF("id = ?", "1").Update(map[string]interface{}{
+		err = engine.Sess(ctx).Table("user").SF("id = ?", "1").Update(map[string]any{
 			"id": "111",
 		})
 		if err != nil {

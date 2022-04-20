@@ -34,7 +34,6 @@ func TestSign(t *testing.T) {
 	}
 }
 
-
 func TestDecrypt(t *testing.T) {
 	str := `
 		{
@@ -55,7 +54,7 @@ func TestDecrypt(t *testing.T) {
 	fmt.Println(engine.PayDecrypt([]byte(str)))
 }
 
-func CertificateDecryption(apiv3key string) (interface{}, error) {
+func CertificateDecryption(apiv3key string) (any, error) {
 	ciphertext := `tMq/ExWoIzLQMSIlKyzPCDVJULm4RInSR2SPxeXIG/kGHPnI8GgRrRObnA6kh4WzLFmAPDWALaAs5sYLDUGuZEgdJfZQ1aLR2S7TwjZ40xFUZFQH7fOn0vlHh5u3l7KxElrkHoINP5INphD8d/tSeSb8aRgkz0H3bT54eTE2ZUE+BLbO7H9TAvACW8MJW8yd9GsmRSZUkeJMIG1kAmbBPW75DdbBoBk+fJ94Al97Zn6zvri6Zc9mndkuAw/JIXn17Zo0dJNNV+J/bBtSr/9LFJ1dDCJpIcNmKQh5J1qkyKrAsOIA1s6ZmNbSXF9AsPBTfJ9C9EWUgiMkcV6CBoVLrUd2zUSqqH9Hp2kBhQ0gH4h0L3iAwUU4VX+4LO1WaQ3KxWtoxHs4huw6KDNTdL9PBGNVSmv2gVQEqkAx97tDIuNTaJPLVYNpm+eDrCs0CJqsWyhBsEJhNHFXXRNi/0szkmsf0b+NQKcG3VKzwpVZ7gdVgAPDtnvNamwtKe3RNH9shxB5wjTARY+JeFjPsqBMGBcHoYHRI4YVrbv0fH8nxm4fFRjw8yS1BuZ1fqlHV8QNts8++jRdoVeaOOSZTE4LuBDxIda1YQmsI6uiGM95IpAGcqDIvdcKG7udd5uimR7+W1DHyHHwwDFOYcabnRfhwlO3s6dgv4VBV73SJnUtMrAfGk8yUAQ/gHl9Bb94I1VicUkby4xK4ZBis8CIO7KYzPCl50Js222XFV8Lc6s+wVMnC2goINsv+rmvNs0ho8Egbn4ruV3Qpc3TcoHMUwa9a0dc+UxAQoyJ9ym3yIojByRdOEdnxxRKFp/axv54aelgkKqEwlHGT+KU+Huu21Id//Pmodg9DD080j9Xz8V3pHRz8Md5i3u0c3BzK2n4gVFX7omtHdM+hy54GfOusdr63xXO5TSq53Imh7zA8kse8QXX3l5NE8AuyS4Cq0iTrRUNhVD9B4ibON8Q7M7lUusGGTuDJzKb4T8NAwYTYkym7GY/mYRnacTMVjrDLgL0EXoc1K1KusbP4T+UIfS7jwVu3I/28kqWsLvTNnsjyyHHQgJFMFBtJLdl89VSQrnCOLYg4ZKqdBl4sp6v9FxfnHS1OTGljiuFRJRIns2Khji5SIIHeSaxILDykPsR/lD2rt5fWHGZ41DAGcZ3pqHGSGpnxTOr1vtx2mVNqd4NvQKyeDFVGgzcNklwm5RqjFR3agtIDdO3neCARQXgn7ftWRKw1BSfQLPFfc4Br7MMpAhSQf2zri5LVPQcyhZwHd1P76r5kPQZEh6s0N6d2vufg8mG34eCXUb/9HCt7uh/n3JAb1asvc0krhmalC1L7bDKgUwx3Qulj4rXnWHERGzsd/QlSxJaVmk9h8ZVuwMEBi8LFl+TJZc5oFmt0pleNkLPi8O1SnDVzflQOwKIlLZ+Zk8Mp22tG/tNO37CSRJzaT6CiI98cYo9ZIZr0vW4qOirE4qmi8kLrFjN/oDEEDBZ0H9pYW4OjXk5QgFufyiIUGlQ/nDrIuVxpSTaVJnFFDyroXtyjWwKK0vvlsPzNxkNnHjupUUQmrjfg+pKFlTHQsEXGPNssmvtqk+oElpP+3MVAViR7DG/6DHm2ByVwDD7HsESRQhtz2J43hXITUih/q3MCDnRx32wu/ChTGTjIZx6ZIskAkmS5fkILtkC7xIe/e70ohTQPFPkA0qCCg37kkxrZr2jg58hW5UxICdUSS3GcUvmy6I2ErxUAvTnVtmLhiA1CZpAHKJM0n3+7yk16MY9L36eILF8+3RVwtAmYFaIUN0EDWfZ7x6IK6+JBDpE4ojPLVzn4iaSo5Du+0N7PvIeC7QbyeHi+cw5m1KLD3Qzk97qib5uOX4Uwli4bhFbStCLHxXAwPHizg==`
 	nonce := "a3e65f1b5ca1"
 	associated_data := "certificate"
@@ -85,5 +84,5 @@ func CertificateDecryption(apiv3key string) (interface{}, error) {
 		return nil, err
 	}
 	fmt.Println(string(plaintext))
-	return nil,nil
+	return nil, nil
 }

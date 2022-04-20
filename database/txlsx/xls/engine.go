@@ -44,7 +44,7 @@ type Collection interface {
 	// Arguments must be pointers to one of 5 supported types:
 	//     bool, int64, float64, string, or time.Time
 	// If invalid, returns ErrInvalidScanType
-	Scan(args ...interface{}) error
+	Scan(args ...any) error
 
 	// IsEmpty returns true if there are no data values.
 	IsEmpty() bool

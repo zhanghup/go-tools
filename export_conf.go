@@ -10,7 +10,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func ConfOfByte(dataByte []byte, data interface{}) error {
+func ConfOfByte(dataByte []byte, data any) error {
 	exception := func(s string, err error) error {
 		return errors.New(StrFmt(`config.yml - %s - err: %s`, s, err.Error()))
 	}

@@ -46,14 +46,14 @@ func (c CellType) String() string {
 }
 
 // Cell represents a single cell value.
-type Cell []interface{}
+type Cell []any
 
 // internally, it is a slice sized 2 or 3
 //   [Value, CellType] or [Value, CellType, FormatNumber]
 // where FormatNumber is a uint16 if not 0
 
 // Value returns the contents as a generic interface{}.
-func (c Cell) Value() interface{} {
+func (c Cell) Value() any {
 	if len(c) == 0 {
 		return ""
 	}
@@ -105,7 +105,7 @@ var boolStrings = map[string]bool{
 }
 
 // NewCellWithType creates a new cell value with the given type, coercing as necessary.
-func NewCellWithType(value interface{}, t CellType, f *Formatter) Cell {
+func NewCellWithType(value any, t CellType, f *Formatter) Cell {
 	c := NewCell(value)
 	if c[1] == t {
 		// fast path if it was already typed correctly
@@ -185,8 +185,8 @@ func NewCellWithType(value interface{}, t CellType, f *Formatter) Cell {
 }
 
 // NewCell creates a new cell value from any builtin type.
-func NewCell(value interface{}) Cell {
-	c := make([]interface{}, 2)
+func NewCell(value any) Cell {
+	c := make([]any, 2)
 	switch v := value.(type) {
 	case bool:
 		c[0] = v

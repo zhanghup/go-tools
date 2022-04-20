@@ -24,7 +24,6 @@ func TestBuntdb(t *testing.T) {
 		panic(err)
 	}
 
-
 	err = e.Ts(func(sess ISession) error {
 		e.Get("123")
 

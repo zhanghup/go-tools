@@ -12,10 +12,10 @@ import (
 
 type IQuery interface {
 	Get(string, ...bool) (string, error)
-	GetJson(string, interface{}, ...bool) error
+	GetJson(string, any, ...bool) error
 
 	List(string, ListParam, func(string, string) bool) error
-	ListJson(string, ListJsonParam, interface{}) error
+	ListJson(string, ListJsonParam, any) error
 }
 
 type Query struct {
@@ -49,7 +49,7 @@ func (this *Query) Tx() (*buntdb.Tx, func(), error) {
 
 }
 
-func (this *Query) PageJson(index, size int, result interface{}) func(key, value string) (bool, error) {
+func (this *Query) PageJson(index, size int, result any) func(key, value string) (bool, error) {
 	start := (index - 1) * size
 	end := index * size
 
@@ -84,7 +84,7 @@ func (this *Query) PageJson(index, size int, result interface{}) func(key, value
 	}
 }
 
-func (this *Query) JsonCheck(result interface{}) error {
+func (this *Query) JsonCheck(result any) error {
 	ty := reflect.TypeOf(result)
 	if ty.Kind() != reflect.Ptr {
 		return errors.New("result必须位指针值")
@@ -186,7 +186,7 @@ type ListJsonParam struct {
 /*
 	ListJson JSON列表查询，index 可以为空字符串
 */
-func (this *Query) ListJson(index string, query ListJsonParam, result interface{}) (err error) {
+func (this *Query) ListJson(index string, query ListJsonParam, result any) (err error) {
 	if err = this.JsonCheck(result); err != nil {
 		return err
 	}
@@ -239,7 +239,7 @@ func (this *Query) Get(key string, ignoreExpired ...bool) (val string, err error
 	return
 }
 
-func (this *Query) GetJson(key string, result interface{}, ignoreExpired ...bool) error {
+func (this *Query) GetJson(key string, result any, ignoreExpired ...bool) error {
 	val, err := this.Get(key, ignoreExpired...)
 	if err != nil {
 		return err

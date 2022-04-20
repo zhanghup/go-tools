@@ -351,7 +351,7 @@ func (b *WorkBook) loadFromStream2(raw []byte, isDecrypted bool) error {
 }
 
 var recPool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		return &rec{}
 	},
 }

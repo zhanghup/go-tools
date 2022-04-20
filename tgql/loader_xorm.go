@@ -10,7 +10,7 @@ import (
 	"xorm.io/xorm"
 )
 
-type LoadXormFetch func(tempData interface{}) map[string]interface{}
+type LoadXormFetch func(tempData any) map[string]any
 
 func (this *Loader) SetDB(db *xorm.Engine) ILoader {
 	this.db = db
@@ -20,7 +20,7 @@ func (this *Loader) SetDB(db *xorm.Engine) ILoader {
 }
 
 // LoadXormCtx 为了方便数据唯一，sqlstr可以给一个前缀, 例如 prefix_xxx select * from user => select * from user
-func (this *Loader) LoadXormCtx(ctx context.Context, bean interface{}, sqlstr string, fetch LoadXormFetch, param ...interface{}) IObject {
+func (this *Loader) LoadXormCtx(ctx context.Context, bean any, sqlstr string, fetch LoadXormFetch, param ...any) IObject {
 	info := tools.RftTypeInfo(bean)
 	sess := this.dbs.Sess(ctx)
 	if sess.IsNew() {
@@ -34,15 +34,15 @@ func (this *Loader) LoadXormCtx(ctx context.Context, bean interface{}, sqlstr st
 	key = tools.MD5([]byte(key))
 	re := regexp.MustCompile(`^prefix_\S+\s+`)
 
-	return this.LoadObject(key, func(keys []string) (map[string]interface{}, error) {
+	return this.LoadObject(key, func(keys []string) (map[string]any, error) {
 
 		sqlstr = re.ReplaceAllString(sqlstr, "")
 
-		s := sess.SF(sqlstr, append(param, map[string]interface{}{"keys": keys})...)
+		s := sess.SF(sqlstr, append(param, map[string]any{"keys": keys})...)
 
 		switch bean.(type) {
 
-		case []map[string]interface{}:
+		case []map[string]any:
 			maps, err := s.Map()
 			if err != nil {
 				return nil, err

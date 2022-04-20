@@ -2,7 +2,7 @@ package txorm
 
 import "context"
 
-func (this *Engine) TemplateFunc(name string, f interface{}) {
+func (this *Engine) TemplateFunc(name string, f any) {
 	this.tmpsync.Lock()
 	this.tmps[name] = f
 	this.tmpsync.Unlock()

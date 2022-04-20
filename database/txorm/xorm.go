@@ -17,9 +17,9 @@ type Config struct {
 
 type Engine struct {
 	DB         *xorm.Engine
-	tmps       map[string]interface{}
-	tmpWiths   map[string]interface{}
-	tmpCtxs    map[string]interface{}
+	tmps       map[string]any
+	tmpWiths   map[string]any
+	tmpCtxs    map[string]any
 	tmpsync    sync.RWMutex
 	sqliteSync sync.Mutex
 
@@ -44,7 +44,7 @@ func NewXorm(cfg Config) (*xorm.Engine, error) {
 type IEngine interface {
 	TemplateFuncWith(name string, fn func(ctx context.Context) string) // sql_with_{{name}}
 	TemplateFuncCtx(name string, fn func(ctx context.Context) string)  // ctx_{{name}}
-	TemplateFunc(name string, f interface{})                           // template func
+	TemplateFunc(name string, f any)                                   // template func
 	TemplateFuncKeys() []string
 
 	New(ctx ...context.Context) ISession
@@ -54,8 +54,8 @@ type IEngine interface {
 	//Tables() []Table
 	//Table(name string) Table
 	//TableColumnExist(table, column string) bool
-	DropTables(beans ...interface{}) error
-	Sync(beans ...interface{}) error
+	DropTables(beans ...any) error
+	Sync(beans ...any) error
 }
 
 // 单例
@@ -68,17 +68,17 @@ func NewEngine(db *xorm.Engine, flag ...bool) IEngine {
 	if len(flag) > 0 && flag[0] {
 		return &Engine{
 			DB:       db,
-			tmps:     map[string]interface{}{},
-			tmpCtxs:  map[string]interface{}{},
-			tmpWiths: map[string]interface{}{},
+			tmps:     map[string]any{},
+			tmpCtxs:  map[string]any{},
+			tmpWiths: map[string]any{},
 		}
 	}
 
 	newengine = &Engine{
 		DB:       db,
-		tmps:     map[string]interface{}{},
-		tmpCtxs:  map[string]interface{}{},
-		tmpWiths: map[string]interface{}{},
+		tmps:     map[string]any{},
+		tmpCtxs:  map[string]any{},
+		tmpWiths: map[string]any{},
 	}
 	return newengine
 }
@@ -92,7 +92,7 @@ func (this *Engine) Sess(ctx ...context.Context) ISession {
 	return this.session(true, false, ctx...)
 }
 
-func (this *Engine) Sync(beans ...interface{}) error {
+func (this *Engine) Sync(beans ...any) error {
 	return this.DB.Sync2(beans...)
 }
 

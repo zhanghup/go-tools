@@ -34,7 +34,7 @@ type Logger struct {
 
 type Field struct {
 	Name  string
-	Value interface{}
+	Value any
 }
 
 func (this *Logger) Enable(flag bool) ILogger {
@@ -42,28 +42,28 @@ func (this *Logger) Enable(flag bool) ILogger {
 	return this
 }
 
-func (this *Logger) fmt(f string, args ...interface{}) string {
+func (this *Logger) fmt(f string, args ...any) string {
 	if len(args) == 0 {
 		return f + "\n"
 	}
-	return fmt.Sprintf(f + "\n", args...)
+	return fmt.Sprintf(f+"\n", args...)
 }
 
-func (this *Logger) Info(f string, args ...interface{}) {
+func (this *Logger) Info(f string, args ...any) {
 	if !this.enable {
 		return
 	}
 	this.log.Info(this.fmt(f, args...))
 }
 
-func (this *Logger) Error(f string, args ...interface{}) {
+func (this *Logger) Error(f string, args ...any) {
 	if !this.enable {
 		return
 	}
 	this.log.Error(this.fmt(f, args...))
 }
 
-func (this *Logger) Warn(f string, args ...interface{}) {
+func (this *Logger) Warn(f string, args ...any) {
 	if !this.enable {
 		return
 	}

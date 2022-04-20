@@ -11,10 +11,10 @@ type myStringTemplate struct {
 	tpl   *template.Template
 	str   string
 	fns   template.FuncMap
-	param interface{}
+	param any
 }
 
-func StrTmp(str string, param ...interface{}) myStringTemplate {
+func StrTmp(str string, param ...any) myStringTemplate {
 	tt := template.New(UUID())
 	fmap := template.FuncMap{
 		"title": strings.Title,
@@ -31,7 +31,7 @@ func StrTmp(str string, param ...interface{}) myStringTemplate {
 	return result
 }
 
-func (this myStringTemplate) FuncMap(param map[string]interface{}) myStringTemplate {
+func (this myStringTemplate) FuncMap(param map[string]any) myStringTemplate {
 	if param == nil {
 		return this
 	}

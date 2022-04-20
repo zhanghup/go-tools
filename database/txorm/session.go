@@ -12,13 +12,13 @@ type ISession interface {
 	IsNew() bool
 	Ctx() context.Context
 
-	Table(bean interface{}) ISession
-	Find(bean interface{}) error
-	Get(bean interface{}) (bool, error)
+	Table(bean any) ISession
+	Find(bean any) error
+	Get(bean any) (bool, error)
 
-	Insert(bean ...interface{}) error
-	Update(bean interface{}, condiBean ...interface{}) error
-	Delete(bean ...interface{}) error
+	Insert(bean ...any) error
+	Update(bean any, condiBean ...any) error
+	Delete(bean ...any) error
 	Exec() error
 	/*
 		示例1：
@@ -34,11 +34,11 @@ type ISession interface {
 			>>> select user.* from user where a = ?
 
 	*/
-	SF(sql string, querys ...interface{}) ISession
+	SF(sql string, querys ...any) ISession
 	Order(order ...string) ISession
 
-	Page(index, size int, count bool, bean interface{}) (int, error)
-	Page2(index, size *int, count *bool, bean interface{}) (int, error)
+	Page(index, size int, count bool, bean any) (int, error)
+	Page2(index, size *int, count *bool, bean any) (int, error)
 	Count() (int64, error)
 	Int() (int, error)
 	Int64() (int64, error)
@@ -47,7 +47,7 @@ type ISession interface {
 	Strings() ([]string, error)
 	Exists() (bool, error)
 
-	Map() ([]map[string]interface{}, error)
+	Map() ([]map[string]any, error)
 	MapString() (v []map[string]string, err error)
 }
 
@@ -63,14 +63,14 @@ type Session struct {
 
 	tableName string
 	sql       string
-	query     map[string]interface{}
-	args      []interface{}
+	query     map[string]any
+	args      []any
 
 	autoClose bool
 
-	tmps     map[string]interface{}
-	tmpWiths map[string]interface{}
-	tmpCtxs  map[string]interface{}
+	tmps     map[string]any
+	tmpWiths map[string]any
+	tmpCtxs  map[string]any
 
 	withs   []string
 	orderby []string
@@ -115,7 +115,7 @@ func (this *Session) SetId(id string) {
 	this.id = id
 }
 
-func (this *Session) Table(bean interface{}) ISession {
+func (this *Session) Table(bean any) ISession {
 	if this.tableName != "" {
 		return this
 	}

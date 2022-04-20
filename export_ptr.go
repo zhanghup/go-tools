@@ -9,7 +9,7 @@ import (
 	"reflect"
 )
 
-func PtrCheck(i interface{}) error {
+func PtrCheck(i any) error {
 	if reflect.TypeOf(i).Kind() == reflect.Ptr {
 		return nil
 	}
@@ -47,7 +47,7 @@ func PtrOfFloat32(i float32) *float32 {
 func PtrOfFloat64(i float64) *float64 {
 	return &i
 }
-func PtrOfInterface(i interface{}) *interface{} {
+func PtrOfInterface(i any) *any {
 	return &i
 }
 

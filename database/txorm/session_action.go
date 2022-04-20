@@ -13,14 +13,14 @@ func (this *Session) Order(order ...string) ISession {
 	return this
 }
 
-func (this *Session) SF(sql string, querys ...interface{}) ISession {
+func (this *Session) SF(sql string, querys ...any) ISession {
 	sql = strings.TrimSpace(sql)
 
 	// 重置排序功能
 	this.orderby = []string{}
 
 	// sql模板参数格式化
-	query := map[string]interface{}{}
+	query := map[string]any{}
 	for i := range querys {
 		ty := reflect.TypeOf(querys[i])
 		if ty.Kind() == reflect.Map {
@@ -39,7 +39,7 @@ func (this *Session) SF(sql string, querys ...interface{}) ISession {
 
 	// sql模板格式化
 	this.withs = make([]string, 0)
-	m1 := map[string]interface{}{
+	m1 := map[string]any{
 		"tmp": func(name string) string {
 			this.withs = append(this.withs, name)
 			return fmt.Sprintf("__sql_with_%s", name)
@@ -51,11 +51,11 @@ func (this *Session) SF(sql string, querys ...interface{}) ISession {
 	// tmp模板
 	sql = tools.StrTmp(sql, query).FuncMap(tools.MapMerge(m1, this.tmps)).String()
 	// context 模板
-	this.sql = tools.StrTmp(sql, map[string]interface{}{
+	this.sql = tools.StrTmp(sql, map[string]any{
 		"ctx": this.context,
 	}).FuncMap(this.tmpCtxs).String()
 
-	this.args = make([]interface{}, 0)
+	this.args = make([]any, 0)
 	this.sf_args()
 	return this
 }
@@ -86,7 +86,7 @@ func (this *Session) sf_args_item(key string, value reflect.Value) ISession {
 		}
 	case reflect.Array, reflect.Slice:
 		ps := []string{}
-		args := []interface{}{}
+		args := []any{}
 		for i := 0; i < value.Len(); i++ {
 			v := value.Index(i)
 			ps = append(ps, "?")
@@ -145,12 +145,12 @@ func (this *Session) _sql_with() string {
 			wmap[w] = true
 		}
 		for k := range wmap {
-			kk := tools.StrTmp(fmt.Sprintf("{{ tmp_%s .ctx }}", k), map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmpWiths).String()
+			kk := tools.StrTmp(fmt.Sprintf("{{ tmp_%s .ctx }}", k), map[string]any{"ctx": this.Ctx()}).FuncMap(this.tmpWiths).String()
 			withs = append(withs, fmt.Sprintf("__sql_with_%s as (%s)", k, kk))
 		}
 
 		sqlwith = with_header + strings.Join(withs, ",")
-		sqlwith = tools.StrTmp(sqlwith, map[string]interface{}{"ctx": this.Ctx()}).FuncMap(this.tmpWiths).String()
+		sqlwith = tools.StrTmp(sqlwith, map[string]any{"ctx": this.Ctx()}).FuncMap(this.tmpWiths).String()
 	}
 	return sqlwith
 }

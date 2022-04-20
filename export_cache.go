@@ -5,106 +5,100 @@ import (
 	"time"
 )
 
-type ICache interface {
-	Get(key string) interface{}
-	Set(key string, obj interface{}, timeout ...int64)
+type ICache[T any] interface {
+	Get(key string) (T, bool)
+	Set(key string, obj T, timeout ...int64)
 	Delete(key string)
 	Exist(key string) bool
 	Clear()
 }
 
-type cache struct {
-	data sync.Map
+type cache[T any] struct {
+	data map[string]cacheItem[T]
+	rw   sync.RWMutex
+	once sync.Once
 }
 
-// CacheCreate 创建缓存对象
-// flag: 是否自动清理内存中的过期数据
-func CacheCreate(flag ...bool) ICache {
-	c := &cache{data: sync.Map{}}
+type cacheItem[T any] struct {
+	timeout int64
+	data    T
+}
 
+func NewCache[T any](flag ...bool) ICache[T] {
+	c := &cache[T]{data: map[string]cacheItem[T]{}}
 	if len(flag) > 0 && flag[0] {
-		go func() {
-			t := time.NewTicker(time.Second * 10)
-			for {
-				select {
-				case <-t.C:
-					keys := make([]interface{}, 0)
-					c.data.Range(func(key, value interface{}) bool {
-						dat2, ok := value.(cacheItem)
-						if !ok {
-							return true
-						}
-						if dat2.timeout != 0 && dat2.timeout <= time.Now().Unix() {
-							keys = append(keys, key)
-						}
-						return true
-					})
-					for _, o := range keys {
-						c.data.Delete(o)
-					}
-				}
-			}
-		}()
+		c.onclear()
 	}
-
 	return c
 }
 
-type cacheItem struct {
-	timeout int64
-	data    interface{}
-}
-
-func (this *cache) Exist(key string) bool {
-	data, ok := this.data.Load(key)
-	if !ok {
-		return false
-	}
-	dat2, ok := data.(cacheItem)
-	if !ok {
-		return false
-	}
-	if dat2.timeout == 0 || dat2.timeout > time.Now().Unix() {
-		return true
-	} else {
-		this.data.Delete(key)
-		return false
-	}
-}
-
-func (this *cache) Get(key string) interface{} {
-	data, ok := this.data.Load(key)
-	if !ok {
-		return nil
-	}
-	dat2, ok := data.(cacheItem)
-	if !ok {
-		return nil
-	}
-	if dat2.timeout == 0 || dat2.timeout > time.Now().Unix() {
-		return dat2.data
-	} else {
-		this.data.Delete(key)
-		return nil
-	}
-
-}
-
-func (this *cache) Set(key string, obj interface{}, timeout ...int64) {
-	t := int64(0)
-	if len(timeout) > 0 {
-		t = timeout[0]
-	}
-	this.data.Store(key, cacheItem{t, obj})
-}
-
-func (this *cache) Delete(key string) {
-	this.data.Delete(key)
-}
-
-func (this *cache) Clear() {
-	this.data.Range(func(key, value interface{}) bool {
-		this.data.Delete(key)
-		return true
+func (this *cache[T]) onclear() {
+	go this.once.Do(func() {
+		t := time.NewTicker(time.Minute * 10) // 10分钟清理一次
+		for {
+			select {
+			case <-t.C:
+				Run(this.Clear)
+			}
+		}
 	})
+}
+
+func (this *cache[T]) Exist(key string) bool {
+	_, ok := this.Get(key)
+	return ok
+}
+
+func (this *cache[T]) Get(key string) (T, bool) {
+	this.rw.RLock()
+	defer this.rw.RUnlock()
+
+	o, ok := this.data[key]
+	if !ok {
+		return o.data, false
+	}
+	if o.timeout == 0 {
+		return o.data, true
+	}
+	if o.timeout > time.Now().Unix() {
+		return o.data, true
+	}
+	return o.data, false
+}
+
+// Set timeout 具体时间戳
+func (this *cache[T]) Set(key string, obj T, timeout ...int64) {
+	this.rw.Lock()
+	defer this.rw.Unlock()
+
+	if len(timeout) > 0 {
+		this.data[key] = cacheItem[T]{
+			timeout: timeout[0],
+			data:    obj,
+		}
+	}
+}
+
+func (this *cache[T]) Delete(key string) {
+	this.rw.Lock()
+	defer this.rw.Unlock()
+
+	delete(this.data, key)
+}
+
+func (this *cache[T]) Clear() {
+	this.rw.Lock()
+	defer this.rw.Unlock()
+
+	now := time.Now().Unix()
+	keys := make([]string, 0)
+
+	for k, v := range this.data {
+		if v.timeout < now {
+			keys = append(keys, k)
+		}
+	}
+	for _, k := range keys {
+		delete(this.data, k)
+	}
 }

@@ -9,7 +9,7 @@ import (
 )
 
 func TestRftInterfaceInfo(t *testing.T) {
-	info := map[string]interface{}{
+	info := map[string]any{
 		"name": xorm.Engine{},
 		"kind": "1",
 		"sss":  nil,
@@ -20,7 +20,7 @@ func TestRftInterfaceInfo(t *testing.T) {
 		}{Name: "aaaa"},
 	}
 
-	tools.RftInterfaceInfo(info, func(field string, value interface{}, tag reflect.StructTag) bool {
+	tools.RftInterfaceInfo(info, func(field string, value any, tag reflect.StructTag) bool {
 		fmt.Println(field, value)
 		return true
 	})

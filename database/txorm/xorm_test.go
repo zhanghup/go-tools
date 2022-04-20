@@ -22,7 +22,7 @@ func TestSessionContextTemplate(t *testing.T) {
 	and u.corp = {{ ctx "corp" }}
 	{{ if .ty }} and u.corp = {{ ctx "corp" }} {{ end }}
 	{{ if .t }} and u.corp = ? {{ end }}
-	`, map[string]interface{}{
+	`, map[string]any{
 		"ty": true,
 		"t":  true,
 	}, "ceaaeb6d-9f47-4ecb-ab4b-3247091229b7").Exec()

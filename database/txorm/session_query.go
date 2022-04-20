@@ -8,7 +8,7 @@ import (
 	"xorm.io/xorm/core"
 )
 
-func (this *Session) SelectSql(bean interface{}, orderFlag bool, columns ...string) string {
+func (this *Session) SelectSql(bean any, orderFlag bool, columns ...string) string {
 	this.Table(bean)
 	sqlstr := strings.TrimSpace(this._sql(orderFlag))
 	if strings.Index(sqlstr, "select") == 0 || strings.Index(sqlstr, "SELECT") == 0 {
@@ -38,13 +38,13 @@ func (this *Session) SelectSql(bean interface{}, orderFlag bool, columns ...stri
 
 }
 
-func (this *Session) Find(bean interface{}) error {
+func (this *Session) Find(bean any) error {
 	return this.AutoClose(func() error {
 		return this.sess.SQL(this.SelectSql(bean, true), this.args...).Find(bean)
 	})
 }
 
-func (this *Session) Get(bean interface{}) (v bool, err error) {
+func (this *Session) Get(bean any) (v bool, err error) {
 	err = this.AutoClose(func() error {
 		v, err = this.sess.SQL(this.SelectSql(bean, true)+" limit 1", this.args...).Get(bean)
 		return err
@@ -52,7 +52,7 @@ func (this *Session) Get(bean interface{}) (v bool, err error) {
 	return
 }
 
-func (this *Session) Map() (v []map[string]interface{}, err error) {
+func (this *Session) Map() (v []map[string]any, err error) {
 	err = this.AutoClose(func() error {
 		//v, err = this.sess.SQL(this.SelectSql(nil, true), this.args...).QueryInterface()
 		//return err
@@ -77,7 +77,7 @@ func (this *Session) Map() (v []map[string]interface{}, err error) {
 			if err = rows.ScanMap(&vv); err != nil {
 				return err
 			} else {
-				vi := map[string]interface{}{}
+				vi := map[string]any{}
 
 				for _, o := range types {
 					if colValue, ok := vv[o.Name()]; ok && colValue != nil {

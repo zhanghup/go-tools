@@ -25,7 +25,7 @@ type RftTypeInfoView struct {
 }
 
 // RftTypeInfo 反射出对象的属性
-func RftTypeInfo(obj interface{}) RftTypeInfoView {
+func RftTypeInfo(obj any) RftTypeInfoView {
 	if obj == nil {
 		return RftTypeInfoView{}
 	}
@@ -53,7 +53,7 @@ func RftTypeInfo(obj interface{}) RftTypeInfoView {
 }
 
 // RftInterfaceInfo 反射出一个对象的所有属性和值
-func RftInterfaceInfo(obj interface{}, fn func(field string, value interface{}, tag reflect.StructTag) bool) {
+func RftInterfaceInfo(obj any, fn func(field string, value any, tag reflect.StructTag) bool) {
 	ty := reflect.TypeOf(obj)
 	vl := reflect.ValueOf(obj)
 	if ty.Kind() == reflect.Ptr {
@@ -65,7 +65,7 @@ func RftInterfaceInfo(obj interface{}, fn func(field string, value interface{}, 
 }
 
 // rftInterfaceInfo 反射具体属性并且回调
-func rftInterfaceInfo(ty reflect.Type, vl reflect.Value, tag reflect.StructTag, fn func(field string, value interface{}, tag reflect.StructTag) bool) {
+func rftInterfaceInfo(ty reflect.Type, vl reflect.Value, tag reflect.StructTag, fn func(field string, value any, tag reflect.StructTag) bool) {
 
 	switch ty.Kind() {
 	case reflect.Ptr:
@@ -128,7 +128,7 @@ func RftIsNil(v reflect.Value) bool {
 }
 
 // InterfaceToString 将基础类型数据转换为string
-func InterfaceToString(o interface{}) string {
+func InterfaceToString(o any) string {
 	switch o.(type) {
 	case string:
 		return o.(string)
