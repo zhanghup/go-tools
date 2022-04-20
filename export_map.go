@@ -1,7 +1,7 @@
 package tools
 
-func MapMerge(m1 map[string]any, m2 map[string]any) map[string]any {
-	result := map[string]any{}
+func MapMerge[Value any](m1 map[string]Value, m2 map[string]Value) map[string]Value {
+	result := map[string]Value{}
 
 	if m1 != nil {
 		for k, v := range m1 {

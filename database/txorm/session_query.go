@@ -54,8 +54,6 @@ func (this *Session) Get(bean any) (v bool, err error) {
 
 func (this *Session) Map() (v []map[string]any, err error) {
 	err = this.AutoClose(func() error {
-		//v, err = this.sess.SQL(this.SelectSql(nil, true), this.args...).QueryInterface()
-		//return err
 		var rows *core.Rows
 		if this.autoClose {
 			rows, err = this.sess.DB().Query(this.SelectSql(nil, true), this.args...)
@@ -98,17 +96,17 @@ func (this *Session) Map() (v []map[string]any, err error) {
 							}
 
 						case "BOOL", "TINYINT":
-							vi[o.Name()] = tools.StrToInt8(newValue)
+							vi[o.Name()] = tools.StrToInt[int8](newValue)
 						case "BLOB":
 							vi[o.Name()] = colValue
 						case "FLOAT":
-							vi[o.Name()] = tools.StrToFloat32(newValue)
+							vi[o.Name()] = tools.StrToFloat[float32](newValue)
 						case "DOUBLE", "REAL":
-							vi[o.Name()] = tools.StrToFloat64(newValue)
+							vi[o.Name()] = tools.StrToFloat[float64](newValue)
 						case "BIGINT":
-							vi[o.Name()] = tools.StrToInt64(newValue)
+							vi[o.Name()] = tools.StrToInt[int64](newValue)
 						case "INT", "INTEGER":
-							vi[o.Name()] = tools.StrToInt(newValue)
+							vi[o.Name()] = tools.StrToInt[int](newValue)
 						default:
 							vi[o.Name()] = string(colValue)
 						}
