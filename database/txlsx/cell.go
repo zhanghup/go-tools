@@ -2,7 +2,7 @@ package extraction
 
 import (
 	"github.com/zhanghup/go-tools"
-	"github.com/zhanghup/go-tools/tog"
+	"github.com/zhanghup/go-tools/tog/tmp"
 	"strconv"
 	"strings"
 	"time"
@@ -70,7 +70,7 @@ func (this Cell) PtrString() *string {
 func (this Cell) PtrInt() *int {
 	i, err := strconv.Atoi(this.Value)
 	if err != nil {
-		tog.Error("Excel数据转换异常,Error: %s", err.Error())
+		tmp.Error("Excel数据转换异常,Error: %s", err.Error())
 		return nil
 	}
 	return &i

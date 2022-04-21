@@ -1,17 +1,30 @@
 package tog_test
 
 import (
-	"fmt"
-	"github.com/zhanghup/go-tools"
+	_ "embed"
+	"github.com/zhanghup/go-tools/tog"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"os"
-	"strings"
 	"testing"
-	"time"
 )
 
 func TestZap(t *testing.T) {
+	for i := 0; i < 10; i++ {
+		tog.Infof("SUCCESS to fetch URL: %s", "url")
+		tog.Errorf("FAILED to fetch URL: %s", "url")
+	}
+
+	//go func() {
+	//	for {
+	//		tog.Infof("SUCCESS to fetch URL: %s", "url")
+	//		tog.Errorf("FAILED to fetch URL: %s", "url")
+	//	}
+	//}()
+	//
+	//time.Sleep(time.Second * 10)
+}
+
+func TestZap2(t *testing.T) {
 	cfg := zap.NewProductionConfig()
 	cfg.Encoding = "console"
 
@@ -22,28 +35,21 @@ func TestZap(t *testing.T) {
 		}
 	})()
 
-	config := cfg.EncoderConfig
-	config.EncodeTime = func(t time.Time, encoder zapcore.PrimitiveArrayEncoder) {
-		encoder.AppendString(t.Format("2006-01-02 15:04:05.000"))
-	}
-	config.EncodeLevel = func(level zapcore.Level, encoder zapcore.PrimitiveArrayEncoder) {
-		encoder.AppendString("[" + strings.ToUpper(level.String()) + "]")
-	}
-	cfg.EncoderConfig = config
-	cfg.OutputPaths = []string{"./logs/stdout.log"}
-	cfg.ErrorOutputPaths = []string{"./logs/stderr.log"}
-
-	fmt.Println(tools.JSONString(cfg.EncoderConfig))
-
 	logger, _ := cfg.Build()
 	defer logger.Sync() // flushes buffer, if any
 	sugar := logger.Sugar()
 
-	go func() {
-		for {
-			sugar.Infof("SUCCESS to fetch URL: %s", "url")
-			sugar.Errorf("FAILED to fetch URL: %s", "url")
-		}
-	}()
-	time.Sleep(time.Second * 60)
+	//go func() {
+	//	for {
+	//		sugar.Infof("SUCCESS to fetch URL: %s", "url")
+	//		sugar.Errorf("FAILED to fetch URL: %s", "url")
+	//	}
+	//}()
+	//time.Sleep(time.Second * 60)
+
+	for i := 0; i < 10; i++ {
+		sugar.Infof("SUCCESS to fetch URL: %s", "url")
+		sugar.Errorf("FAILED to fetch URL: %s", "url")
+	}
+
 }

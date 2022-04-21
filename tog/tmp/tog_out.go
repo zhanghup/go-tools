@@ -1,4 +1,4 @@
-package tog
+package tmp
 
 import "github.com/zhanghup/go-tools"
 

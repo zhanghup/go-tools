@@ -1,14 +1,14 @@
 package test_test
 
 import (
-	"github.com/zhanghup/go-tools/tog"
+	"github.com/zhanghup/go-tools/tog/tmp"
 	"testing"
 )
 
 func TestInsert(t *testing.T) {
 	user := User{Id: "11"}
 
-	tog.Error("涛涛涛涛涛涛涛涛涛涛他")
+	tmp.Error("涛涛涛涛涛涛涛涛涛涛他")
 
 	t.Run("Insert", func(t *testing.T) {
 		err := engine.Sess().Insert(user)

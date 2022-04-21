@@ -3,7 +3,7 @@ package tgin
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/zhanghup/go-tools/tog"
+	"github.com/zhanghup/go-tools/tog/tmp"
 	"strings"
 )
 
@@ -15,7 +15,7 @@ type Config struct {
 
 func NewGin(cfg Config, fn func(g *gin.Engine) error) error {
 	gin.SetMode(cfg.Mode)
-	gin.DefaultWriter = tog.Toginfo
+	gin.DefaultWriter = tmp.Toginfo
 
 	trusted := []string{"0.0.0.0"}
 	if cfg.Trusted != "" {

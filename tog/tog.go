@@ -1,67 +1,56 @@
 package tog
 
-import (
-	"fmt"
-	"go.uber.org/zap/zapcore"
-	"runtime"
-	"strings"
-)
+import "go.uber.org/zap"
 
-var Toginfo ILogger
-var Togerr ILogger
+var _logger *Logger
+
+func Init(configYaml []byte) {
+	_logger = NewLogger(configYaml)
+}
 
 func init() {
-	Toginfo = NewLogger(&Option{
-		Filename:   "./logs/stdout.log",
-		MaxSize:    120,
-		MaxBackups: 500,
-		MaxAge:     60,
-		LevelKey:   "level",
-		TimeKey:    "time",
-		ShowLine:   true,
-		Compress:   true,
-		Type:       "console",
-		LineEnding: "",
-		EncodeCaller: func(c zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
-			strs := []string{}
-			for i := 7; i < 8; i++ {
-				_, str, l, ok := runtime.Caller(i)
-				if ok {
-					ss := strings.Split(str, "/")
-					if len(ss) > 1 {
-						str = strings.Join(ss[len(ss)-1:], "/")
-					}
-					strs = append(strs, fmt.Sprintf("%s:%d", str, l))
-				} else {
-					break
-				}
-			}
-			enc.AppendString(strings.Join(strs, "") + "")
-		},
-	})
+	Init(nil)
+}
 
-	Togerr = NewLogger(&Option{
-		Filename:   "./logs/stderr.log",
-		MaxSize:    20,
-		MaxBackups: 500,
-		MaxAge:     60,
-		LevelKey:   "level",
-		TimeKey:    "time",
-		ShowLine:   true,
-		Compress:   true,
-		Type:       "console",
-		LineEnding: "",
-		EncodeCaller: func(c zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
-			strs := []string{}
-			for i := 7; i < 100; i++ {
-				_, str, l, ok := runtime.Caller(i)
-				if ok {
-					strs = append(strs, fmt.Sprintf("\n\t%s:%d", str, l))
-				} else {
-					break
-				}
-			}
-			enc.AppendString(strings.Join(strs, "") + "\n")
-		},
-	})
+func Debug(args ...any) {
+	_logger.Debug(args...)
+}
+func Info(args ...any) {
+	_logger.Info(args...)
+}
+func Warn(args ...any) {
+	_logger.Warn(args...)
+}
+func Error(args ...any) {
+	_logger.Error(args...)
+}
+
+func Debugf(template string, args ...any) {
+	_logger.Debugf(template, args...)
+}
+func Infof(template string, args ...any) {
+	_logger.Infof(template, args...)
+}
+func Warnf(template string, args ...any) {
+	_logger.Warnf(template, args...)
+}
+func Errorf(template string, args ...any) {
+	_logger.Errorf(template, args...)
+}
+
+func Debugs(msg string, fields ...zap.Field) {
+	_logger.Debugs(msg, fields...)
+}
+func Infos(msg string, fields ...zap.Field) {
+	_logger.Infos(msg, fields...)
+}
+func Warns(msg string, fields ...zap.Field) {
+	_logger.Warns(msg, fields...)
+}
+func Errors(msg string, fields ...zap.Field) {
+	_logger.Errors(msg, fields...)
+}
+
+func Write(data []byte) (int, error) {
+	return _logger.Write(data)
 }

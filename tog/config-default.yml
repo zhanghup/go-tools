@@ -1,0 +1,11 @@
+log:
+  log_path: ./logs/stdout.log # 日志文件的位置
+  log_level: info
+  max_size: 50 # 在进行切割之前，日志文件的最大大小（以MB为单位）
+  max_age: 90 # 保留文件的天数
+  max_backups: 500 # 保留旧文件的最大个数
+  compress: true # 是否压缩 disabled by default
+  json_format: false # 判断是否json格式输出
+  show_line: true
+  log_in_console: true # 判断是否控制台输出日志
+  caller_skip: 2 # 方法调用栈跳过
