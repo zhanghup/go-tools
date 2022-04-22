@@ -67,18 +67,6 @@ func NewLogger(configYaml []byte) *Logger {
 		level = zap.InfoLevel
 	}
 
-	//var (
-	//	syncer zapcore.WriteSyncer
-	//	// 自定义时间输出格式
-	//	customTimeEncoder = func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-	//		enc.AppendString("[" + t.Format("2006-01-02 15:04:05") + "]")
-	//	}
-	//	// 自定义日志级别显示
-	//	customLevelEncoder = func(level zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
-	//		enc.AppendString("[" + level.CapitalString() + "]")
-	//	}
-	//)
-
 	// 定义日志切割配置
 	hook := lumberjack.Logger{
 		Filename:   config.LogPath,    // 日志文件的位置
@@ -108,7 +96,7 @@ func NewLogger(configYaml []byte) *Logger {
 		FunctionKey:   zapcore.OmitKey,
 		EncodeTime: func(time time.Time, encoder zapcore.PrimitiveArrayEncoder) {
 			encoder.AppendString(time.Format("2006-01-02T15:04:05Z"))
-		},                                                // 自定义时间格式
+		}, // 自定义时间格式
 		EncodeLevel:    zapcore.CapitalColorLevelEncoder, // 小写编码器
 		EncodeCaller:   zapcore.ShortCallerEncoder,       // 全路径编码器
 		EncodeDuration: zapcore.SecondsDurationEncoder,
@@ -129,15 +117,11 @@ func NewLogger(configYaml []byte) *Logger {
 		level,
 	)
 
-	//zapConfig := zap.Config{
-	//	Sampling: &zap.SamplingConfig{
-	//		Initial:    100,
-	//		Thereafter: 100,
-	//	},
-	//}
+	zap.NewProductionConfig()
 
 	options := []zap.Option{
 		zap.AddCallerSkip(config.CallerSkip),
+		zap.AddStacktrace(zapcore.ErrorLevel),
 	}
 
 	// 判断是否显示代码行号

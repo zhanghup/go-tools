@@ -1,11 +1,16 @@
 package tog
 
-import "go.uber.org/zap"
+import (
+	"go.uber.org/zap"
+	"io"
+)
 
 var _logger *Logger
+var Writer io.Writer
 
 func Init(configYaml []byte) {
 	_logger = NewLogger(configYaml)
+	Writer = _logger
 }
 
 func init() {

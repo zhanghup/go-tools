@@ -1,11 +1,16 @@
 package tgin
 
 import (
+	_ "embed"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/zhanghup/go-tools/tog/tmp"
+	"github.com/zhanghup/go-tools"
+	"github.com/zhanghup/go-tools/tog"
 	"strings"
 )
+
+//go:embed config-default.yml
+var defaultConfig []byte
 
 type Config struct {
 	Mode    string `yaml:"mode"` // [debug,release,test]
@@ -13,9 +18,30 @@ type Config struct {
 	Trusted string `yaml:"trusted"`
 }
 
+func InitGin(ymlData []byte, fn func(g *gin.Engine) error) error {
+
+	cfg := struct {
+		Web Config `json:"web" yaml:"web"`
+	}{}
+
+	err := tools.ConfOfByte(defaultConfig, &cfg)
+	if err != nil {
+		return err
+	}
+
+	if ymlData != nil && len(ymlData) > 0 {
+		err := tools.ConfOfByte(ymlData, &cfg)
+		if err != nil {
+			return err
+		}
+	}
+
+	return NewGin(cfg.Web, fn)
+}
+
 func NewGin(cfg Config, fn func(g *gin.Engine) error) error {
 	gin.SetMode(cfg.Mode)
-	gin.DefaultWriter = tmp.Toginfo
+	gin.DefaultWriter = tog.Writer
 
 	trusted := []string{"0.0.0.0"}
 	if cfg.Trusted != "" {
@@ -28,7 +54,7 @@ func NewGin(cfg Config, fn func(g *gin.Engine) error) error {
 		return err
 	}
 	e.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
-		return fmt.Sprintf("[GIN]\t%s | %s\t |\t %d |\t \"%s\"", param.ClientIP, param.Method, param.StatusCode, param.Path)
+		return fmt.Sprintf(`[GIN]	%s | %s	 |	 %d |	 "%s"`+"\n", param.ClientIP, param.Method, param.StatusCode, param.Path)
 	}))
 
 	e.Use(gin.Recovery())

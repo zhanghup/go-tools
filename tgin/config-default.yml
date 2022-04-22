@@ -1,0 +1,4 @@
+web:
+  mode: debug
+  port: 8089
+  trusted: 0.0.0.0
