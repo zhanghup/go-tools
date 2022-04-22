@@ -1,4 +1,4 @@
-package load
+package loader
 
 import (
 	"context"
@@ -33,6 +33,7 @@ func Load[T any](id string, fetch func(keys []string) (map[string]T, error)) IOb
 
 var sqlFormatRegexp = regexp.MustCompile(`^\w+$`)
 
+// SliceDB 查找数据库对象,ctx可以为nil
 func SliceDB[Result any](db *xorm.Engine, ctx context.Context, beanNameOrSql string, field string, param ...any) IObject[[]Result] {
 	info := tools.RftTypeInfo(make([]Result, 0))
 	sess := txorm.NewEngine(db, true).Sess(ctx)
@@ -67,10 +68,19 @@ func SliceDB[Result any](db *xorm.Engine, ctx context.Context, beanNameOrSql str
 	})
 }
 
-func Slice[Result any](ctx context.Context, beanNameOrSql string, field string, param ...any) IObject[[]Result] {
-	return SliceDB[Result](_db, ctx, beanNameOrSql, field, param...)
+// Slice 查找数据库对象,ctx可以为nil
+func Slice[Result any](ctx context.Context, beanNameOrSql string, field string, param ...any) func(key string) ([]Result, error) {
+	loader := SliceDB[Result](_db, ctx, beanNameOrSql, field, param...)
+	return func(key string) ([]Result, error) {
+		res, ok, err := loader.Load(key)
+		if err != nil || !ok {
+			return nil, err
+		}
+		return res, nil
+	}
 }
 
+// InfoDB 查找数据库对象,ctx可以为nil
 func InfoDB[Result any](db *xorm.Engine, ctx context.Context, beanNameOrSql string, field string, param ...any) IObject[Result] {
 	info := tools.RftTypeInfo(make([]Result, 0))
 	sess := txorm.NewEngine(db, true).Sess(ctx)
@@ -105,8 +115,21 @@ func InfoDB[Result any](db *xorm.Engine, ctx context.Context, beanNameOrSql stri
 	})
 }
 
-func Info[Result any](ctx context.Context, beanNameOrSql string, field string, param ...any) IObject[Result] {
-	return InfoDB[Result](_db, ctx, beanNameOrSql, field, param...)
+// Info 查找数据库对象,ctx可以为nil
+func Info[Result any](ctx context.Context, beanNameOrSql string, field string, param ...any) func(key string) (*Result, error) {
+	loader := InfoDB[Result](_db, ctx, beanNameOrSql, field, param...)
+	return func(key string) (*Result, error) {
+		res, ok, err := loader.Load(key)
+		if err != nil || !ok {
+			return nil, err
+		}
+		return &res, nil
+	}
+}
+
+// InfoId 根据id查找数据库对象,ctx可以为nil
+func InfoId[Result any](ctx context.Context, beanNameOrSql string, param ...any) func(key string) (*Result, error) {
+	return Info[Result](ctx, beanNameOrSql, "id", param...)
 }
 
 func sqlFormat(sqlstr, field string) string {

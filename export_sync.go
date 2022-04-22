@@ -8,8 +8,8 @@ import (
 var syncMutex = sync.Mutex{}
 var syncRWMutex = sync.Mutex{}
 
-var syncMutexCache = NewCache[*sync.Mutex](true)
-var syncRWMutexCache = NewCache[*sync.RWMutex](true)
+var syncMutexCache = NewCache[*sync.Mutex]()
+var syncRWMutexCache = NewCache[*sync.RWMutex]()
 
 func Mutex(key string) *sync.Mutex {
 	syncMutex.Lock()

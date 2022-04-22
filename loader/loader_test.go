@@ -1,9 +1,9 @@
-package load_test
+package loader_test
 
 import (
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/zhanghup/go-tools/load"
+	"github.com/zhanghup/go-tools/loader"
 	"testing"
 	"time"
 	"xorm.io/xorm"
@@ -15,7 +15,7 @@ type User struct {
 }
 
 func TestLoaderObject(t *testing.T) {
-	loader := load.NewObjectLoader[int](func(keys []string) (map[string]int, error) {
+	loader := loader.NewObjectLoader[int](func(keys []string) (map[string]int, error) {
 		fmt.Println("111111111111111111111111")
 		return map[string]int{
 			"0": 0, "1": 1, "2": 2, "3": 3, "4": 4,
@@ -25,7 +25,7 @@ func TestLoaderObject(t *testing.T) {
 
 	for i := 0; i < 10; i++ {
 		go func(n int) {
-			v, err := loader.Load(fmt.Sprintf("%d", n))
+			v, _, err := loader.Load(fmt.Sprintf("%d", n))
 			if err != nil {
 				fmt.Println(err.Error())
 				return
@@ -38,7 +38,7 @@ func TestLoaderObject(t *testing.T) {
 }
 
 func TestLoader(t *testing.T) {
-	loader := load.Load("123", func(keys []string) (map[string]int, error) {
+	loader := loader.Load("123", func(keys []string) (map[string]int, error) {
 		fmt.Println("111111111111111111111111")
 		return map[string]int{
 			"0": 0, "1": 1, "2": 2, "3": 3, "4": 4,
@@ -47,7 +47,7 @@ func TestLoader(t *testing.T) {
 	})
 	for i := 0; i < 10; i++ {
 		go func(n int) {
-			v, err := loader.Load(fmt.Sprintf("%d", n))
+			v, _, err := loader.Load(fmt.Sprintf("%d", n))
 			if err != nil {
 				fmt.Println(err.Error())
 				return
@@ -60,11 +60,11 @@ func TestLoader(t *testing.T) {
 }
 
 func TestLoadSlice(t *testing.T) {
-	loader := load.Slice[User](nil, "user", "type")
+	loader := loader.Slice[User](nil, "user", "type")
 
 	for i := 0; i < 3; i++ {
 		go func(n int) {
-			v, err := loader.Load(fmt.Sprintf("%d", n))
+			v, err := loader(fmt.Sprintf("%d", n))
 			if err != nil {
 				fmt.Println(err.Error())
 				return
@@ -77,11 +77,11 @@ func TestLoadSlice(t *testing.T) {
 }
 
 func TestLoadSlice2(t *testing.T) {
-	loader := load.Slice[User](nil, "select * from user where type in :keys", "type")
+	loader := loader.Slice[User](nil, "select * from user where type in :keys", "type")
 
 	for i := 0; i < 3; i++ {
 		go func(n int) {
-			v, err := loader.Load(fmt.Sprintf("%d", n))
+			v, err := loader(fmt.Sprintf("%d", n))
 			if err != nil {
 				fmt.Println(err.Error())
 				return
@@ -94,11 +94,11 @@ func TestLoadSlice2(t *testing.T) {
 }
 
 func TestLoadObject(t *testing.T) {
-	loader := load.Info[User](nil, "user", "id")
+	loader := loader.Info[User](nil, "user", "id")
 
 	for i := 0; i < 600; i++ {
 		go func(n int) {
-			v, err := loader.Load(fmt.Sprintf("%d", n))
+			v, err := loader(fmt.Sprintf("%d", n))
 			if err != nil {
 				fmt.Println(err.Error())
 				return
@@ -111,11 +111,28 @@ func TestLoadObject(t *testing.T) {
 }
 
 func TestLoadObject2(t *testing.T) {
-	loader := load.Info[User](nil, "select * from user where user.id in :keys", "id")
+	loader := loader.Info[User](nil, "select * from user where user.id in :keys", "id")
 
 	for i := 0; i < 600; i++ {
 		go func(n int) {
-			v, err := loader.Load(fmt.Sprintf("%d", n))
+			v, err := loader(fmt.Sprintf("%d", n))
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+
+			fmt.Println("vvvvvvvvv: ", v)
+		}(i)
+	}
+	time.Sleep(time.Second)
+}
+
+func TestLoadObject3(t *testing.T) {
+	loader := loader.InfoId[User](nil, "user")
+
+	for i := 0; i < 10; i++ {
+		go func(n int) {
+			v, err := loader(fmt.Sprintf("%d", n))
 			if err != nil {
 				fmt.Println(err.Error())
 				return
@@ -133,7 +150,7 @@ func init() {
 		panic(err)
 	}
 	db.ShowSQL(true)
-	load.SetDB(db)
+	loader.SetDB(db)
 	db.DropTables(User{})
 	db.Sync2(User{})
 

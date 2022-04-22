@@ -1,4 +1,4 @@
-package load
+package loader
 
 import (
 	"sync"
@@ -14,7 +14,7 @@ func NewObjectLoader[T any](fetch func(keys []string) (map[string]T, error)) IOb
 }
 
 type IObject[T any] interface {
-	Load(key string) (T, error)
+	Load(key string) (T, bool, error)
 }
 
 // Object 批量缓存请求列表
@@ -42,11 +42,11 @@ type objectLoaderBatch[T any] struct {
 	done    chan struct{}
 }
 
-func (l *Object[T]) Load(key string) (T, error) {
+func (l *Object[T]) Load(key string) (T, bool, error) {
 	return l.LoadThunk(key)()
 }
 
-func (l *Object[T]) LoadThunk(key string) func() (T, error) {
+func (l *Object[T]) LoadThunk(key string) func() (T, bool, error) {
 
 	l.mu.Lock()
 	if l.batch == nil {
@@ -56,10 +56,11 @@ func (l *Object[T]) LoadThunk(key string) func() (T, error) {
 	batch.keyIndex(l, key)
 	l.mu.Unlock()
 
-	return func() (T, error) {
+	return func() (T, bool, error) {
 		<-batch.done
 
-		return batch.data[key], batch.error
+		v, ok := batch.data[key]
+		return v, ok, batch.error
 	}
 }
 

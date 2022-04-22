@@ -1,4 +1,4 @@
-package load
+package loader
 
 import (
 	"github.com/zhanghup/go-tools"
@@ -8,7 +8,7 @@ import (
 
 var _db *xorm.Engine
 var _dbs txorm.IEngine
-var _cache = tools.NewCache[any](true)
+var _cache = tools.NewCache[any]()
 
 func SetDB(db *xorm.Engine) {
 	_db = db
