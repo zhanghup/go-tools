@@ -124,7 +124,7 @@ func (this *Engine) PayHeader(method, path string, param map[string]any) map[str
 		"Content-Type": "application/json",
 		"Authorization": fmt.Sprintf(`WECHATPAY2-SHA256-RSA2048 mchid="%s",serial_no="%s",nonce_str="%s",timestamp="%d",signature="%s"`,
 			this.opt.Mchid, this.opt.MchSeriesNo, nonce_str, timestamp,
-			this.PaySign(method, path, tools.Int64ToStr(timestamp), nonce_str, p)),
+			this.PaySign(method, path, tools.IntToStr(timestamp), nonce_str, p)),
 	}
 	return header
 }
@@ -179,7 +179,7 @@ func (this *Engine) Pay(charge *PayOption) (*PayRes, error) {
 	pk := fmt.Sprintf("prepay_id=" + rest.PrepayId)
 	return &PayRes{
 		Appid:     this.opt.Appid,
-		Timestamp: tools.Int64ToStr(timestamp),
+		Timestamp: tools.IntToStr(timestamp),
 		NonceStr:  nonce_str,
 		Package:   pk,
 		SignType:  "RSA",
