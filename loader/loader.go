@@ -13,21 +13,20 @@ import (
 )
 
 func Load[T any](id string, fetch func(keys []string) (map[string]T, error)) IObject[T] {
-	sncKey := "51e761c0-d4ff-478d-923a-14fb5b2bd0af,f3fe7357-2908-4758-8652-1778bb764b27"
-	snc := tools.Mutex(sncKey)
-	snc.Lock()
-	defer snc.Unlock()
+	snc := tools.Mutex("51e761c0-d4ff-478d-923a-14fb5b2bd0af,f3fe7357-2908-4758-8652-1778bb764b27")
 
 	ty := reflect.TypeOf(new(T))
-	key := fmt.Sprintf("%s,%s,%s,%s,%s,%s", sncKey, ty.PkgPath(), ty.Name(), ty.String(), ty.Kind().String(), id)
+	key := fmt.Sprintf("%s,%s,%s,%s,%s", ty.PkgPath(), ty.Name(), ty.String(), ty.Kind().String(), id)
 
+	snc.Lock()
+	defer snc.Unlock()
 	obj, ok := _cache.Get(key)
 	if ok {
 		return obj.(IObject[T])
 	}
 
 	oo := NewObjectLoader[T](fetch)
-	_cache.Set(id, oo, time.Now().Unix()+86400)
+	_cache.Set(key, oo, time.Now().Unix()+86400)
 	return oo
 }
 
@@ -69,15 +68,13 @@ func SliceDB[Result any](db *xorm.Engine, ctx context.Context, beanNameOrSql str
 }
 
 // Slice 查找数据库对象,ctx可以为nil
-func Slice[Result any](ctx context.Context, beanNameOrSql string, field string, param ...any) func(key string) ([]Result, error) {
+func Slice[Result any](ctx context.Context, beanKey, beanNameOrSql string, field string, param ...any) ([]Result, error) {
 	loader := SliceDB[Result](_db, ctx, beanNameOrSql, field, param...)
-	return func(key string) ([]Result, error) {
-		res, ok, err := loader.Load(key)
-		if err != nil || !ok {
-			return nil, err
-		}
-		return res, nil
+	res, ok, err := loader.Load(beanKey)
+	if err != nil || !ok {
+		return nil, err
 	}
+	return res, nil
 }
 
 // InfoDB 查找数据库对象,ctx可以为nil
@@ -116,20 +113,18 @@ func InfoDB[Result any](db *xorm.Engine, ctx context.Context, beanNameOrSql stri
 }
 
 // Info 查找数据库对象,ctx可以为nil
-func Info[Result any](ctx context.Context, beanNameOrSql string, field string, param ...any) func(key string) (*Result, error) {
+func Info[Result any](ctx context.Context, beanKey, beanNameOrSql string, field string, param ...any) (*Result, error) {
 	loader := InfoDB[Result](_db, ctx, beanNameOrSql, field, param...)
-	return func(key string) (*Result, error) {
-		res, ok, err := loader.Load(key)
-		if err != nil || !ok {
-			return nil, err
-		}
-		return &res, nil
+	res, ok, err := loader.Load(beanKey)
+	if err != nil || !ok {
+		return nil, err
 	}
+	return &res, nil
 }
 
 // InfoId 根据id查找数据库对象,ctx可以为nil
-func InfoId[Result any](ctx context.Context, beanNameOrSql string, param ...any) func(key string) (*Result, error) {
-	return Info[Result](ctx, beanNameOrSql, "id", param...)
+func InfoId[Result any](ctx context.Context, beanKey, beanNameOrSql string, param ...any) (*Result, error) {
+	return Info[Result](ctx, beanKey, beanNameOrSql, "id", param...)
 }
 
 func sqlFormat(sqlstr, field string) string {

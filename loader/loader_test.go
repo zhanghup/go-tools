@@ -60,11 +60,9 @@ func TestLoader(t *testing.T) {
 }
 
 func TestLoadSlice(t *testing.T) {
-	loader := loader.Slice[User](nil, "user", "type")
-
 	for i := 0; i < 3; i++ {
 		go func(n int) {
-			v, err := loader(fmt.Sprintf("%d", n))
+			v, err := loader.Slice[User](nil, fmt.Sprintf("%d", n), "user", "type")
 			if err != nil {
 				fmt.Println(err.Error())
 				return
@@ -77,11 +75,9 @@ func TestLoadSlice(t *testing.T) {
 }
 
 func TestLoadSlice2(t *testing.T) {
-	loader := loader.Slice[User](nil, "select * from user where type in :keys", "type")
-
 	for i := 0; i < 3; i++ {
 		go func(n int) {
-			v, err := loader(fmt.Sprintf("%d", n))
+			v, err := loader.Slice[User](nil, fmt.Sprintf("%d", n), "select * from user where type in :keys", "type")
 			if err != nil {
 				fmt.Println(err.Error())
 				return
@@ -94,11 +90,9 @@ func TestLoadSlice2(t *testing.T) {
 }
 
 func TestLoadObject(t *testing.T) {
-	loader := loader.Info[User](nil, "user", "id")
-
 	for i := 0; i < 600; i++ {
 		go func(n int) {
-			v, err := loader(fmt.Sprintf("%d", n))
+			v, err := loader.Info[User](nil, fmt.Sprintf("%d", n), "user", "id")
 			if err != nil {
 				fmt.Println(err.Error())
 				return
@@ -111,11 +105,9 @@ func TestLoadObject(t *testing.T) {
 }
 
 func TestLoadObject2(t *testing.T) {
-	loader := loader.Info[User](nil, "select * from user where user.id in :keys", "id")
-
 	for i := 0; i < 600; i++ {
 		go func(n int) {
-			v, err := loader(fmt.Sprintf("%d", n))
+			v, err := loader.Info[User](nil, fmt.Sprintf("%d", n), "select * from user where user.id in :keys", "id")
 			if err != nil {
 				fmt.Println(err.Error())
 				return
@@ -128,11 +120,9 @@ func TestLoadObject2(t *testing.T) {
 }
 
 func TestLoadObject3(t *testing.T) {
-	loader := loader.InfoId[User](nil, "user")
-
 	for i := 0; i < 10; i++ {
 		go func(n int) {
-			v, err := loader(fmt.Sprintf("%d", n))
+			v, err := loader.InfoId[User](nil, fmt.Sprintf("%d", n), "user")
 			if err != nil {
 				fmt.Println(err.Error())
 				return
@@ -142,6 +132,19 @@ func TestLoadObject3(t *testing.T) {
 		}(i)
 	}
 	time.Sleep(time.Second)
+}
+
+func TestLoadObject4(t *testing.T) {
+
+	for i := 0; i < 20; i++ {
+		go func(n int) {
+			_, err := loader.Info[User](nil, fmt.Sprintf("%d", n), "select * from user where user.id in :keys", "id")
+			if err != nil {
+				return
+			}
+		}(i)
+	}
+	time.Sleep(time.Second * 3)
 }
 
 func init() {
