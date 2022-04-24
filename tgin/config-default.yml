@@ -1,4 +1,8 @@
+# web服务接口配置
 web:
+  # debug,release,test
   mode: debug
+  # 端口信息
   port: 8089
+  # 受信任地址
   trusted: 0.0.0.0
