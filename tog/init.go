@@ -45,6 +45,10 @@ func NewLogger(configYaml ...[]byte) *Logger {
 	}
 
 	for _, data := range configYaml {
+		if data == nil {
+			continue
+		}
+
 		err = tools.ConfOfByte(data, &cfg)
 		if err != nil {
 			panic(err)
@@ -97,7 +101,7 @@ func NewLogger(configYaml ...[]byte) *Logger {
 		FunctionKey:   zapcore.OmitKey,
 		EncodeTime: func(time time.Time, encoder zapcore.PrimitiveArrayEncoder) {
 			encoder.AppendString(time.Format("2006-01-02T15:04:05Z"))
-		}, // 自定义时间格式
+		},                                                // 自定义时间格式
 		EncodeLevel:    zapcore.CapitalColorLevelEncoder, // 小写编码器
 		EncodeCaller:   zapcore.ShortCallerEncoder,       // 全路径编码器
 		EncodeDuration: zapcore.SecondsDurationEncoder,

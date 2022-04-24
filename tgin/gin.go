@@ -30,6 +30,9 @@ func InitGin(fn func(g *gin.Engine) error, ymlData ...[]byte) error {
 	}
 
 	for _, data := range ymlData {
+		if data == nil {
+			continue
+		}
 		err := tools.ConfOfByte(data, &cfg)
 		if err != nil {
 			return err
