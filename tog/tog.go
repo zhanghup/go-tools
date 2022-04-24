@@ -8,8 +8,8 @@ import (
 var _logger *Logger
 var Writer io.Writer
 
-func Init(configYaml []byte) {
-	_logger = NewLogger(configYaml)
+func Init(configYaml ...[]byte) {
+	_logger = NewLogger(configYaml...)
 	Writer = _logger
 }
 
