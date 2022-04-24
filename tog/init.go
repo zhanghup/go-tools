@@ -35,7 +35,7 @@ const (
 	LevelError Level = "error"
 )
 
-func NewLogger(configYaml []byte) *Logger {
+func NewLogger(configYaml ...[]byte) *Logger {
 	cfg := struct {
 		Log Config `json:"log" yaml:"log"`
 	}{}
@@ -43,8 +43,9 @@ func NewLogger(configYaml []byte) *Logger {
 	if err != nil {
 		panic(err)
 	}
-	if configYaml != nil && len(configYaml) > 0 {
-		err = tools.ConfOfByte(configYaml, &cfg)
+
+	for _, data := range configYaml {
+		err = tools.ConfOfByte(data, &cfg)
 		if err != nil {
 			panic(err)
 		}

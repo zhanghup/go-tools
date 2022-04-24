@@ -1,8 +1,8 @@
 package test_test
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/goccy/go-json"
 	"github.com/zhanghup/go-tools"
 	"testing"
 )

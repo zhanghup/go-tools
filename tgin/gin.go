@@ -18,7 +18,7 @@ type Config struct {
 	Trusted string `yaml:"trusted"`
 }
 
-func InitGin(ymlData []byte, fn func(g *gin.Engine) error) error {
+func InitGin(fn func(g *gin.Engine) error, ymlData ...[]byte) error {
 
 	cfg := struct {
 		Web Config `json:"web" yaml:"web"`
@@ -29,8 +29,8 @@ func InitGin(ymlData []byte, fn func(g *gin.Engine) error) error {
 		return err
 	}
 
-	if ymlData != nil && len(ymlData) > 0 {
-		err := tools.ConfOfByte(ymlData, &cfg)
+	for _, data := range ymlData {
+		err := tools.ConfOfByte(data, &cfg)
 		if err != nil {
 			return err
 		}

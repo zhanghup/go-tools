@@ -5,7 +5,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/zhanghup/go-tools"
 	"github.com/zhanghup/go-tools/database/txorm"
-	"github.com/zhanghup/go-tools/tog/tmp"
+	"github.com/zhanghup/go-tools/tog"
 	"time"
 	"xorm.io/xorm"
 )
@@ -47,7 +47,7 @@ func init() {
 		Debug: true,
 	})
 	if err != nil {
-		tmp.Error(err.Error())
+		tog.Errorf(err.Error())
 		return
 	}
 	db = e
@@ -66,7 +66,7 @@ func init() {
 	e.DropTables(User{})
 	err = engine.Sync(User{})
 	if err != nil {
-		tmp.Error(err.Error())
+		tog.Errorf(err.Error())
 		return
 	}
 
