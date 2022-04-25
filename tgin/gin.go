@@ -7,6 +7,7 @@ import (
 	"github.com/zhanghup/go-tools"
 	"github.com/zhanghup/go-tools/tog"
 	"strings"
+	"time"
 )
 
 //go:embed config-default.yml
@@ -57,7 +58,7 @@ func NewGin(cfg Config, fn func(g *gin.Engine) error) error {
 		return err
 	}
 	e.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
-		return fmt.Sprintf(`[GIN]	%s | %s	 |	 %d |	 "%s"`+"\n", param.ClientIP, param.Method, param.StatusCode, param.Path)
+		return fmt.Sprintf(`[gin] [info] %s | %s | %s | %d | "%s"`+"\n", time.Now().Format("2006/01/02 15:04:05.000000"), param.ClientIP, param.Method, param.StatusCode, param.Path)
 	}))
 
 	e.Use(gin.Recovery())

@@ -91,19 +91,21 @@ func NewLogger(configYaml ...[]byte) *Logger {
 
 	// 定义zap配置信息
 	encoderConfig := zapcore.EncoderConfig{
-		TimeKey:       "time",
-		LevelKey:      "level",
-		NameKey:       "logger",
-		CallerKey:     "caller",
-		MessageKey:    "msg",
-		StacktraceKey: "stacktrace",
+		TimeKey:       "T",
+		LevelKey:      "L",
+		NameKey:       "default",
+		CallerKey:     "C",
+		MessageKey:    "M",
+		StacktraceKey: "S",
 		LineEnding:    zapcore.DefaultLineEnding,
 		FunctionKey:   zapcore.OmitKey,
 		EncodeTime: func(time time.Time, encoder zapcore.PrimitiveArrayEncoder) {
-			encoder.AppendString(time.Format("2006-01-02T15:04:05Z"))
-		},                                                // 自定义时间格式
-		EncodeLevel:    zapcore.CapitalColorLevelEncoder, // 小写编码器
-		EncodeCaller:   zapcore.ShortCallerEncoder,       // 全路径编码器
+			encoder.AppendString(time.Format("2006/01/02 15:04:05.000000"))
+		}, // 自定义时间格式
+		EncodeLevel: func(level zapcore.Level, encoder zapcore.PrimitiveArrayEncoder) {
+			encoder.AppendString("[" + level.String() + "]")
+		},                                          // 小写编码器
+		EncodeCaller:   zapcore.ShortCallerEncoder, // 全路径编码器
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeName:     zapcore.FullNameEncoder,
 	}
@@ -121,8 +123,6 @@ func NewLogger(configYaml ...[]byte) *Logger {
 		syncer,
 		level,
 	)
-
-	zap.NewProductionConfig()
 
 	options := []zap.Option{
 		zap.AddCallerSkip(config.CallerSkip),

@@ -7,7 +7,7 @@ import (
 )
 
 func TestGin(t *testing.T) {
-	tgin.InitGin(nil, func(g *gin.Engine) error {
+	tgin.InitGin(func(g *gin.Engine) error {
 		g.GET("a", func(c *gin.Context) {
 			c.String(200, "a")
 		})
