@@ -14,6 +14,8 @@ import (
 var defaultYamlConfig []byte
 
 type Config struct {
+	Enable bool `json:"enable" yaml:"enable"`
+
 	LogPath      string `json:"log_path" yaml:"log_path"`
 	LogLevel     Level  `json:"log_level" yaml:"log_level"`
 	MaxSize      int    `json:"max_size" yaml:"max_size"`
@@ -137,6 +139,7 @@ func NewLogger(configYaml ...[]byte) *Logger {
 	logger := zap.New(core, options...)
 
 	return &Logger{
+		enable: config.Enable,
 		log:    logger,
 		sugar:  logger.Sugar(),
 		syncer: syncer,

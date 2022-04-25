@@ -1,4 +1,5 @@
 log:
+  enable: true
   log_path: ./logs/stdout.log # 日志文件的位置
   log_level: info
   max_size: 50 # 在进行切割之前，日志文件的最大大小（以MB为单位）
