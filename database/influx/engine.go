@@ -39,7 +39,7 @@ type IEngine interface {
 	Write(point ...*write.Point)
 	WriteWithContext(ctx context.Context, point ...*write.Point) error
 
-	Query() api.QueryAPI
+	Query(bucket string) QueryString
 }
 
 func InitEngine(cfg ...[]byte) IEngine {
@@ -74,10 +74,6 @@ func NewEngine(opt Option) IEngine {
 
 func (this *Engine) Client() influxdb2.Client {
 	return this.client
-}
-
-func (this *Engine) Query() api.QueryAPI {
-	return this.query
 }
 
 func (this *Engine) Write(point ...*write.Point) {
