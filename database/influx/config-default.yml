@@ -1,0 +1,6 @@
+# influxdb数据库
+influxdb:
+  bucket: data
+  org: org
+  token:
+  url: http://localhost:8086
