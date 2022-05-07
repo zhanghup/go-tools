@@ -43,7 +43,9 @@ type IEngine interface {
 }
 
 func InitEngine(cfg ...[]byte) IEngine {
-	opt := Option{}
+	opt := struct {
+		Influxdb Option `json:"influxdb"`
+	}{}
 
 	err := tools.ConfOfByte(initConfigByte, &opt)
 	if err != nil {
@@ -56,7 +58,7 @@ func InitEngine(cfg ...[]byte) IEngine {
 			panic(err)
 		}
 	}
-	return NewEngine(opt)
+	return NewEngine(opt.Influxdb)
 }
 
 func NewEngine(opt Option) IEngine {
@@ -84,7 +86,16 @@ func (this *Engine) Write(point ...*write.Point) {
 			for {
 				tools.Run(func() {
 					for {
-						data := this.data.Pop(200)
+						data := this.data.Pop(1000)
+						if time.Now().Second() == 0 {
+							tog.Infof("[influxdb] - 剩余数据长度(%d)", this.data.Len())
+						}
+
+						if len(data) == 0 {
+							time.Sleep(time.Second)
+							continue
+						}
+
 						err := this.WriteWithContext(context.Background(), data...)
 						if err != nil {
 							tog.Infof("[influxdb] - 写入数据(%d)[错误1] - %s", len(data), err.Error())
@@ -92,9 +103,6 @@ func (this *Engine) Write(point ...*write.Point) {
 							time.Sleep(time.Second * 1)
 						}
 
-						if time.Now().Second() == 0 {
-							tog.Infof("[influxdb] - 剩余数据长度(%d)", this.data.Len())
-						}
 					}
 				}, func(res any) {
 					tog.Infof("[influxdb] - 写入数据(%d)[错误3] - %v", this.data.Len(), res)

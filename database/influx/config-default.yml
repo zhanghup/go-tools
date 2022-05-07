@@ -1,6 +1,6 @@
 # influxdb数据库
 influxdb:
-  bucket: data
-  org: org
-  token:
+  bucket: zander
+  org: zander
+  token: igV3qdf2aiyVVloI7_E1fHerZIs5hDtLUsCawQhuSV8sEUYvDBcDz8ggnvxf78ePyW9QOxVsKXqWqpK0dodU0A==
   url: http://localhost:8086

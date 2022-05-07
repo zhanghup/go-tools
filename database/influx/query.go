@@ -1,7 +1,9 @@
 package influx
 
 import (
+	"context"
 	"fmt"
+	"github.com/zhanghup/go-tools/tog"
 	"strings"
 )
 
@@ -59,7 +61,26 @@ func (this QueryString) Columns(column string) QueryString {
 	this.data = append(this.data, fmt.Sprintf(`columns(column: "%s")`, column))
 	return this
 }
+func (this QueryString) FilterEqual(m string, value any) QueryString {
 
+	sprintfKey := ""
+	switch value.(type) {
+	case string:
+		sprintfKey = `"%s"`
+	case int, uint, int8, uint8, int16, uint16, int32, uint32, int64, uint64:
+		sprintfKey = "%d"
+	case float32, float64:
+		sprintfKey = "%f"
+	}
+
+	this.data = append(this.data, fmt.Sprintf(`filter(fn: (r) => r.%s == `+sprintfKey+`)`, m, value))
+
+	return this
+}
+func (this QueryString) Measurement(m string) QueryString {
+	this.data = append(this.data, fmt.Sprintf(`filter(fn: (r) => r._measurement == "%s")`, m))
+	return this
+}
 func (this QueryString) First() QueryString {
 	this.data = append(this.data, fmt.Sprintf(`first()`))
 	return this
@@ -75,12 +96,24 @@ func (this QueryString) Last() QueryString {
 	return this
 }
 
-func (this QueryString) Find() string {
-	return strings.Join(this.data, "\n\t|>\t")
+func (this QueryString) Find() (any, error) {
+	str := "\n" + strings.Join(this.data, "\n\t|>\t")
+	tog.Info(str)
+	res, err := this.engine.query.Query(context.Background(), str)
+	if err != nil {
+		return nil, err
+	}
+
+	for res.Next() {
+		fmt.Println(res.Record().Values())
+	}
+
+	return nil, nil
 }
 
 func (this *Engine) Query(bucket string) QueryString {
 	return QueryString{
-		data: []string{fmt.Sprintf(`from(bucket:"%s")`, bucket)},
+		data:   []string{fmt.Sprintf(`from(bucket:"%s")`, bucket)},
+		engine: this,
 	}
 }
