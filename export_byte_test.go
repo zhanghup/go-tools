@@ -7,9 +7,9 @@ import (
 )
 
 func TestInt64ToBytes(t *testing.T) {
-	v := Int64ToBytes(time.Now().Unix())
+	v := DataToBytes(time.Now().Unix())
 	fmt.Println(v)
-	//vv := Int64ToBytes(1645798603)
+	//vv := DataToBytes(1645798603)
 	vv := make([]byte, 10, 16)
 	vv[0] = 49
 	vv[1] = 54
@@ -22,19 +22,19 @@ func TestInt64ToBytes(t *testing.T) {
 	vv[8] = 48
 	vv[9] = 48
 
-	fmt.Println(BytesToInt64(Int64ToBytes(time.Now().Unix())))
-	fmt.Println(BytesToInt64(vv))
+	fmt.Println(BytesToData[int64](DataToBytes(time.Now().Unix())))
+	fmt.Println(BytesToData[int64](vv))
 	fmt.Println(string(vv))
 }
 
 func TestFloat32(t *testing.T) {
-	v := Float32ToBytes(1645798603.123)
+	v := DataToBytes(1645798603.123)
 	fmt.Println(v)
-	fmt.Println(BytesToFloat32(Float32ToBytes(1645798603.123)))
+	fmt.Println(BytesToData[float64](DataToBytes(1645798603.123)))
 }
 
 func TestFloat64(t *testing.T) {
-	v := Float64ToBytes(1645798603.123)
+	v := DataToBytes(1645798603.123)
 	fmt.Println(v)
-	fmt.Println(BytesToFloat64(Float64ToBytes(1645798603.123)))
+	fmt.Println(BytesToData[float64](DataToBytes(1645798603.123)))
 }

@@ -85,13 +85,13 @@ func (this *Session) Page(index, size int, count bool, bean any) (v int, err err
 
 func (this *Session) Page2(index, size *int, count *bool, bean any) (int, error) {
 	if index == nil {
-		index = tools.PtrOfInt(1)
+		index = tools.Ptr(1)
 	}
 	if size == nil {
-		size = tools.PtrOfInt(1)
+		size = tools.Ptr(1)
 	}
 	if count == nil {
-		count = tools.PtrOfBool(false)
+		count = tools.Ptr(false)
 	}
 	return this.Page(*index, *size, *count, bean)
 }

@@ -108,7 +108,7 @@ func (this *Sheet) DataMap() []Row {
 	// 数据所在行设定
 	idx := this.dataIdx
 	if idx == nil {
-		idx = tools.PtrOfInt(1)
+		idx = tools.Ptr(1)
 	}
 
 	// 列定义

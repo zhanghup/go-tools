@@ -15,6 +15,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 )
 
@@ -50,6 +51,16 @@ func Base64Decode(data string) (string, error) {
 
 func SHA256WithRSA(signContent string, privateKey string) []byte {
 	return RsaSign(signContent, privateKey, crypto.SHA256)
+}
+
+func SHA256(data []byte) (string, error) {
+	h := sha256.New()
+	if _, err := io.Copy(h, bytes.NewBuffer(data)); err != nil {
+		return "", err
+	}
+
+	checksum := fmt.Sprintf("%X", h.Sum(nil))
+	return checksum, nil
 }
 
 func RsaSign(signContent string, privateKey string, hash crypto.Hash) []byte {

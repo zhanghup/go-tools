@@ -35,7 +35,7 @@ func (this Cell) Interface() any {
 		if err != nil {
 			return nil
 		}
-		return tools.PtrOfInt64(v.Unix())
+		return tools.Ptr(v.Unix())
 	case CellTypeInt:
 		return this.PtrInt64()
 	case CellTypeFloat:
@@ -64,7 +64,7 @@ func (this Cell) PtrString() *string {
 	if len(this.Value) == 0 {
 		return nil
 	}
-	return tools.PtrOfString(this.String())
+	return tools.Ptr(this.String())
 }
 
 func (this Cell) PtrInt() *int {
@@ -142,12 +142,12 @@ func (this Cell) PtrTime(fmt ...string) *int64 {
 
 		v, err := time.ParseInLocation(f1, this.Value, time.Local)
 		if err == nil {
-			return tools.PtrOfInt64(v.Unix())
+			return tools.Ptr(v.Unix())
 		}
 
 		v, err = time.ParseInLocation(f2, this.Value, time.Local)
 		if err == nil {
-			return tools.PtrOfInt64(v.Unix())
+			return tools.Ptr(v.Unix())
 		}
 	}
 
@@ -181,7 +181,7 @@ func (this Cell) PtrTime(fmt ...string) *int64 {
 			continue
 		}
 
-		return tools.PtrOfInt64(t.Unix())
+		return tools.Ptr(t.Unix())
 	}
 
 	return nil
