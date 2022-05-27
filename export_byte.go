@@ -5,41 +5,45 @@ import (
 	"encoding/binary"
 )
 
-func Float32ToBytes(n float32) []byte {
+/*
+	DataToBytes 将数据转换为[]byte
+	支持的类型：
+		bool/*bool/[]bool
+		int8/*int8/[]int8
+		uint8/*uint8/[]uint8
+		int16/*int16/[]int16
+		uint16/*uint16/[]uint16
+		int32/*int32/[]int32
+		uint32/*uint32/[]uint32
+		int64/*int64/[]int64
+		uint64/*uint64/[]uint64
+		float32/*float32/[]float32
+		float64/*float64/[]float64
+*/
+func DataToBytes[T any](n T) []byte {
 	bytesBuffer := bytes.NewBuffer([]byte{})
 	binary.Write(bytesBuffer, binary.BigEndian, n)
 	return bytesBuffer.Bytes()
 }
 
-func BytesToFloat32(b []byte) float32 {
+/*
+	BytesToData 将数据转换为自定义类型
+	支持的类型：
+		bool/*bool/[]bool
+		int8/*int8/[]int8
+		uint8/*uint8/[]uint8
+		int16/*int16/[]int16
+		uint16/*uint16/[]uint16
+		int32/*int32/[]int32
+		uint32/*uint32/[]uint32
+		int64/*int64/[]int64
+		uint64/*uint64/[]uint64
+		float32/*float32/[]float32
+		float64/*float64/[]float64
+*/
+func BytesToData[T any](b []byte) T {
 	bytesBuffer := bytes.NewBuffer(b)
-	var x float32
-	binary.Read(bytesBuffer, binary.BigEndian, &x)
-	return x
-}
-
-func Float64ToBytes(n float64) []byte {
-	bytesBuffer := bytes.NewBuffer([]byte{})
-	binary.Write(bytesBuffer, binary.BigEndian, n)
-	return bytesBuffer.Bytes()
-}
-
-func BytesToFloat64(b []byte) float64 {
-	bytesBuffer := bytes.NewBuffer(b)
-	var x float64
-	binary.Read(bytesBuffer, binary.BigEndian, &x)
-	return x
-}
-
-func Int64ToBytes(n int64) []byte {
-	bytesBuffer := bytes.NewBuffer([]byte{})
-	binary.Write(bytesBuffer, binary.BigEndian, n)
-	return bytesBuffer.Bytes()
-}
-
-func BytesToInt64(b []byte) int64 {
-	bytesBuffer := bytes.NewBuffer(b)
-	var x int64
+	var x T
 	binary.Read(bytesBuffer, binary.BigEndian, &x)
 	return x
 }
