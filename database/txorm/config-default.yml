@@ -1,0 +1,8 @@
+# web服务接口配置
+db:
+  # mysql,sqlite3,mssql ...
+  driver: mysql
+  # 端口信息
+  uri: root:Zhang3611.@tcp(127.0.0.1)/test?charset=utf8
+  # 是否为调试模式，true会输出sql信息到日志文件中
+  debug: false

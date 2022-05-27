@@ -2,6 +2,7 @@ package txorm
 
 import (
 	"context"
+	_ "embed"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/zhanghup/go-tools"
 	"github.com/zhanghup/go-tools/tog"
@@ -9,6 +10,9 @@ import (
 	"xorm.io/xorm"
 	"xorm.io/xorm/log"
 )
+
+//go:embed config-default.yml
+var defaultConfig []byte
 
 type Config struct {
 	Driver string `yaml:"driver"`
@@ -26,6 +30,29 @@ type Engine struct {
 
 	// 当前数据库所有表结构
 	tables Tables
+}
+
+func InitXorm(ymlData ...[]byte) (*xorm.Engine, error) {
+	cfg := struct {
+		Db Config `json:"db" yaml:"db"`
+	}{}
+
+	err := tools.ConfOfByte(defaultConfig, &cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, data := range ymlData {
+		if data == nil {
+			continue
+		}
+		err = tools.ConfOfByte(data, &cfg)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return NewXorm(cfg.Db)
 }
 
 func NewXorm(cfg Config) (*xorm.Engine, error) {
@@ -52,9 +79,6 @@ type IEngine interface {
 	Sess(ctx ...context.Context) ISession
 	TS(ctx context.Context, fn func(ctx context.Context, sess ISession) error) error
 
-	//Tables() []Table
-	//Table(name string) Table
-	//TableColumnExist(table, column string) bool
 	DropTables(beans ...any) error
 	Sync(beans ...any) error
 }
