@@ -2,10 +2,34 @@ package tools
 
 import (
 	"fmt"
+	"os"
 	"testing"
 )
 
-func TestFilepath(t *testing.T) {
-	path := Filepath("51e761c0-d4ff-478d-923a-14fb5b2bd0af", "202101", "application/json", "jpg")
-	fmt.Println(path, len([]byte(path)))
+func TestFileUploadIO(t *testing.T) {
+
+	f, err := os.Open("C:\\Users\\Administrator\\Desktop\\图片s\\img\\f.png")
+	if err != nil {
+		t.Fatal(err)
+	}
+	stat, err := f.Stat()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	id, err := FileUploadIO(f, stat.Name(), "image/png")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(id)
+}
+
+func TestFileGet(t *testing.T) {
+	id := "png202205-9c2b52e8-02fe-40bd-beab-78568658535a"
+	fmt.Println(FileInfo(id))
+}
+
+func TestName(t *testing.T) {
+	v := fmt.Sprintf("%08d", 1231)
+	fmt.Println(v, len([]byte(v)))
 }

@@ -1,21 +1,26 @@
-package influx
+package dbi
 
 import (
-	"context"
 	"fmt"
-	"github.com/zhanghup/go-tools/tog"
+	"github.com/zhanghup/go-tools/database/influx"
 	"strings"
 )
 
 type QueryString struct {
-	engine *Engine
-	data   []string
+	engine    *influx.Engine
+	data      []string
+	functions map[string]QueryString
 }
 
 func (this QueryString) Query(s string) QueryString {
 	this.data = append(this.data, s)
 	return this
 }
+func (this QueryString) Function(name string, s QueryString) QueryString {
+	this.functions[name] = s
+	return this
+}
+
 func (this QueryString) Range1(start string) QueryString {
 	this.data = append(this.data, fmt.Sprintf(`range(start: %s)`, start))
 	return this
@@ -77,8 +82,19 @@ func (this QueryString) FilterEqual(m string, value any) QueryString {
 
 	return this
 }
-func (this QueryString) Measurement(m string) QueryString {
-	this.data = append(this.data, fmt.Sprintf(`filter(fn: (r) => r._measurement == "%s")`, m))
+func (this QueryString) Measurement(measurement string, filters ...string) QueryString {
+
+	f := ""
+
+	for _, s := range filters {
+		if strings.HasPrefix(s, "r.") {
+			f += " and " + s
+		} else {
+			f += " and r." + s
+		}
+	}
+
+	this.data = append(this.data, fmt.Sprintf(`filter(fn: (r) => r._measurement == "%s"%s)`, measurement, f))
 	return this
 }
 func (this QueryString) First() QueryString {
@@ -96,10 +112,22 @@ func (this QueryString) Last() QueryString {
 	return this
 }
 
+func (this QueryString) String() string {
+	str := ""
+	for k, v := range this.functions {
+		str += fmt.Sprintf(`
+%s = () => {
+	return %s
+}
+`, k, v.String())
+	}
+
+	str += "\n" + strings.Join(this.data, "\n\t|>\t")
+	return str
+}
+
 func (this QueryString) Find() (any, error) {
-	str := "\n" + strings.Join(this.data, "\n\t|>\t")
-	tog.Info(str)
-	res, err := this.engine.query.Query(context.Background(), str)
+	res, err := this.engine.Query(this.String())
 	if err != nil {
 		return nil, err
 	}
@@ -111,9 +139,13 @@ func (this QueryString) Find() (any, error) {
 	return nil, nil
 }
 
-func (this *Engine) Query(bucket string) QueryString {
+func (this QueryString) From(bucket string) QueryString {
+	this.data = append(this.data, fmt.Sprintf(`from(bucket:"%s")`, bucket))
+	return this
+}
+func Query() QueryString {
 	return QueryString{
-		data:   []string{fmt.Sprintf(`from(bucket:"%s")`, bucket)},
-		engine: this,
+		data:   []string{},
+		engine: defaultEngine.(*influx.Engine),
 	}
 }

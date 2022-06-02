@@ -1,30 +1,26 @@
-package influx
+package dbi
 
 import (
 	"context"
 	"github.com/influxdata/influxdb-client-go/v2/api/write"
 	"github.com/zhanghup/go-tools"
+	"github.com/zhanghup/go-tools/database/influx"
 )
 
-var defaultEngine IEngine
+var defaultEngine influx.IEngine
 
-func InitDefault(cfg ...[]byte) IEngine {
+func InitDefault(cfg ...[]byte) influx.IEngine {
 	opt := struct {
-		Influxdb Option `json:"influxdb"`
+		Influxdb influx.Option `json:"influxdb"`
 	}{}
 
-	err := tools.ConfOfByte(initConfigByte, &opt)
-	if err != nil {
-		panic(err)
-	}
-
 	for _, s := range cfg {
-		err = tools.ConfOfByte(s, &opt)
+		err := tools.ConfOfByte(s, &opt)
 		if err != nil {
 			panic(err)
 		}
 	}
-	defaultEngine = NewEngine(opt.Influxdb)
+	defaultEngine = influx.NewEngine(opt.Influxdb)
 	return defaultEngine
 }
 
@@ -42,16 +38,16 @@ func WriteWithContext(ctx context.Context, point ...*write.Point) error {
 	return defaultEngine.WriteWithContext(ctx, point...)
 }
 
-func Query(bucket string) QueryString {
-	if defaultEngine == nil {
-		panic("【influxdb】 - defaultEngine 未初始化[3]")
-	}
-	return defaultEngine.Query(bucket)
-}
-
-func Len() int {
-	if defaultEngine == nil {
-		panic("【influxdb】 - defaultEngine 未初始化[3]")
-	}
-	return defaultEngine.(*Engine).data.Len()
-}
+//func Query() QueryString {
+//	if defaultEngine == nil {
+//		panic("【influxdb】 - defaultEngine 未初始化[3]")
+//	}
+//	return defaultEngine.Query()
+//}
+//
+//func Len() int {
+//	if defaultEngine == nil {
+//		panic("【influxdb】 - defaultEngine 未初始化[3]")
+//	}
+//	return defaultEngine.(*influx.Engine).data.Len()
+//}

@@ -38,8 +38,6 @@ type IEngine interface {
 
 	Write(point ...*write.Point)
 	WriteWithContext(ctx context.Context, point ...*write.Point) error
-
-	Query(bucket string) QueryString
 }
 
 func InitEngine(cfg ...[]byte) IEngine {
@@ -115,4 +113,8 @@ func (this *Engine) Write(point ...*write.Point) {
 }
 func (this *Engine) WriteWithContext(ctx context.Context, point ...*write.Point) error {
 	return this.write.WritePoint(ctx, point...)
+}
+
+func (this *Engine) Query(query string) (*api.QueryTableResult, error) {
+	return this.query.Query(context.Background(), query)
 }

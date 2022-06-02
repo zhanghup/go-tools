@@ -62,7 +62,7 @@ func TimeOfUnix(value int64) mytime {
 	return result
 }
 
-func TimeOfTime(value ...time.Time) mytime {
+func Time(value ...time.Time) mytime {
 	result := mytime{}
 
 	if len(value) == 0 {

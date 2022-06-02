@@ -6,3 +6,4 @@ logs
 *.db-journal
 
 data.dat
+upload
