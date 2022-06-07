@@ -38,3 +38,13 @@ func TestFloat64(t *testing.T) {
 	fmt.Println(v)
 	fmt.Println(BytesToData[float64](DataToBytes(1645798603.123)))
 }
+
+func TestStr(t *testing.T) {
+	fmt.Println(StrFmt(`
+	{{ if or .a .b .c .d }}
+	jdfkasfjlkasd
+	{{ end }}
+`, map[string]any{
+		"a": 1,
+	}))
+}

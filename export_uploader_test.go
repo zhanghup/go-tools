@@ -17,7 +17,7 @@ func TestFileUploadIO(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	id, err := FileUploadIO(f, stat.Name(), "image/png")
+	id, err := FileUploadIO(f, stat.Name())
 	if err != nil {
 		t.Fatal(err)
 	}
